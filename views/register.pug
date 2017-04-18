@@ -1,0 +1,81 @@
+extends layout
+
+block content
+  script(type="text/javascript").
+    function checkUN(username) {
+      $.post('/register/checkun', {username:username}, function(data, status){
+        data = $.parseJSON(data);
+        if(status){
+            // console.log(data);
+            if (data.OK && data.OK == true) {
+              $('img#unOK').show();
+              $('img#unFail').hide();
+            } else {
+              $('img#unOK').hide();
+              $('img#unFail').show();
+            }
+        }else{
+            alert("失败！");
+        }
+      });
+    }
+
+    $(document).ready(function(){
+      $('img#unOK').hide();
+      $('img#unFail').hide();
+      $('input#un').bind('input propertychange', function() {
+        var txt = $('input#un').val();
+        if (txt == ''){
+          $('img#unOK').hide();
+          $('img#unFail').hide();
+        } else {
+          checkUN($('input#un').val());
+        }
+      }); 
+    });
+
+  .container
+    h1 Register Page
+    p.lead Say something worthwhile here.
+    br
+    form(role='form', action="/register",method="post", style='max-width: 800px;')
+      table.unTbl
+        tr
+          td.register1
+            ='用户名'
+          td.register2
+            .form-group
+              input#un.form-control(type='text', name="username", placeholder='用户名', width='500')
+          td.register3
+            img#unOK(src='images/ok.png', width="40", height="40")
+            img#unFail(src='images/fail.jpg', width="40", height="40")
+        tr
+          td.register1
+            ='密码'
+          td.register2
+            .form-group
+              input.form-control(type='password', name="password", placeholder='密码')
+          td.register3
+            =' '
+        tr
+          td.register1
+            ='确认密码'
+          td.register2
+            .form-group
+              input.form-control(type='password', name="confirm", placeholder='再次输入密码')
+          td.register3
+            =' '
+        tr
+          td.register1
+            ='邮箱'
+          td.register2
+            .form-group
+              input.form-control(type='text', name="email", placeholder='邮箱')
+          td.register3
+            =' '
+      br
+      br
+      button.btn.btn-default(type='submit') 注册
+      =' '
+      =' '
+      a(href='/') 取消

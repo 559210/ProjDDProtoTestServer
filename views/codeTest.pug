@@ -1,0 +1,35 @@
+extends layout
+
+block content
+  .container
+    script(type="text/javascript").
+        $(document).ready(function() 
+        { 
+            jQuery.fn.extend({ 
+                center:function(width,height) 
+                {
+                    return $(this).css("left", ($(window).width()-width)/2+$(window).scrollLeft()). 
+                        css("top", ($(window).height()-height)/2+$(window).scrollTop()). 
+                        css("width",width). 
+                        css("height",height); 
+                } 
+            }); 
+        }); 
+        // 弹出调用的方法
+        function showDivFun(){
+            $('div.protocolPopupWindowDiv').show();
+        }
+        // 关闭事件
+        function closeDivFun(){
+            $('div.protocolPopupWindowDiv').hide();
+        }
+    h1 弹出代码测试
+    div.protocolPopupWindowDiv(style="display : none")
+        a(href="javascript:closeDivFun()" style="right : 14; position : absolute;") 关闭窗口
+        div.protocolPopupDiv(onclick="closeDivFun()")
+            span.protocolSpan x
+
+        div(style="width : 100%; height : 95%; top : 20; position : absolute; overflow : auto")
+            include popupCode
+        
+    a(href="javascript:showDivFun()") 点击这里弹出代码

@@ -1,0 +1,3105 @@
+{
+    "连接服务器" : [
+        {
+            "route": "connect",
+            "note": "这不是真正协议，是连接服务器的指令",
+            "request": {
+                "host": {
+                    "type": "string",
+                    "desc": "服务器ip"
+                },
+                "port": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "服务器端口号"
+                }
+            },
+            "ack":
+            {
+
+            }
+        }
+    ],
+    "副本系统": [
+        {
+            "route": "copy.copyHandler.getChapterListInfoRequest",
+            "note": "章节列表 请求",
+            "request": {},
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0，54"
+                },
+                "chapterInfo": {
+                    "type": "array",
+                    "content": {
+                        "chapterId": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "已经过关的章节ID"
+                        },
+                        "rewardState": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "过关的章节对应的奖励领取状态（0未领取，1领取）"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "copy.copyHandler.enterChapterRequest",
+            "note": "进入章节 请求",
+            "request": {
+                "chapterId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "章节ID (从1开始)"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0，55,56"
+                },
+                "starRewardStateInfo": {
+                    "type": "string",
+                    "desc": "关卡信息(数组)"
+                },
+                "sectionInfo": {
+                    "type": "array",
+                    "content": {
+                        "sectionId": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "已经过关的关卡ID"
+                        },
+                        "maxScore": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "过关的关卡对应的最高分数"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "room.roomHandler.enterSectionRequest",
+            "note": "进入关卡 请求",
+            "request": {
+                "sectionId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "关卡ID (从1开始)"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0，57"
+                },
+                "lastGameMode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "上次玩的游戏模式（0:vos，1:au，-1:无）"
+                },
+                "maxScoreInfo": {
+                    "type": "array",
+                    "content": {
+                        "gameMode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "已经过关的关卡ID"
+                        },
+                        "maxScore": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "模式对应的最高分数"
+                        },
+                        "maxRank": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "模式对应的最高排名"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "misc.miscHandler.getSectionRankRequest",
+            "note": "关卡排名 请求",
+            "request": {
+                "page": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "请求列表的页数( 从0开始)"
+                },
+                "sectionId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "关卡ID (从1开始)"
+                },
+                "gameMode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "游戏模式（0:vos，1:au)"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0 "
+                },
+                "pageCount": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "总页数"
+                },
+                "pageSize": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "每页显示的个数"
+                },
+                "page": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "当前页索引"
+                },
+                "gameMode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "游戏模式（0:vos，1:au)"
+                },
+                "itemCount": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "总条数"
+                },
+                "itemInfo": {
+                    "type": "array",
+                    "content": {
+                        "userIndex": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "玩家索引"
+                        },
+                        "nickname": {
+                            "type": "string",
+                            "desc": "昵称"
+                        },
+                        "head": {
+                            "type": "string",
+                            "desc": "头像"
+                        },
+                        "score": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "分数"
+                        },
+                        "sex": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "性别"
+                        },
+                        "valueInfo": {
+                            "type": "array",
+                            "content": {
+                                "itemCode": {
+                                    "type": "int",
+                                    "length": 4,
+                                    "desc": "经验itemCode"
+                                },
+                                "value": {
+                                    "type": "int",
+                                    "desc": "值"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "room.roomHandler.dressupStartRequest",
+            "note": "开始装扮 请求",
+            "request": {
+                "gameMode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "游戏模式（0:vos，1:au)"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0"
+                },
+                "avatarInfo": {
+                    "type": "array",
+                    "content": {
+                        "itemCode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "itemcode信息"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "room.roomHandler.dressupDoneRequest",
+            "note": "换装好了 请求",
+            "request": {
+                "sectionId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "关卡ID (从1开始)"
+                },
+                "itemCodesString": {
+                    "type": "string",
+                    "desc": "itemcode连串"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0"
+                },
+                "deductColorScore": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "扣除色系分数"
+                },
+                "deductOrnamentScore": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "扣除配饰分数"
+                },
+                "isHighestScore": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "当前装扮是否是最高分(0否，1是)"
+                },
+                "scoreInfo": {
+                    "type": "array",
+                    "content": {
+                        "styleId": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "属性ID"
+                        },
+                        "score": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "属性分数"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "copy.copyHandler.getChapterRewardRequest",
+            "note": "章节奖励 请求",
+            "request": {
+                "chapterId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "章节ID (从1开始)"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0，58,59"
+                },
+                "itemInfo": {
+                    "type": "array",
+                    "content": {
+                        "itemCode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "itemCode"
+                        },
+                        "addDays": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "日期类型的物品有此字段"
+                        },
+                        "addTimes": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "次数类型的物品有此字段"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "copy.copyHandler.getChapterStarRewardRequest",
+            "note": "章节内星级奖励 请求",
+            "request": {
+                "chapterId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "章节ID (从1开始)"
+                },
+                "difficulty": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "难度（1,2,3）"
+                },
+                "starCountType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "每个难度所对应的星级类型（0,1,2）"
+                },
+                "starRewardIndex": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "章节内星级个数对应的奖励(0-8)"
+                }
+            },
+            "ack": {
+                "itemInfo": {
+                    "type": "array",
+                    "content": {
+                        "itemCode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "itemCode"
+                        },
+                        "addDays": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "日期类型的物品有此字段"
+                        },
+                        "addTimes": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "次数类型的物品有此字段"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "copy.copyHandler.cleanSectionRequest",
+            "note": "关卡扫荡 请求",
+            "request": {
+                "chapterId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "章节ID (从1开始)"
+                },
+                "sectionId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "关卡ID (从1开始)"
+                },
+                "cleanCountType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "0:1次，1:5次"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0，58,59"
+                },
+                "itemInfo": {
+                    "type": "array",
+                    "content": {
+                        "itemCode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "itemCode"
+                        },
+                        "addDays": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "日期类型的物品有此字段"
+                        },
+                        "addTimes": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "次数类型的物品有此字段"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "backpack.backpackHandler.useItemRequest",
+            "note": "使用道具 请求",
+            "request": {
+                "itemCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "itemCount"
+                },
+                "count": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "itemCode数量"
+                },
+                "actionType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "类型:0-开礼包"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0，58,59"
+                },
+                "itemInfo": {
+                    "type": "array",
+                    "content": {
+                        "itemCode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "itemCode"
+                        },
+                        "addDays": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "日期类型的物品有此字段"
+                        },
+                        "addTimes": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "次数类型的物品有此字段"
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "商城背包": [
+        {
+            "route": "backpack.backpackHandler.getBagRequest",
+            "note": "背包 请求",
+            "request": {
+                "page": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "页数(从0开始)"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0"
+                },
+                "pageCount": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "总页数"
+                },
+                "pageSize": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "每页显示的个数"
+                },
+                "page": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "当前页索引"
+                },
+                "itemCount": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "总条数"
+                },
+                "itemInfo": {
+                    "type": "array",
+                    "content": {
+                        "itemCode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "itemCode"
+                        },
+                        "timesLimit": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "个数"
+                        },
+                        "dateLimit": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "时间期限"
+                        },
+                        "isUse": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "是否穿着（0无，1是）"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "backpack.backpackHandler.changeAvatarRequest",
+            "note": "换装 请求",
+            "request": {
+                "itemCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "穿上的/脱下的avatar"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0,34"
+                },
+                "itemCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "操作的itemCode"
+                }
+            }
+        },
+        {
+            "route": "onChangeAvatarPush",
+            "note": "换装 广播 （如果玩家在房间中会有此广播，其他场景暂时不需要此广播）",
+            "push": {
+                "userIndex": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "槽位ID"
+                },
+                "itemCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "更新的avatar"
+                }
+            }
+        },
+        {
+            "route": "shop.shopHandler.buyItemRequest",
+            "note": "购买 请求",
+            "request": {
+                "itemInfo": {
+                    "type": "array",
+                    "content": {
+                        "itemCode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "itemCode"
+                        },
+                        "specification": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "规格代码（0：规格1, 1：规则2, 2：规则3, 3：规则4）"
+                        }
+                    }
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0,当大于0时读errorItems字段"
+                },
+                "errorItems": {
+                    "type": "string",
+                    "desc": "错误的itemCode数组"
+                }
+            }
+        },
+        {
+            "route": "shop.shopHandler.composeItemRequest",
+            "note": "合成 请求",
+            "request": {
+                "type": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "合成类型（0：图纸制作，1：材料合成，2：碎片合成）"
+                },
+                "id": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "图纸：图纸ID，材料：流水ID，碎片：碎片ID"
+                },
+                "count": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "批量合成数量"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0,69,70,71"
+                },
+                "itemInfo": {
+                    "type": "array",
+                    "content": {
+                        "itemCode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "itemCode"
+                        },
+                        "addDays": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "日期类型的物品有此字段"
+                        },
+                        "addTimes": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "次数类型的物品有此字段"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "connector.connectorHandler.setHeadRequest",
+            "note": "设置头像",
+            "request": {
+                "headName": {
+                    "type": "string",
+                    "desc": "头像名称"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0"
+                }
+            }
+        }
+    ],
+    "好友系统": [
+        {
+            "route": "friend.friendHandler.applyFriendRequest",
+            "note": "处理朋友 请求",
+            "request": {
+                "userIndex": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "对方userIndex"
+                },
+                "type": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "0-加好友，1-删好友，2-拉黑，3-同意好友，4-拒绝好友，5-取消黑名单"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0"
+                }
+            }
+        },
+        {
+            "route": "onApplyFriendPush",
+            "note": "好友操作 推送",
+            "push": {
+                "userIndex": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "发起方userIndex"
+                },
+                "nickname": {
+                    "type": "string",
+                    "desc": "发起方昵称"
+                },
+                "type": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "0-加好友，3-同意好友"
+                },
+                "result": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "结果(0同意，1拒绝)"
+                }
+            }
+        },
+        {
+            "route": "friend.friendHandler.getFriendListRequest",
+            "note": "好友列表请求",
+            "request": {
+                "page": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "请求列表的页数( 从0开始)"
+                },
+                "userIndex": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "玩家userindex"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0 "
+                },
+                "pageCount": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "总页数"
+                },
+                "pageSize": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "每页显示的个数"
+                },
+                "page": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "当前页索引"
+                },
+                "userIndex": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "玩家userindex"
+                },
+                "itemCount": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "总条数"
+                },
+                "itemInfo": {
+                    "type": "array",
+                    "content": {
+                        "userIndex": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "好友userindex"
+                        },
+                        "nickname": {
+                            "type": "string",
+                            "desc": "好友昵称"
+                        },
+                        "sex": {
+                            "type": "int",
+                            "lenght": 4,
+                            "desc": "好友性别"
+                        },
+                        "head": {
+                            "type": "string",
+                            "desc": "好友头像"
+                        },
+                        "vipLevel": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "好友的vip等级"
+                        },
+                        "intimacy": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "和好友的亲密度值"
+                        },
+                        "gameState": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "好友的游戏状态（0-无，1-等待中，2-游戏中）"
+                        },
+                        "online": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "好友是否在线（0-不在线，1-在线）"
+                        },
+                        "valueInfo": {
+                            "type": "array",
+                            "content": {
+                                "itemCode": {
+                                    "type": "int",
+                                    "length": 4,
+                                    "desc": "itemCode值"
+                                },
+                                "value": {
+                                    "type": "int",
+                                    "length": 4,
+                                    "desc": "对应数值"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "房间协议": [
+        {
+            "route": "room.roomHandler.createRoomRequest",
+            "note": "创建房间请求",
+            "request": {
+                "roomName": {
+                    "type": "string",
+                    "desc": "房间名"
+                },
+                "password": {
+                    "type": "string",
+                    "desc": "密码"
+                },
+                "gameType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "游戏类型，0:dance , 1:chat"
+                },
+                "roomType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "房间类型, 0:common ，1:vip"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "string",
+                    "length": 4,
+                    "desc": "错误码:0,18,19,20"
+                },
+                "roomId": {
+                    "type": "string",
+                    "length": 4,
+                    "desc": "房间ID"
+                }
+            }
+        },
+        {
+            "route": "room.roomHandler.enterRoomRequest",
+            "note": "进入房间请求",
+            "request": {
+                "roomId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "房间ID"
+                },
+                "password": {
+                    "type": "string",
+                    "desc": "密码"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0,9,21,22,23，37"
+                },
+                "roomId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "房间ID"
+                }
+            }
+        },
+        {
+            "route": "onEnterRoomPush",
+            "note": "进入房间广播（给房间内的人）",
+            "push": {
+                "slotId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "槽位"
+                },
+                "userIndex": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "玩家账号索引"
+                }
+            }
+        },
+        {
+            "route": "room.roomHandler.leaveRoomRequest",
+            "note": "离开房间请求",
+            "request": {},
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0,21"
+                }
+            }
+        },
+        {
+            "route": "onLeaveRoomPush",
+            "note": "某人离开房间的广播",
+            "push": {
+                "slotId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "槽位"
+                },
+                "masterSlotId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "房主槽位"
+                }
+            }
+        },
+        {
+            "route": "connector.connectorHandler.changeClientStateNotify",
+            "note": "客户端改变状态的提交",
+            "notify": {
+                "stateId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "场景类型,0:在收到LoginAck后发，1:在收到selectRoleAck后发，2:进入3D场景，3:进入大厅，4:进入房间，5：章节"
+                }
+            }
+        },
+        {
+            "route": "room.roomHandler.getRoomListRequest",
+            "note": "房间列表请求",
+            "request": {
+                "page": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "请求列表的页数(从0开始)"
+                },
+                "gameType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "游戏类型，0:all，1:dance , 2:chat"
+                },
+                "free": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "是否空闲（0:all，1:free）"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0"
+                },
+                "pageCount": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "总页数"
+                },
+                "pageSize": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "每页显示的个数"
+                },
+                "page": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "当前页索引"
+                },
+                "gameType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "游戏类型，-1:all，0:dance , 1:chat"
+                },
+                "free": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "是否空闲（0:all，1:free）"
+                },
+                "itemCount": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "总条数"
+                },
+                "itemInfo": {
+                    "type": "array",
+                    "content": {
+                        "roomId": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "房间ID"
+                        },
+                        "roomName": {
+                            "type": "string",
+                            "desc": "房间名称"
+                        },
+                        "gameType": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "游戏类型，0:dance , 1:chat"
+                        },
+                        "roomType": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "房间类型, 0:common ，1:vip"
+                        },
+                        "roomMode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "房间模式，0:free，1:love，2:team"
+                        },
+                        "hasPassword": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "是否需要密码（0不需要，1需要）"
+                        },
+                        "playerCount": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "房间跳舞人数"
+                        },
+                        "userCount": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "房间总人数"
+                        },
+                        "roomState": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "房间的游戏状态（0等待，1游戏中）"
+                        },
+                        "maxPlayerNumber": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "房间跳舞人数上限"
+                        },
+                        "maxWatcherNumber": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "房间旁观人数上限"
+                        },
+                        "masterSlotId": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "房主槽位号"
+                        },
+                        "masterHead": {
+                            "type": "string",
+                            "desc": "房主头像"
+                        },
+                        "sexList": {
+                            "type": "simpleArray",
+                            "content": {
+                                "type": "int",
+                                "length": 4,
+                                "desc": "性别列表(0:女，1:男，2:无，3:被禁)"
+                            }
+                        },
+                        "validWatcherSlotCount": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "有效的旁观槽位总数"
+                        },
+                        "masterValueInfo": {
+                            "type": "array",
+                            "content": {
+                                "itemCode": {
+                                    "type": "int",
+                                    "length": 4,
+                                    "desc": "itemCode值"
+                                },
+                                "value": {
+                                    "type": "int",
+                                    "length": 4,
+                                    "desc": "对应数值"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "misc.miscHandler.receiveBrocastStateNotify",
+            "note": "客户端需要接受广播的类型的标志提交",
+            "notify": {
+                "brocastId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "接受广播的类型,0小喇叭，1大喇叭，2公告，3广播"
+                },
+                "isOpen": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "是否打开此开关用来接收广播消息（0关，1开，默认开）"
+                }
+            }
+        },
+        {
+            "route": "room.roomHandler.getRoomInfoRequest",
+            "note": "房间详细信息",
+            "request": {},
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0，38"
+                },
+                "roomId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "房间编号"
+                },
+                "roomName": {
+                    "type": "string",
+                    "desc": "房间名称"
+                },
+                "roomType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "房间类型, 0:common ，1:vip"
+                },
+                "roomMode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "房间模式，0:free，1:love，2:team"
+                },
+                "hasPassword": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "是否有密码（0无，1有）"
+                },
+                "roomState": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "房间的游戏状态（0等待，1游戏中，2结束, ...）"
+                },
+                "masterSlotId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "房主槽位（无房主为-1）"
+                },
+                "gameType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "游戏类型，0:dance , 1:chat"
+                },
+                "songId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "歌曲ID"
+                },
+                "sceneId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "场景ID"
+                },
+                "randSong": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "歌曲ID 是否是随机 （0否，1是）"
+                },
+                "randScene": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "场景ID 是否是随机 （0否，1是）"
+                },
+                "difficulty": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "难度 从0开始"
+                },
+                "syncTime": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "同步间隔时间(*1000后的值)"
+                },
+                "watcherSlots": {
+                    "type": "array",
+                    "content": {
+                        "slotId": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "槽位ID"
+                        },
+                        "isOpen": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "槽位状态（0关，1开）"
+                        },
+                        "userIndex": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "玩家账号索引（无人时-1）"
+                        }
+                    }
+                },
+                "playerSlots": {
+                    "type": "array",
+                    "content": {
+                        "slotId": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "槽位ID"
+                        },
+                        "isOpen": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "玩家账号索引（无人时-1）"
+                        },
+                        "readyState": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "玩家状态（0未准备，1准备）"
+                        }
+                    }
+                },
+                "defaultDirection": {
+                    "type": "array",
+                    "content": {
+                        "x": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "x坐标"
+                        },
+                        "y": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "y坐标"
+                        },
+                        "z": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "z坐标"
+                        }
+                    }
+                },
+                "defaultPosition": {
+                    "type": "array",
+                    "content": {
+                        "x": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "x坐标"
+                        },
+                        "y": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "y坐标"
+                        },
+                        "z": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "z坐标"
+                        }
+                    }
+                },
+                "timeStamp": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "时间戳"
+                },
+                "direction": {
+                    "type": "array",
+                    "content": {
+                        "x": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "x坐标"
+                        },
+                        "y": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "y坐标"
+                        },
+                        "z": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "z坐标"
+                        }
+                    }
+                },
+                "position": {
+                    "type": "array",
+                    "content": {
+                        "x": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "x坐标"
+                        },
+                        "y": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "y坐标"
+                        },
+                        "z": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "z坐标"
+                        }
+                    }
+                },
+                "velocity": {
+                    "type": "array",
+                    "content": {
+                        "x": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "x坐标"
+                        },
+                        "y": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "y坐标"
+                        },
+                        "z": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "z坐标"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "onUpdateRoomStatePush",
+            "note": "房间列表状态改变的通知(此协议暂不用，由客户端定时发更新请求)",
+            "push": {
+                "roomId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "房间ID"
+                },
+                "roomName": {
+                    "type": "string",
+                    "desc": "房间名称"
+                },
+                "gameType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "游戏类型，0:dance , 1:chat"
+                },
+                "roomMode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "房间模式，0:free，1:love，2:team"
+                },
+                "hasPassword": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "是否需要密码（0不需要，1需要）"
+                },
+                "roomState": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "房间的游戏状态（0等待，1游戏中，2结束, ...）"
+                },
+                "masterHead": {
+                    "type": "string",
+                    "desc": "房主头像"
+                },
+                "sexList": {
+                    "type": "simpleArray",
+                    "content": {
+                        "type": "int",
+                        "length": 4,
+                        "desc": "性别列表(0:女，1:男，2:无，3:被禁)"
+                    }
+                },
+                "watcherCount": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "旁观人数"
+                },
+                "validWatcherSlotCount": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "有效的旁观槽位总数"
+                },
+                "masterValueInfo": {
+                    "type": "array",
+                    "content": {
+                        "itemCode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "itemCode值"
+                        },
+                        "value": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "对应数值"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "misc.miscHandler.getServerTimeRequest",
+            "note": "对时请求",
+            "request": {
+                "clientSecondTime": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "客户端时间(秒)"
+                },
+                "clientMilliSecondTime": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "客户端时间（毫秒）"
+                }
+            },
+            "ack": {
+                "clientSecondTime": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "客户端时间(秒)"
+                },
+                "clientMilliSecondTime": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "客户端时间（毫秒）"
+                },
+                "serverSecondTime": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "服务器时间(秒)"
+                },
+                "serverMilliSecondTime": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "服务器时间（毫秒）"
+                }
+            }
+        },
+        {
+            "route": "room.roomHandler.changeReadyStateRequest",
+            "note": "客户端游戏准备、取消准备",
+            "request": {},
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0,13"
+                }
+            }
+        },
+        {
+            "route": "onChangeReadyStatePush",
+            "note": "客户端游戏准备、取消准备广播 （包括自己）",
+            "push": {
+                "slotId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "槽位ID"
+                },
+                "readyState": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "1准备，0取消准备"
+                }
+            }
+        },
+        {
+            "route": "room.roomHandler.startGameRequest",
+            "note": "客户端游戏开始广播(房主点击开始)",
+            "request": {},
+            "ack": {
+                "readyState": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "1准备，0取消准备"
+                }
+            }
+        },
+        {
+            "route": "onStartGamePush",
+            "note": "游戏开始广播",
+            "push": {}
+        },
+        {
+            "route": "room.roomHandler.changeRoomSettingRequest",
+            "note": "通知房间设置请求",
+            "request": {
+                "roomName": {
+                    "type": "string",
+                    "desc": "房间名"
+                },
+                "password": {
+                    "type": "string",
+                    "desc": "密码"
+                },
+                "gameType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "游戏类型，0:dance , 1:chat"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0,13,18,19"
+                }
+            }
+        },
+        {
+            "route": "onChangeRoomSettingPush",
+            "note": "修改房间设置（房间名称，游戏类型） 广播",
+            "push": {
+                "roomName": {
+                    "type": "string",
+                    "desc": "房间名称"
+                },
+                "password": {
+                    "type": "string",
+                    "desc": "密码"
+                },
+                "gameType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "游戏类型，0:dance , 1:chat"
+                }
+            }
+        },
+        {
+            "route": "room.roomHandler.changeDanceRoomSettingRequest",
+            "note": "舞蹈房间设置 请求",
+            "request": {
+                "gameMode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "游戏模式 0:vos 1:au"
+                },
+                "roomMode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "房间模式 0：free，1：lover，2：team"
+                },
+                "songId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "歌曲ID，-1代表随机"
+                },
+                "sceneId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "场景ID，-1代表随机"
+                },
+                "difficulty": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "难度 从0开始"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0,26"
+                }
+            }
+        },
+        {
+            "route": "onChangeDanceRoomSettingPush",
+            "note": "舞蹈房间设置 广播",
+            "push": {
+                "roomMode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "房间模式 0：free，1：lover，2：team"
+                },
+                "songId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "歌曲ID"
+                },
+                "sceneId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "场景ID"
+                },
+                "randSong": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "歌曲ID"
+                },
+                "randScene": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "场景ID"
+                },
+                "difficulty": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "难度 从0开始"
+                }
+            }
+        },
+        {
+            "route": "room.roomHandler.changeDressUpModeSettingRequest",
+            "note": "换装模式 ： 暂未定义",
+            "request": {},
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0"
+                }
+            }
+        },
+        {
+            "route": "onChangeDressUpModeSettingPush",
+            "note": "换装模式 ： 暂未定义",
+            "push": {}
+        },
+        {
+            "route": "room.roomHandler.finishLoadingNotify",
+            "note": "从房间切换到游戏场景完毕后客户端的通知",
+            "notify": {}
+        },
+        {
+            "route": "onStartDanceTimePush",
+            "note": "所有人从房间切换到游戏场景完毕后的游戏开始时间广播",
+            "push": {
+                "danceStartSecondTime": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "开始时间"
+                },
+                "danceStartMilliSecondTime": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "毫秒数"
+                }
+            }
+        },
+        {
+            "route": "danceGame.danceGameHandler.playGameNotify",
+            "note": "客户端游戏中的结果",
+            "notify": {
+                "judgementBytes": {
+                    "type": "int",
+                    "desc": "notes分数等级(0:perfect,1:great,2:good,3:miss)"
+                },
+                "judgementCount": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "notes数目"
+                },
+                "combo": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "combo数"
+                },
+                "score": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "阶段分数"
+                }
+            }
+        },
+        {
+            "route": "onPlayGamePush",
+            "note": "客户端游戏中的结果广播",
+            "push": {
+                "userIndex": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "玩家索引(npc考虑下)"
+                },
+                "combo": {
+                    "desc": "combo数"
+                },
+                "finalScore": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "累计分数"
+                }
+            }
+        },
+        {
+            "route": "danceGame.danceGameHandler.endGameNotify",
+            "note": "客户端游戏结束",
+            "notify": {}
+        },
+        {
+            "route": "onEndGamePush",
+            "note": "所有客户端游戏结束后的 结束游戏结算广播",
+            "push": {
+                "scoreResult": {
+                    "type": "array",
+                    "content": {
+                        "userIndex": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "玩家索引"
+                        },
+                        "perfectCount": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "总perfect"
+                        },
+                        "greatCount": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "总great"
+                        },
+                        "goodCount": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "总good"
+                        },
+                        "missCount": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "总miss"
+                        },
+                        "maxCombo": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "最大的combo数"
+                        },
+                        "grade": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "评分等级(0:E,1:D,2:C,3:B,4:A,5:s,6:sss)"
+                        },
+                        "gameMode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "游戏模式 0:vos 1:au"
+                        },
+                        "judgementScore": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "判定分"
+                        },
+                        "comboScore": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "combo分数"
+                        },
+                        "totalScore": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "总分"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "room.roomHandler.changePositionNotify",
+            "note": "同屏行走坐标更新通知",
+            "notify": {
+                "timeStamp": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "时间戳"
+                },
+                "velocity": {
+                    "type": "array",
+                    "content": {
+                        "x": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "x坐标"
+                        },
+                        "y": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "y坐标"
+                        },
+                        "z": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "z坐标"
+                        }
+                    }
+                },
+                "direction": {
+                    "type": "array",
+                    "content": {
+                        "x": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "x坐标"
+                        },
+                        "y": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "y坐标"
+                        },
+                        "z": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "z坐标"
+                        }
+                    }
+                },
+                "position": {
+                    "type": "array",
+                    "content": {
+                        "x": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "x坐标"
+                        },
+                        "y": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "y坐标"
+                        },
+                        "z": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "z坐标"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "onChangePositionPush",
+            "note": "同屏行走坐标广播",
+            "push": {
+                "slotId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "槽位ID"
+                },
+                "timeStamp": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "时间戳"
+                },
+                "velocity": {
+                    "type": "array",
+                    "content": {
+                        "x": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "x坐标"
+                        },
+                        "y": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "y坐标"
+                        },
+                        "z": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "z坐标"
+                        }
+                    }
+                },
+                "direction": {
+                    "type": "array",
+                    "content": {
+                        "x": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "x坐标"
+                        },
+                        "y": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "y坐标"
+                        },
+                        "z": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "z坐标"
+                        }
+                    }
+                },
+                "position": {
+                    "type": "array",
+                    "content": {
+                        "x": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "x坐标"
+                        },
+                        "y": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "y坐标"
+                        },
+                        "z": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "z坐标"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "room.roomHandler.switchSlotStateRequest",
+            "note": "开/关槽位 请求",
+            "request": {
+                "slotId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "槽位ID"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0,13,32"
+                }
+            }
+        },
+        {
+            "route": "room.roomHandler.kickUserRequest",
+            "note": "踢人 请求",
+            "request": {
+                "slotId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "槽位ID"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0,13,32"
+                }
+            }
+        },
+        {
+            "route": "onSwitchSlotStatePush",
+            "note": "开/关槽位 广播",
+            "push": {
+                "slotId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "槽位ID"
+                },
+                "isOpen": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "0-关栏位  1-开栏位"
+                }
+            }
+        },
+        {
+            "route": "onKickUserPush",
+            "note": "踢人 广播",
+            "push": {
+                "slotId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "槽位ID"
+                }
+            }
+        },
+        {
+            "route": "room.roomHandler.switchWatcherStateRequest",
+            "note": "旁观/舞池 切换请求",
+            "request": {},
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0,35"
+                }
+            }
+        },
+        {
+            "route": "onSwitchWatcherStatePush",
+            "note": "旁观/舞池 切换 广播",
+            "push": {
+                "changeBeforeSlotId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "切换前的槽位"
+                },
+                "changeAfterSlotId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "切换后的槽位"
+                },
+                "masterSlotId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "现在的房主槽位"
+                }
+            }
+        },
+        {
+            "route": "onNoticeLeavePush",
+            "note": "客户端房间内非法操作, 通知离开 广播",
+            "push": {}
+        },
+        {
+            "route": "onDismissRoomPush",
+            "note": "通知房间解散 广播",
+            "push": {}
+        },
+        {
+            "route": "room.roomHandler.searchRoomRequest",
+            "note": "房间列表请求",
+            "request": {
+                "page": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "请求列表的页数( 从0开始)"
+                },
+                "roomId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "房间ID （大于0有效，其他则不搜索）"
+                },
+                "roomName": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "房间名称 （长度大于0有效，其他则不搜索）"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0 "
+                },
+                "pageCount": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "总页数"
+                },
+                "pageSize": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "每页显示的个数"
+                },
+                "page": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "当前页索引"
+                },
+                "itemCount": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "总条数"
+                },
+                "itemInfo": {
+                    "type": "array",
+                    "content": {
+                        "roomId": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "房间ID"
+                        },
+                        "roomName": {
+                            "type": "string",
+                            "desc": "房间名称"
+                        },
+                        "gameType": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "游戏类型，0:dance , 1:chat"
+                        },
+                        "roomType": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "房间类型, 0:common ，1:vip"
+                        },
+                        "roomMode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "房间模式，0:free，1:love，2:team"
+                        },
+                        "hasPassword": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "是否需要密码（0不需要，1需要）"
+                        },
+                        "playerCount": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "房间跳舞人数"
+                        },
+                        "userCount": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "房间总人数"
+                        },
+                        "roomState": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "房间的游戏状态（0等待，1游戏中）"
+                        },
+                        "maxPlayerNumber": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "房间跳舞人数上限"
+                        },
+                        "maxWatcherNumber": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "房间旁观人数上限"
+                        },
+                        "masterSlotId": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "房主槽位号"
+                        },
+                        "masterHead": {
+                            "type": "string",
+                            "desc": "房主头像"
+                        },
+                        "sexList": {
+                            "type": "simpleArray",
+                            "content": {
+                                "type": "int",
+                                "length": 4,
+                                "desc": "性别列表(0:女，1:男，2:无，3:被禁)"
+                            }
+                        },
+                        "validWatcherSlotCount": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "有效的旁观槽位总数"
+                        },
+                        "masterValueInfo": {
+                            "type": "array",
+                            "content": {
+                                "itemCode": {
+                                    "type": "int",
+                                    "length": 4,
+                                    "desc": "itemCode值"
+                                },
+                                "value": {
+                                    "type": "int",
+                                    "length": 4,
+                                    "desc": "对应数值"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "登陆协议": [
+        {
+            "route": "balance.balanceHandler.getCipherCodeRequest",
+            "note": "向balance请求密串",
+            "request": {},
+            "ack": {
+                "cipherCode": {
+                    "type": "string",
+                    "desc": "加密串(DES)"
+                }
+            }
+        },
+        {
+            "route": "balance.balanceHandler.checkCodeRequest",
+            "note": "向balance发送校验",
+            "request": {
+                "code": {
+                    "type": "string",
+                    "desc": "解密后的串(DES)"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0, (错误断开连接)"
+                }
+            }
+        },
+        {
+            "route": "balance.balanceHandler.getConnectorInfoRequest",
+            "note": "向balance请求connector信息",
+            "request": {},
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "错误码:0,2"
+                },
+                "connectorIp": {
+                    "type": "string",
+                    "desc": "分配的connector 的 ip"
+                },
+                "connectorPort": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "分配的connector 的 port"
+                }
+            }
+        },
+        {
+            "route": "connector.connectorHandler.getCipherCodeRequest",
+            "note": "向connector请求密串",
+            "request": {},
+            "ack": {
+                "cipherCode": {
+                    "type": "string",
+                    "desc": "加密串(DES)"
+                }
+            }
+        },
+        {
+            "route": "connector.connectorHandler.checkCodeRequest",
+            "note": "向connector发送校验",
+            "request": {
+                "code": {
+                    "type": "string",
+                    "desc": "解密后的串(DES)"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "错误码:0, (错误断开连接)"
+                }
+            }
+        },
+        {
+            "route": "connector.connectorHandler.registerRequest",
+            "note": "向connector发送注册请求",
+            "request": {
+                "userId": {
+                    "type": "string",
+                    "desc": "注册用户名"
+                },
+                "password": {
+                    "type": "string",
+                    "desc": "注册密码"
+                },
+                "deviceId": {
+                    "type": "string",
+                    "desc": "玩家设备号"
+                },
+                "platformId": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "渠道编码（0代表PC登录）"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "错误码:0,3,4,5,6,7"
+                }
+            }
+        },
+        {
+            "route": "connector.connectorHandler.loginRequest",
+            "note": "向connector发送登录请求",
+            "request": {
+                "userId": {
+                    "type": "string",
+                    "desc": "注册用户名"
+                },
+                "password": {
+                    "type": "string",
+                    "desc": "注册密码"
+                },
+                "platformId": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "渠道编码（0代表PC登录）"
+                },
+                "deviceId": {
+                    "type": "string",
+                    "desc": "玩家设备号"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "错误码:0,6,7,8,9,10"
+                },
+                "roleFlag": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "0无角色，1有角色（如果0，后面都不发的）"
+                },
+                "lastLoginUserIndex": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "上次登录的角色index(-1代表没取到)"
+                },
+                "roleGroup": {
+                    "type": "array",
+                    "content": {
+                        "userIndex": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "玩家账号索引"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "connector.connectorHandler.createRoleRequest",
+            "note": "向connector发送创角请求",
+            "request": {
+                "nickname": {
+                    "type": "string",
+                    "desc": "角色名称"
+                },
+                "sex": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "角色性别（0无性别，1男，2女）"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "错误码:0,3,5,11,12,29"
+                },
+                "userId": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "玩家账号索引"
+                }
+            }
+        },
+        {
+            "route": "connector.connectorHandler.selectRoleRequest",
+            "note": "向connector发送选角请求",
+            "request": {
+                "userIndex": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "玩家账号索引"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "错误码:0,13"
+                },
+                "userIndex": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "玩家账号索引"
+                }
+            }
+        },
+        {
+            "route": "connector.connectorHandler.enterAreaRequest",
+            "note": "向connector发送进入大区请求",
+            "request": {},
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "错误码:0,14,16"
+                },
+                "userIndex": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "区ID"
+                }
+            }
+        },
+        {
+            "route": "connector.connectorHandler.getAreaListRequest",
+            "note": "向connector发送获取大区列表请求",
+            "request": {},
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "错误码:0,31"
+                },
+                "areaList": {
+                    "type": "array",
+                    "content": {
+                        "areaId": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "区ID"
+                        },
+                        "areaName": {
+                            "type": "string",
+                            "desc": "区名"
+                        },
+                        "state": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "区人数状态"
+                        },
+                        "recomment": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "是否推荐，0不推荐，1推荐"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "connector.connectorHandler.selectAreaRequest",
+            "note": "向connector发送切换大区请求",
+            "request": {
+                "areaId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "区ID"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "错误码:0,14,16"
+                },
+                "userIndex": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "区ID"
+                }
+            }
+        },
+        {
+            "route": "connector.connectorHandler.getRoleInfoRequest",
+            "note": "向connector发送获取角色基本信息请求",
+            "request": {
+                "userIndex": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "玩家账号索引"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "错误码:0"
+                },
+                "userIndex": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "玩家账号索引"
+                },
+                "nickname": {
+                    "type": "string",
+                    "desc": "角色昵称"
+                },
+                "sex": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "角色性别"
+                },
+                "lastLoginTime": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "上次登录的时间"
+                },
+                "defaultAvatarInfo": {
+                    "type": "array",
+                    "content": {
+                        "itemCode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "itemcode信息"
+                        }
+                    }
+                },
+                "head": {
+                    "type": "string",
+                    "desc": "头像"
+                },
+                "vipLevel": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "vip等级"
+                },
+                "avatarInfo": {
+                    "type": "array",
+                    "content": {
+                        "itemCode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "itemcode信息"
+                        }
+                    }
+                },
+                "valueInfo": {
+                    "type": "array",
+                    "content": {
+                        "itemCode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "itemcode信息"
+                        },
+                        "value": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "数值"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "connector.connectorHandler.getMultiRoleInfoRequest",
+            "note": "向connector发送获取角色基本信息请求",
+            "request": {
+                "userIndex": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "玩家账号索引"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "错误码:0"
+                },
+                "userIndex": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "玩家账号索引"
+                },
+                "nickname": {
+                    "type": "string",
+                    "desc": "角色昵称"
+                },
+                "sex": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "角色性别"
+                },
+                "lastLoginTime": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "上次登录的时间"
+                },
+                "defaultAvatarInfo": {
+                    "type": "array",
+                    "content": {
+                        "itemCode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "itemcode信息"
+                        }
+                    }
+                },
+                "head": {
+                    "type": "string",
+                    "desc": "头像"
+                },
+                "vipLevel": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "vip等级"
+                },
+                "avatarInfo": {
+                    "type": "array",
+                    "content": {
+                        "itemCode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "itemcode信息"
+                        }
+                    }
+                },
+                "valueInfo": {
+                    "type": "array",
+                    "content": {
+                        "itemCode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "itemcode信息"
+                        },
+                        "value": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "数值"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "connector.connectorHandler.getAvatarInfoRequest",
+            "note": "向connector发送获取角色avatar信息请求",
+            "request": {
+                "userIndex": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "玩家账号索引"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "错误码:0"
+                },
+                "userIndex": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "玩家账号索引"
+                },
+                "sex": {
+                    "type": "int",
+                    "lenght": 4,
+                    "desc": "角色性别"
+                },
+                "defaultAvatarInfo": {
+                    "type": "array",
+                    "content": {
+                        "itemcode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "itemcode信息"
+                        }
+                    }
+                },
+                "avatarInfo": {
+                    "type": "array",
+                    "content": {
+                        "itemcode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "itemcode信息"
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "聊天系统": [
+        {
+            "route": "chat.chatHandler.enterChatRoomRequest",
+            "note": "向chat发送进入聊天房间请求（只针对公聊房间）",
+            "request": {},
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0"
+                },
+                "chatRoomId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "聊天房ID"
+                }
+            }
+        },
+        {
+            "route": "chat.chatHandler.selectChatRoomRequest",
+            "note": "向chat发送切换聊天房间的请求（只针对公聊房间）",
+            "request": {
+                "roomId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "房间ID"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0"
+                }
+            }
+        },
+        {
+            "route": "chat.chatHandler.getChatRoomListRequest",
+            "note": "房间列表请求",
+            "request": {
+                "page": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "请求列表的页数( 从0开始)"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0 "
+                },
+                "pageCount": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "总页数"
+                },
+                "pageSize": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "每页显示的个数"
+                },
+                "page": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "当前页索引"
+                },
+                "itemCount": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "总条数"
+                },
+                "itemInfo": {
+                    "type": "array",
+                    "content": {
+                        "roomId": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "房间ID"
+                        },
+                        "roomName": {
+                            "type": "string",
+                            "desc": "房间名称"
+                        },
+                        "state": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "状态（0-空闲，1-繁忙，2-爆满）"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "chat.chatHandler.sendPrivateChatRequest",
+            "note": "向chat发送私聊信息请求（一对一）",
+            "request": {
+                "messageType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "消息类型，10-私聊"
+                },
+                "toUserIndex": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "私聊对象userIndex"
+                },
+                "chatData": {
+                    "type": "string",
+                    "desc": "聊天内容"
+                },
+                "chatType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "0-文字，1-语音"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0"
+                }
+            }
+        },
+        {
+            "route": "chat.chatHandler.sendChatRequest",
+            "note": "向chat发送聊天信息请求（一对多）",
+            "request": {
+                "messageType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "消息类型，15-公聊,13-房间聊天"
+                },
+                "chatData": {
+                    "type": "string",
+                    "desc": "聊天内容"
+                },
+                "chatType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "0-文字，1-语音"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0"
+                }
+            }
+        },
+        {
+            "route": "onChatPush",
+            "note": "聊天信息推送",
+            "push": {
+                "messageType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "消息类型，15-公聊,13-房间聊天"
+                },
+                "userIndex": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "发言者userIndex"
+                },
+                "nickname": {
+                    "type": "string",
+                    "desc": "发言者昵称"
+                },
+                "chatData": {
+                    "type": "string",
+                    "desc": "聊天内容"
+                },
+                "chatDataType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "0-文字，1-语音"
+                },
+                "timestamp": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "时间戳（精确到秒）"
+                },
+                "colorType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "只有广播和普通喇叭有此字段"
+                }
+            }
+        },
+        {
+            "route": "chat.chatHandler.sendTrumpetRequest",
+            "note": "发送喇叭信息请求",
+            "request": {
+                "trumpetData": {
+                    "type": "string",
+                    "desc": "喇叭内容"
+                },
+                "trumpetCount": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "使用喇叭的个数"
+                },
+                "colorType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "色彩编号"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0"
+                }
+            }
+        },
+        {
+            "route": "chat.chatHandler.getAutoTrumpetListRequest",
+            "note": "获取自动喇叭列表信息请求",
+            "request": {},
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0"
+                },
+                "itemInfo": {
+                    "type": "array",
+                    "content": {
+                        "messageType": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "消息类型，9-喇叭"
+                        },
+                        "userIndex": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "发言者userIndex"
+                        },
+                        "nickname": {
+                            "type": "string",
+                            "desc": "进入聊天房间的昵称"
+                        },
+                        "trumpetData": {
+                            "type": "string",
+                            "desc": "喇叭内容"
+                        },
+                        "trumpetCount": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "自动喇叭的个数"
+                        },
+                        "interval": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "时间间隔（精确到秒）"
+                        },
+                        "colorType": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "色彩编号"
+                        },
+                        "leftTime": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "喇叭剩余时间（精确到秒）"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": "onAutoTrumpetPush",
+            "note": "自动喇叭信息推送",
+            "push": {
+                "messageType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "消息类型，9-喇叭"
+                },
+                "userIndex": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "发言者userIndex"
+                },
+                "nickname": {
+                    "type": "string",
+                    "desc": "进入聊天房间的昵称"
+                },
+                "trumpetData": {
+                    "type": "string",
+                    "desc": "喇叭内容"
+                },
+                "trumpetCount": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "自动喇叭的个数"
+                },
+                "interval": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "时间间隔（精确到秒）"
+                },
+                "colorType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "色彩编号"
+                }
+            }
+        },
+        {
+            "route": "chat.chatHandler.sendServerBroadcastRequest",
+            "note": "单服，全服广播信息请求（GM账号使用，不提供给普通客户端使用）",
+            "request": {
+                "messageType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "操作类型：0-全服，1-指定具体服，2-发送人所在服"
+                },
+                "gameServerId": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "服务器id"
+                },
+                "broadcastData": {
+                    "type": "string",
+                    "desc": "广播内容"
+                },
+                "broadcastType": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "0-文字，1-语音"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0"
+                }
+            }
+        }
+    ],
+    "通用协议": [
+        {
+            "route": "onUpdateBagPush",
+            "note": "背包数据信息更新推送",
+            "push": {
+                "itemInfo": {
+                    "type": "array",
+                    "content": {
+                        "itemCode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "itemCode"
+                        },
+                        "timeslimit": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "个数"
+                        },
+                        "dateLimit": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "时间期限"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "route": " userInfo.userInfoHandler.getUserInfoRequest",
+            "note": "获取玩家请求",
+            "request": {
+                "userIndex": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "玩家索引"
+                }
+            },
+            "ack": {
+                "errorCode": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "错误码:0"
+                },
+                "userIndex": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "玩家索引"
+                },
+                "head": {
+                    "type": "string",
+                    "desc": "头像"
+                },
+                "nickname": {
+                    "type": "string",
+                    "desc": "玩家昵称"
+                },
+                "vipLevel": {
+                    "type": "int",
+                    "length": 4,
+                    "desc": "vip等级"
+                },
+                "valueInfo": {
+                    "type": "array",
+                    "content": {
+                        "itemCode": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "itemCode值"
+                        },
+                        "value": {
+                            "type": "int",
+                            "length": 4,
+                            "desc": "对应数值"
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

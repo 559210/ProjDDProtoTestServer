@@ -1,0 +1,25 @@
+extends layout
+
+
+block content
+    script.
+        function autoRefresh() {
+            console.log('reload');
+            window.location.reload();
+        }
+        setTimeout('autoRefresh()', 5000);
+    
+    .container
+        h1= title
+        br
+        h4= tableTitle
+        br
+        if data
+            table(border='2')
+                tr
+                    each value,key in data[0]
+                        td= key
+                each colum in data
+                    tr
+                        each v, k in colum
+                            td= v

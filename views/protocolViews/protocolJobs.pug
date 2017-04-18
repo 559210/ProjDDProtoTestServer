@@ -1,0 +1,30 @@
+extends ../layout
+
+block content
+    script.
+        var socket = io.connect();
+
+        socket.on('ErrorMsg', function(data) {
+            alert(data.msg);
+        });
+
+        function onRefresh() {
+            window.location.reload();
+        }
+
+        socket.on('Refresh', function() {
+            onRefresh();
+        });
+
+    h1 协议测试
+    div(style="background-color:grey;left:0%;width:10%;float:left;")
+        h4 模板列表
+        include jobListView
+    div(style="width:80%;left:10%;float:left;")
+        h4 模板细节
+        include JobEditor
+    div(style="background-color:grey;width:10%;left:20%;float:left;")
+        h4 参数
+        li a
+        li b
+        li c

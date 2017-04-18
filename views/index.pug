@@ -1,0 +1,23 @@
+extends layout
+
+
+block content
+  a#menu-toggle.btn.btn-default(href='#')
+    i.fa.fa-bars
+  .col-md-12
+    h1 天天炫舞 管理工具
+    br
+    br
+    if (!userName)
+      include loginPrompt
+    else
+      h4 #{userName}你好
+      h5 点这里可以
+        a(href="/logout") 注销
+
+  script.
+    $("#menu-toggle").click(function(e) {
+      e.preventDefault();
+      $("#wrapper").toggleClass("active");
+    });
+

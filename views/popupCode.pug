@@ -1,0 +1,20 @@
+
+script.
+    var socket = io.connect();
+
+    socket.on('updateCode', function(data) {
+        //- $('code.codeArea').html(data.codeHTML);
+    });
+
+    $(document).ready(function() 
+    { 
+        socket.emit('getCode');
+    }); 
+
+
+#codeViewArea
+    pre
+        code.codeArea
+
+#codeEditorArea(style='display:none')
+    textarea(style='resize:none;width:100%;height:100%')

@@ -1,0 +1,8 @@
+{
+    "UNKNOWN": -1,
+    "REQUEST": 0,
+    "PUSH": 1,
+    "NOTIFY": 2,
+    "JOB": 3,
+    "CONNECT": 4
+}

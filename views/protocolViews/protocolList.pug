@@ -1,0 +1,53 @@
+
+//- 需要protocolList参数
+
+script.
+    // Emitter is defined in js/myEvent.js
+    //- var pugDataProtocolList = !{JSON.stringify(protocolList)};
+    var g_event = new Emitter();
+
+    function onKeyClicked(menuName) {
+        var menus = $('a.menu');
+        var PLs = $('div.PL');
+        for (i = 0; i < menus.length; ++i) {
+            
+            if (menuName == menus[i].innerHTML) {
+                PLs[i].style.display="block";
+            }
+            else {
+                PLs[i].style.display="none";
+            }
+        }
+    }
+
+    function onRouteClicked(protoId) {
+        g_event.trigger('protoList_routeclicked', {protoId: protoId});
+    }
+div
+    table(border = '1')
+        tr
+            each item, key in protocolList
+                td
+                    a.menu(href="javascript:void(0)" onclick="onKeyClicked(this.innerHTML)") #{key}
+
+
+div
+    - var firstLine = true;
+    each item, key in protocolList
+        div.PL(style= firstLine ? "" : "display : none")
+            h2 #{key}
+            p
+            p
+            p
+            table(border = '2')
+                tr
+                    td 路由
+                    td 类型
+                    td 说明
+                - for (var i = 0; i < item.length; ++i)
+                    tr
+                        td
+                            a.route(href='javascript:void(0)', onclick='onRouteClicked(' + item[i].id + ')') #{item[i].route}
+                        td= item[i].type
+                        td= item[i].note
+        - firstLine = false;
