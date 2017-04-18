@@ -1,7 +1,7 @@
 'use strict'
 let vm = require('vm');
 
-let commonJs = require('../../../commonJs/common');
+let commonJs = require('../../../CommonJS/common');
 let g_protoMgr = require('./protocolManager');
 
 class protoInstrument {

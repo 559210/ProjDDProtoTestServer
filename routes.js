@@ -8,7 +8,7 @@ let logger = log4js.getLogger();
 
 let g_protoMgr = require('./public/js/protocolRunner/protocolManager');
 let g_protoJobManager = require('./public/js/protocolRunner/protocolRunner');
-let commonJs = require('./commonJs/common');
+let commonJs = require('./CommonJS/common');
 
 
 

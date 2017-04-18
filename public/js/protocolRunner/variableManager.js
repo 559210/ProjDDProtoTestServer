@@ -1,5 +1,5 @@
 'use strict'
-let commonJs = require('../../../commonJs/common');
+let commonJs = require('../../../CommonJS/common');
 
 class variable {
     constructor(name, value) {

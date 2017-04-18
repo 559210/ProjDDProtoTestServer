@@ -1,7 +1,7 @@
 'use strict'
 let async = require('async');
 
-let commonJs = require('../../../commonJs/common');
+let commonJs = require('../../../CommonJS/common');
 let variableManagerClass = require('./variableManager');
 let protoInstrumentClass = require('./protoInstrument');
 let g_protoMgr = require('./protocolManager');
