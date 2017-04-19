@@ -10,16 +10,16 @@ script(type="text/javascript").
         socket.emit('AddJob', {jobName: $('input.newJobName').val()});
     }
 
-    function onRenameJobClicked(jobIndex) {
-        var jobName = $('a#jobName' + jobIndex)[0].innerHTML;
+    function onRenameJobClicked(jobIdx) {
+        var jobName = $('a#jobName' + jobIdx)[0].innerHTML;
 
-        $('a#jobName' + jobIndex).hide();
-        $('div#normal' + jobIndex).hide();
+        $('a#jobName' + jobIdx).hide();
+        $('div#normal' + jobIdx).hide();
 
-        $('input#input' + jobIndex).show();
-        $('div#rename' + jobIndex).show();
+        $('input#input' + jobIdx).show();
+        $('div#rename' + jobIdx).show();
 
-        $('input#input' + jobIndex).val(jobName);
+        $('input#input' + jobIdx).val(jobName);
     }
 
     function onRemoveJobClicked(jobIdx) {
@@ -28,29 +28,29 @@ script(type="text/javascript").
         }
     }
 
-    function onRenameJobOKClicked(jobIndex) {
-        var jobName = $('a#jobName' + jobIndex)[0].innerHTML;
-        var newName = $('input#input' + jobIndex).val();
+    function onRenameJobOKClicked(jobIdx) {
+        var jobName = pugDataJobList[jobIdx].name;
+        var newName = $('input#input' + jobIdx).val();
         if (newName.length == 0) {
             alert('请输入新名字');
             return;
         }
 
-        $('a#jobName' + jobIndex).show();
-        $('div#normal' + jobIndex).show();
+        $('a#jobName' + jobIdx).show();
+        $('div#normal' + jobIdx).show();
 
-        $('input#input' + jobIndex).hide();
-        $('div#rename' + jobIndex).hide();
+        $('input#input' + jobIdx).hide();
+        $('div#rename' + jobIdx).hide();
 
-        socket.emit('RenameJob', {jobName: jobName, newJobName: newName});
+        socket.emit('RenameJob', {jobName: jobName, jobId: pugDataJobList[jobIdx].id, newJobName: newName});
     }
 
-    function onRenameJobCancelClicked(jobIndex) {
-        $('a#jobName' + jobIndex).show();
-        $('div#normal' + jobIndex).show();
+    function onRenameJobCancelClicked(jobIdx) {
+        $('a#jobName' + jobIdx).show();
+        $('div#normal' + jobIdx).show();
 
-        $('input#input' + jobIndex).hide();
-        $('div#rename' + jobIndex).hide();    
+        $('input#input' + jobIdx).hide();
+        $('div#rename' + jobIdx).hide();    
     }
 div
     //- ul(style="list-style-type:none;")

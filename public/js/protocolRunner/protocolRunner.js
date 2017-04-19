@@ -85,27 +85,18 @@ class protoJobManager {
 
             socket.on('RenameJob', (data) => {
                 // TODO: 要处理job改名以后，其他引用它的job怎么办
-                if (commonJs.isUndefinedOrNull(data.jobName) ||
-                    commonJs.isUndefinedOrNull(data.newJobName)) {
-                    checkMsgResult(new Error('missing param'), '参数格式不对');
-                    return;
-                }
+                // if (commonJs.isUndefinedOrNull(data.jobName) ||
+                //     commonJs.isUndefinedOrNull(data.newJobName)) {
+                //     checkMsgResult(new Error('missing param'), '参数格式不对');
+                //     return;
+                // }
 
                 async.series([
                     (cb) => {
-                        session.loadJobByName(data.jobName, cb);
+                        session.loadJobById(data.jobId, cb);
                     },
                     (cb) => {
                         session.renameJob(data.newJobName, cb);
-                    },
-                    (cb) => {
-                        self._removeJobFromList(data.jobName);
-                        self._addJobToList({
-                            jobName: data.newJobName,
-                            job: session.curJob.serialize()
-                        });
-
-                        cb(null);
                     }
                 ], (err) => {
                     checkMsgResult(err, 'RenameJob failed: ' + data.jobName);
