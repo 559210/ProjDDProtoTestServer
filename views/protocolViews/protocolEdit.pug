@@ -2,6 +2,175 @@ extends ../layout
 
 block content
     script.
+        var g_c2sCount = 0;
+        var g_s2cCount = 0;
 
+        String.prototype.format = function(args) {
+            var result = this;
+            if (arguments.length > 0) {    
+                if (arguments.length == 1 && typeof (args) == "object") {
+                    for (var key in args) {
+                        if(args[key]!=undefined){
+                            var reg = new RegExp("({" + key + "})", "g");
+                            result = result.replace(reg, args[key]);
+                        }
+                    }
+                }
+                else {
+                    for (var i = 0; i < arguments.length; i++) {
+                        if (arguments[i] != undefined) {
+                            var reg = new RegExp("({[" + i + "]})", "g");
+                            result = result.replace(reg, arguments[i]);
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+
+        function onAddC2S() {
+            var tb = $('table.c2s');
+            var firstTr = $('table.c2s tr:eq(1)');
+            var html = firstTr.html();
+            
+            g_c2sCount++;
+            html = html.replace("c2sArray0", "c2sArray" + g_c2sCount);
+            html = html.replace("onAddC2SArray(0)", "onAddC2SArray(" + g_c2sCount + ")");
+            html = '<tr align="center">' + html + '</tr>';
+            
+            tb.append(html);
+        }
+
+        function onAddC2SArray(trIndex) {
+            var tableName = 'table.c2sArray' + trIndex;
+            var tb = $(tableName);
+            var firstTr = $(tableName + " tr:eq(2)");
+            var html = firstTr.html();
+            html = '<tr align="center">' + html + '</tr>';
+
+            tb.append(html);
+        }
+
+        function onAddS2C() {
+            var tb = $('table.s2c');
+            var firstTr = $('table.s2c tr:eq(1)');
+            var html = firstTr.html();
+            
+            g_s2cCount++;
+            html = html.replace("s2cArray0", "s2cArray" + g_s2cCount);
+            html = html.replace("onAddS2CArray(0)", "onAddS2CArray(" + g_s2cCount + ")");
+            html = '<tr align="center">' + html + '</tr>';
+            
+            tb.append(html);
+        }
+
+        function onAddS2CArray(trIndex) {
+            var tableName = 'table.s2cArray' + trIndex;
+            var tb = $(tableName);
+            var firstTr = $(tableName + " tr:eq(2)");
+            var html = firstTr.html();
+            html = '<tr align="center">' + html + '</tr>';
+
+            tb.append(html);
+        }
+
+        function onCommitClicked() {
+
+        }
 
     h1 协议编辑
+
+    div
+        p 路由：
+            input() 
+
+        p 描述：
+            input
+
+        p 类型：
+            select
+                option request
+                option push
+                option notify
+
+        div.c2s
+            hr
+            p 上行参数
+            a(href="#" onclick="onAddC2S()") 添加
+            table.c2s(border="1")
+                tr(align="center")
+                    td 参数名
+                    td 类型
+                    td 描述
+                tr(align="center")
+                    td
+                        input
+                    td
+                        select
+                            option int
+                            option string
+                            option array
+                            option simpleArray
+                            
+                            table.c2sArray0(border="1")
+                                tr(align="center")
+                                    td
+                                        a(href="#" onclick="onAddC2SArray(0)") 添加
+                                tr(align="center")
+                                    td 参数名
+                                    td 类型
+                                    td 描述
+                                tr(align="center")
+                                    td
+                                        input
+                                    td
+                                        select
+                                            option int
+                                            option string
+                                    td
+                                        input
+                    td
+                        input
+        div.s2c
+            hr
+            p 下行参数
+            a(href="#" onclick="onAddS2C()") 添加
+            table.s2c(border="1")
+                tr(align="center")
+                    td 参数名
+                    td 类型
+                    td 描述
+                tr(align="center")
+                    td
+                        input
+                    td
+                        select
+                            option int
+                            option string
+                            option array
+                            option simpleArray
+                            
+                            table.s2cArray0(border="1")
+                                tr(align="center")
+                                    td
+                                        a(href="#" onclick="onAddS2CArray(0)") 添加
+                                tr(align="center")
+                                    td 参数名
+                                    td 类型
+                                    td 描述
+                                tr(align="center")
+                                    td
+                                        input
+                                    td
+                                        select
+                                            option int
+                                            option string
+                                    td
+                                        input
+                    td
+                        input
+
+        div
+            hr
+            button(onclick="onCommitClicked()") 保存
