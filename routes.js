@@ -89,6 +89,10 @@ module.exports = function(app, io) {
         });
     });
 
+    app.get('/protocolEdit', checkLogin, (req, res) => {
+        res.render('protocolViews/protocolEdit');
+    });
+
     // app.get('/PopupTest', checkLogin, (req, res) => {
     //     let ap = g_protocolManager.getProtocolBriefList();
     //     res.render('protocolViews/popupTest', {
@@ -125,8 +129,6 @@ module.exports = function(app, io) {
                 
                 res.render('protocolViews/protocolJobs', resJson);
             });
-
-
     });
 
     // app.get('/CodeTest', checkLogin, (req, res) => {
