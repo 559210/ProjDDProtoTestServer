@@ -37,7 +37,7 @@ block content
             g_c2sCount++;
             html = html.replace("c2sArray0", "c2sArray" + g_c2sCount);
             html = html.replace("onAddC2SArray(0)", "onAddC2SArray(" + g_c2sCount + ")");
-            html = '<tr align="center">' + html + '</tr>';
+            html = '<tr class="c2s" align="center">' + html + '</tr>';
             
             tb.append(html);
         }
@@ -47,7 +47,7 @@ block content
             var tb = $(tableName);
             var firstTr = $(tableName + " tr:eq(2)");
             var html = firstTr.html();
-            html = '<tr align="center">' + html + '</tr>';
+            html = '<tr class="c2sArray" align="center">' + html + '</tr>';
 
             tb.append(html);
         }
@@ -60,7 +60,7 @@ block content
             g_s2cCount++;
             html = html.replace("s2cArray0", "s2cArray" + g_s2cCount);
             html = html.replace("onAddS2CArray(0)", "onAddS2CArray(" + g_s2cCount + ")");
-            html = '<tr align="center">' + html + '</tr>';
+            html = '<tr class="s2c" align="center">' + html + '</tr>';
             
             tb.append(html);
         }
@@ -70,26 +70,82 @@ block content
             var tb = $(tableName);
             var firstTr = $(tableName + " tr:eq(2)");
             var html = firstTr.html();
-            html = '<tr align="center">' + html + '</tr>';
+            html = '<tr class="s2cArray" align="center">' + html + '</tr>';
 
             tb.append(html);
         }
 
-        function onCommitClicked() {
+        function makeRequest() {
+            var data = {};
+            var c2sTr = $('tr.c2s');
 
+            for (var i = 0; i < c2sTr.length; ++i) {
+                console.log(c2sTr[i]);
+            }
+            return data;
+        }
+
+        function makeAck() {
+            var data = {};
+
+
+            return data;
+        }
+
+        function onCommitClicked() {
+            makeRequest();
+            return;
+
+            var type = $('select.type').val();
+            var data = {
+                route: $('input.route').val(),
+                "note": $('input.note').val(),
+                //- "request": {
+                //-     "host": {
+                //-         "type": "string",
+                //-         "desc": "服务器ip"
+                //-     },
+                //-     "port": {
+                //-         "type": "int",
+                //-         "length": 4,
+                //-         "desc": "服务器端口号"
+                //-     }
+                //- },
+                //- "ack":
+                //- {
+
+                //- }
+            };
+
+            if (type === 'request') {
+                data.request = makeRequest();
+                data.ack = makeAck();
+            }
+            else if (type === 'push') {
+                data.request = makeRequest();
+            }
+            else if (type === 'notify') {
+                data.ack = makeAck();
+            }
+            else {
+                alert("协议类型错误");
+                return;
+            }
+
+            console.log(data);
         }
 
     h1 协议编辑
 
     div
         p 路由：
-            input() 
+            input.route() 
 
         p 描述：
-            input
+            input.note
 
         p 类型：
-            select
+            select.type
                 option request
                 option push
                 option notify
@@ -103,7 +159,7 @@ block content
                     td 参数名
                     td 类型
                     td 描述
-                tr(align="center")
+                tr.c2s(align="center")
                     td
                         input
                     td
@@ -121,7 +177,7 @@ block content
                                     td 参数名
                                     td 类型
                                     td 描述
-                                tr(align="center")
+                                tr.c2sArray(align="center")
                                     td
                                         input
                                     td
@@ -159,7 +215,7 @@ block content
                                     td 参数名
                                     td 类型
                                     td 描述
-                                tr(align="center")
+                                tr.s2cArray(align="center")
                                     td
                                         input
                                     td
