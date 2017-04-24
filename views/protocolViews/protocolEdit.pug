@@ -1,6 +1,53 @@
 extends ../layout
 
 block content
+    mixin tableTemplateMixin(p)
+        table(class=p+'Template' border="1")
+            tr(class=p align="center")
+                td
+                    input
+                td
+                    select
+                        option int
+                        option string
+                        option array
+                        option simpleArray
+                        
+                        table(class=p+'Array' border="1")
+                            tr(align="center")
+                                td
+                                    a(href="#" onclick='onAdd'+p+'Array(0)') 添加
+                            tr(align="center")
+                                td 参数名
+                                td 类型
+                                td 描述
+                td
+                    input
+
+    mixin tableArrayTemplateMixin(p)
+        table(class=p+'ArrayTemplate' border="1")
+            tr(class=p+'Array' align="center")
+                td
+                    input
+                td
+                    select
+                        option int
+                        option string
+                td
+                    input
+
+
+    mixin paramsMixin(p)
+        hr
+        p 上行参数
+        a(href="#" onclick="onAdd"+p+"()") 添加
+        table(class=p border="1")
+            tr(align="center")
+                td 参数名
+                td 类型
+                td 描述
+
+
     script.
         var g_c2sCount = 0;
         var g_s2cCount = 0;
@@ -29,46 +76,49 @@ block content
         }
 
 
-        function onAddC2S() {
+        function onAddc2s() {
             var tb = $('table.c2s');
-            var firstTr = $('table.c2s tr:eq(1)');
+            var firstTr = $('table.c2sTemplate tr:eq(0)');
             var html = firstTr.html();
             
-            g_c2sCount++;
-            html = html.replace("c2sArray0", "c2sArray" + g_c2sCount);
+            html = html.replace("c2sArray", "c2sArray" + g_c2sCount);
             html = html.replace("onAddC2SArray(0)", "onAddC2SArray(" + g_c2sCount + ")");
             html = '<tr class="c2s" align="center">' + html + '</tr>';
             
             tb.append(html);
+
+            g_c2sCount++;
         }
 
-        function onAddC2SArray(trIndex) {
+        function onAddc2sArray(trIndex) {
             var tableName = 'table.c2sArray' + trIndex;
             var tb = $(tableName);
-            var firstTr = $(tableName + " tr:eq(2)");
+            var firstTr = $("table.c2sArrayTemplate tr:eq(0)");
             var html = firstTr.html();
             html = '<tr class="c2sArray" align="center">' + html + '</tr>';
 
             tb.append(html);
         }
 
-        function onAddS2C() {
+        function onAdds2c() {
             var tb = $('table.s2c');
-            var firstTr = $('table.s2c tr:eq(1)');
+            var firstTr = $('table.s2cTemplate tr:eq(0)');
             var html = firstTr.html();
             
-            g_s2cCount++;
-            html = html.replace("s2cArray0", "s2cArray" + g_s2cCount);
+            
+            html = html.replace("s2cArray", "s2cArray" + g_s2cCount);
             html = html.replace("onAddS2CArray(0)", "onAddS2CArray(" + g_s2cCount + ")");
             html = '<tr class="s2c" align="center">' + html + '</tr>';
             
             tb.append(html);
+
+            g_s2cCount++;
         }
 
-        function onAddS2CArray(trIndex) {
+        function onAdds2cArray(trIndex) {
             var tableName = 'table.s2cArray' + trIndex;
             var tb = $(tableName);
-            var firstTr = $(tableName + " tr:eq(2)");
+            var firstTr = $("table.s2cArrayTemplate tr:eq(0)");
             var html = firstTr.html();
             html = '<tr class="s2cArray" align="center">' + html + '</tr>';
 
@@ -77,7 +127,9 @@ block content
 
         function makeRequest() {
             var data = {};
-            var c2sTr = $('tr.c2s');
+            var c2sTr = $('table.s2c tr:eq(1)');
+
+            console.log(c2sTr);
 
             for (var i = 0; i < c2sTr.length; ++i) {
                 console.log(c2sTr[i]);
@@ -150,82 +202,20 @@ block content
                 option push
                 option notify
 
+        div.templates(style="display : none")
+            +tableTemplateMixin('c2s')
+            +tableTemplateMixin('s2c')
+
+            +tableArrayTemplateMixin('c2s')
+            +tableArrayTemplateMixin('s2c')
+
+
         div.c2s
-            hr
-            p 上行参数
-            a(href="#" onclick="onAddC2S()") 添加
-            table.c2s(border="1")
-                tr(align="center")
-                    td 参数名
-                    td 类型
-                    td 描述
-                tr.c2s(align="center")
-                    td
-                        input
-                    td
-                        select
-                            option int
-                            option string
-                            option array
-                            option simpleArray
-                            
-                            table.c2sArray0(border="1")
-                                tr(align="center")
-                                    td
-                                        a(href="#" onclick="onAddC2SArray(0)") 添加
-                                tr(align="center")
-                                    td 参数名
-                                    td 类型
-                                    td 描述
-                                tr.c2sArray(align="center")
-                                    td
-                                        input
-                                    td
-                                        select
-                                            option int
-                                            option string
-                                    td
-                                        input
-                    td
-                        input
+            +paramsMixin('c2s')
+
         div.s2c
-            hr
-            p 下行参数
-            a(href="#" onclick="onAddS2C()") 添加
-            table.s2c(border="1")
-                tr(align="center")
-                    td 参数名
-                    td 类型
-                    td 描述
-                tr(align="center")
-                    td
-                        input
-                    td
-                        select
-                            option int
-                            option string
-                            option array
-                            option simpleArray
-                            
-                            table.s2cArray0(border="1")
-                                tr(align="center")
-                                    td
-                                        a(href="#" onclick="onAddS2CArray(0)") 添加
-                                tr(align="center")
-                                    td 参数名
-                                    td 类型
-                                    td 描述
-                                tr.s2cArray(align="center")
-                                    td
-                                        input
-                                    td
-                                        select
-                                            option int
-                                            option string
-                                    td
-                                        input
-                    td
-                        input
+            +paramsMixin('s2c')
+
 
         div
             hr
