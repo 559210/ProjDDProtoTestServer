@@ -4,24 +4,24 @@ block content
     mixin tableTemplateMixin(p)
         table(class=p+'Template' border="1")
             tr(class=p align="center")
-                td
+                td.paramName
                     input
-                td
-                    select
+                td.param
+                    select.paramType
                         option int
                         option string
                         option array
                         option simpleArray
                         
-                        table(class=p+'Array' border="1")
-                            tr(align="center")
-                                td
-                                    a(href="#" onclick='onAdd'+p+'Array(0)') 添加
-                            tr(align="center")
-                                td 参数名
-                                td 类型
-                                td 描述
-                td
+                    table(class=p+'Array' border="1" style="display:none")
+                        tr(align="center")
+                            td
+                                a(href="#" onclick='onAdd'+p+'Array(0)') 添加
+                        tr(align="center")
+                            td 参数名
+                            td 类型
+                            td 描述
+                td.paramNote
                     input
 
     mixin tableArrayTemplateMixin(p)
@@ -83,9 +83,21 @@ block content
             
             html = html.replace("c2sArray", "c2sArray" + g_c2sCount);
             html = html.replace("onAddC2SArray(0)", "onAddC2SArray(" + g_c2sCount + ")");
+            html = html.replace("select.paramType", "select.paramType" + g_c2sCount);
             html = '<tr class="c2s" align="center">' + html + '</tr>';
             
             tb.append(html);
+
+            $('table.c2s tr.c2s:eq(' + g_s2cCount + ') td.param select').change(function(index, o) {
+                var typeStr = $('table.c2s tr.c2s:eq(' + index + ') td.param select').val();
+                if (typeStr == 'array' || typeStr == 'simpleArray') {
+                    $('table.c2s tr.c2s:eq(' + index + ') td.param table').show();
+                }
+                else {
+                    $('table.c2s tr.c2s:eq(' + index + ') td.param table').hide();
+                    $('table.c2s tr.c2s:eq(' + index + ') td.param table tr:gt(1)').remove();
+                }
+            }.bind(this, g_c2sCount));
 
             g_c2sCount++;
         }
@@ -108,9 +120,21 @@ block content
             
             html = html.replace("s2cArray", "s2cArray" + g_s2cCount);
             html = html.replace("onAddS2CArray(0)", "onAddS2CArray(" + g_s2cCount + ")");
+            html = html.replace("paramType", "paramType" + g_s2cCount);
             html = '<tr class="s2c" align="center">' + html + '</tr>';
             
             tb.append(html);
+
+            $('table.s2c tr.s2c:eq(' + g_s2cCount + ') td.param select').change(function(index, o) {
+                var typeStr = $('table.s2c tr.s2c:eq(' + index + ') td.param select').val();
+                if (typeStr == 'array' || typeStr == 'simpleArray') {
+                    $('table.s2c tr.s2c:eq(' + index + ') td.param table').show();
+                }
+                else {
+                    $('table.s2c tr.s2c:eq(' + index + ') td.param table').hide();
+                    $('table.s2c tr.s2c:eq(' + index + ') td.param table tr:gt(1)').remove();
+                }
+            }.bind(this, g_s2cCount));
 
             g_s2cCount++;
         }
@@ -125,14 +149,22 @@ block content
             tb.append(html);
         }
 
+        function makeParamArray() {
+
+        }
+
         function makeRequest() {
             var data = {};
-            var c2sTr = $('table.s2c tr:eq(1)');
+            var len = $('table.c2s tr.c2s').length;
 
-            console.log(c2sTr);
+            for (var i = 0; i < len; ++i) {
+                var param = {};
+                var prefix = 'table.c2s tr.c2s:eq(' + i + ') ';
+                var name = $(prefix + 'td.paramName input').val();
+                param.type = $(prefix + 'td.param select').val();
+                param.note = $('table.c2s tr.c2s:eq(' + i + ') td.paramNote input').val();
 
-            for (var i = 0; i < c2sTr.length; ++i) {
-                console.log(c2sTr[i]);
+                console.log(param);
             }
             return data;
         }
