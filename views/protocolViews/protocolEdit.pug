@@ -10,8 +10,8 @@ block content
                     select.paramType
                         option int
                         option string
-                        option array
                         option simpleArray
+                        option array
                         
                     table(class=p+'Array' border="1" style="display:none")
                         tr(align="center")
@@ -26,14 +26,14 @@ block content
 
     mixin tableArrayTemplateMixin(p)
         table(class=p+'ArrayTemplate' border="1")
-            tr(class=p+'Array' align="center")
-                td
+            tr(class='paramArray' align="center")
+                td.paramName
                     input
-                td
-                    select
+                td.param
+                    select.paramType
                         option int
                         option string
-                td
+                td.paramNote
                     input
 
 
@@ -81,14 +81,14 @@ block content
             var firstTr = $('table.c2sTemplate tr:eq(0)');
             var html = firstTr.html();
             
-            html = html.replace("c2sArray", "c2sArray" + g_c2sCount);
-            html = html.replace("onAddC2SArray(0)", "onAddC2SArray(" + g_c2sCount + ")");
+            //- html = html.replace("c2sArray", "c2sArray" + g_c2sCount);
+            html = html.replace("onAddc2sArray(0)", "onAddc2sArray(" + g_c2sCount + ")");
             html = html.replace("select.paramType", "select.paramType" + g_c2sCount);
             html = '<tr class="c2s" align="center">' + html + '</tr>';
             
             tb.append(html);
 
-            $('table.c2s tr.c2s:eq(' + g_s2cCount + ') td.param select').change(function(index, o) {
+            $('table.c2s tr.c2s:eq(' + g_c2sCount + ') td.param select').change(function(index, o) {
                 var typeStr = $('table.c2s tr.c2s:eq(' + index + ') td.param select').val();
                 if (typeStr == 'array' || typeStr == 'simpleArray') {
                     $('table.c2s tr.c2s:eq(' + index + ') td.param table').show();
@@ -118,8 +118,8 @@ block content
             var html = firstTr.html();
             
             
-            html = html.replace("s2cArray", "s2cArray" + g_s2cCount);
-            html = html.replace("onAddS2CArray(0)", "onAddS2CArray(" + g_s2cCount + ")");
+            //- html = html.replace("s2cArray", "s2cArray" + g_s2cCount);
+            html = html.replace("onAdds2cArray(0)", "onAdds2cArray(" + g_s2cCount + ")");
             html = html.replace("paramType", "paramType" + g_s2cCount);
             html = '<tr class="s2c" align="center">' + html + '</tr>';
             
@@ -149,8 +149,66 @@ block content
             tb.append(html);
         }
 
-        function makeParamArray() {
+        function makeArrayParam(prefix) {
+            var data = {
+                type: 'array',
+                content: {}
+            };
 
+            var len = $(prefix + 'td.param table tr.c2sArray').length;
+            for (var i = 0; i < len; ++i) {
+                var newPrefix = prefix + 'td.param table tr.c2sArray:eq(' + i + ') ';
+                var name = $(newPrefix + 'td.paramName input').val();
+                var type = $(newPrefix + 'td.param select').val();
+                switch(type) {
+                    case 'int':
+                        data.content[name] = makeIntParam(newPrefix);
+                        break;
+                    case 'string':
+                        data.content[name] = makeStringParam(newPrefix);
+                        break;
+                }
+            }
+
+            return data;
+        }
+
+        function makeSimpleArrayParam(prefix) {
+            var data = {
+                type: 'simpleArray',
+                content: {}
+            };
+
+            var type = $(prefix + 'td.param table tr.c2sArray td.param select').val();
+            switch(type) {
+                case 'int':
+                    data.content = makeIntParam(prefix + 'td.param table tr.c2sArray ');
+                    break;
+                case 'string':
+                    data.content = makeStringParam(prefix + 'td.param table tr.c2sArray ');
+                    break;
+            }
+
+            return data;
+        }
+
+        function makeIntParam(prefix) {
+            var data = {
+                type: 'int',
+                length: 4,
+                desc: $(prefix + 'td.paramNote input').val()
+            };
+
+            return data;
+        }
+
+        function makeStringParam(prefix) {
+            var data = {
+                type: 'string',
+                desc: $(prefix + 'td.paramNote input').val()
+            }
+
+            return data;
         }
 
         function makeRequest() {
@@ -158,14 +216,26 @@ block content
             var len = $('table.c2s tr.c2s').length;
 
             for (var i = 0; i < len; ++i) {
-                var param = {};
                 var prefix = 'table.c2s tr.c2s:eq(' + i + ') ';
                 var name = $(prefix + 'td.paramName input').val();
-                param.type = $(prefix + 'td.param select').val();
-                param.note = $('table.c2s tr.c2s:eq(' + i + ') td.paramNote input').val();
+                var type = $(prefix + 'td.param select').val();
 
-                console.log(param);
+                switch(type) {
+                    case 'int':
+                        data[name] = makeIntParam(prefix);
+                        break;
+                    case 'string':
+                        data[name] = makeStringParam(prefix);
+                        break;
+                    case 'array':
+                        data[name] = makeArrayParam(prefix);
+                        break;
+                    case 'simpleArray':
+                        data[name] = makeSimpleArrayParam(prefix);
+                        break;
+                }
             }
+
             return data;
         }
 
@@ -177,28 +247,10 @@ block content
         }
 
         function onCommitClicked() {
-            makeRequest();
-            return;
-
             var type = $('select.type').val();
             var data = {
                 route: $('input.route').val(),
                 "note": $('input.note').val(),
-                //- "request": {
-                //-     "host": {
-                //-         "type": "string",
-                //-         "desc": "服务器ip"
-                //-     },
-                //-     "port": {
-                //-         "type": "int",
-                //-         "length": 4,
-                //-         "desc": "服务器端口号"
-                //-     }
-                //- },
-                //- "ack":
-                //- {
-
-                //- }
             };
 
             if (type === 'request') {
