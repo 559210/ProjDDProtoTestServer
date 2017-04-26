@@ -57,7 +57,7 @@ block content
                 g_paramIndexMap[tag] = 0;
             }
 
-            var prefix = 'div.' + tag + ' table ';
+            var prefix = 'div.' + tag + ' > table ';
             var tb = $(prefix);
             var firstTr = $('table.Template tr:eq(0)');
             var html = firstTr.html();
@@ -65,7 +65,9 @@ block content
             
             tb.append(html);
 
-            $(prefix + 'tr.param:eq(' + (tb.length - 1) + ') td.param select').change(function(o) {
+            var tbLen = tb.find('> tbody > tr').length;
+
+            tb.find(' > tbody > tr:eq(' + (tbLen - 1) + ') > td.param select').change(function(o) {
                 var tr = $(o.currentTarget).closest('tr');
                 var typeStr = tr.find('select').val();
                 if (typeStr == 'array' || typeStr == 'simpleArray') {
@@ -82,8 +84,7 @@ block content
 
         function onAddArray(obj) {
             var tag = $(obj).closest('div').attr('class');
-            var tableName = 'div.' + tag + ' table.Array';
-            var tb = $(tableName);
+            var tb = $(obj).closest('table');
             var firstTr = $("table.ArrayTemplate tr:eq(0)");
             var html = firstTr.html();
             html = '<tr class="Array" align="center">' + html + '</tr>';
@@ -92,23 +93,24 @@ block content
         }
 
 
-        function makeArrayParam(prefix) {
+        function makeArrayParam(tr) {
             var data = {
                 type: 'array',
                 content: {}
             };
 
-            var len = $(prefix + 'td.param table tr.c2sArray').length;
+            var len = tr.find('> td.param table tr').length;
+
             for (var i = 0; i < len; ++i) {
-                var newPrefix = prefix + 'td.param table tr.c2sArray:eq(' + i + ') ';
-                var name = $(newPrefix + 'td.paramName input').val();
-                var type = $(newPrefix + 'td.param select').val();
+                var subTr = tr.find('> td.param table tr.Array:eq(' + i + ')');
+                var name = subTr.find('> td.paramName input').val();
+                var type = subTr.find('> td.param select').val();
                 switch(type) {
                     case 'int':
-                        data.content[name] = makeIntParam(newPrefix);
+                        data.content[name] = makeIntParam(subTr);
                         break;
                     case 'string':
-                        data.content[name] = makeStringParam(newPrefix);
+                        data.content[name] = makeStringParam(subTr);
                         break;
                 }
             }
@@ -116,84 +118,74 @@ block content
             return data;
         }
 
-        function makeSimpleArrayParam(prefix) {
+        function makeSimpleArrayParam(tr) {
             var data = {
                 type: 'simpleArray',
                 content: {}
             };
 
-            var type = $(prefix + 'td.param table tr.c2sArray td.param select').val();
+            var subTr = tr.find('> td.param table tr.Array:eq(0)');
+            var type = subTr.find('> td.param select').val();
+
             switch(type) {
                 case 'int':
-                    data.content = makeIntParam(prefix + 'td.param table tr.c2sArray ');
+                    data.content = makeIntParam(subTr);
                     break;
                 case 'string':
-                    data.content = makeStringParam(prefix + 'td.param table tr.c2sArray ');
+                    data.content = makeStringParam(subTr);
                     break;
             }
+
 
             return data;
         }
 
-        function makeIntParam(prefix) {
+        function makeIntParam(tr) {
             var data = {
                 type: 'int',
                 length: 4,
-                desc: $(prefix + 'td.paramNote input').val()
+                desc: tr.find('> td.paramNote input').val()
             };
 
             return data;
         }
 
-        function makeStringParam(prefix) {
+        function makeStringParam(tr) {
             var data = {
                 type: 'string',
-                desc: $(prefix + 'td.paramNote input').val()
+                desc: tr.find('> td.paramNote input').val()
             }
 
             return data;
         }
 
-        function makeRequest(tag) {
+        function makeParam(tag) {
             var data = {};
-            console.log('div.' + tag + ' > table');
-            var table = $('div.' + tag + ' > table');
-            console.log(table);
-            var trs = $('div.' + tag + ' > table tr.param');
 
-            console.log(trs);
+            var table = $('div.' + tag + ' > table');
+            var trs = $('div.' + tag + ' > table tr.param');
 
             for (var i = 0; i < trs.length; ++i) {
                 var tr = $(trs[i]);
-                console.log(i, tr);
-                continue;
 
-                var prefix = 'table.c2s tr.c2s:eq(' + i + ') ';
-                var name = $(prefix + 'td.paramName input').val();
-                var type = $(prefix + 'td.param select').val();
+                var name = tr.find('> td.paramName input').val();
+                var type = tr.find('> td.param select').val();
 
                 switch(type) {
                     case 'int':
-                        data[name] = makeIntParam(prefix);
+                        data[name] = makeIntParam(tr);
                         break;
                     case 'string':
-                        data[name] = makeStringParam(prefix);
+                        data[name] = makeStringParam(tr);
                         break;
                     case 'array':
-                        data[name] = makeArrayParam(prefix);
+                        data[name] = makeArrayParam(tr);
                         break;
                     case 'simpleArray':
-                        data[name] = makeSimpleArrayParam(prefix);
+                        data[name] = makeSimpleArrayParam(tr);
                         break;
                 }
             }
-
-            return data;
-        }
-
-        function makeAck() {
-            var data = {};
-
 
             return data;
         }
@@ -206,14 +198,14 @@ block content
             };
 
             if (type === 'request') {
-                data.request = makeRequest('c2s');
-                data.ack = makeAck();
+                data.request = makeParam('c2s');
+                data.ack = makeParam('s2c');
             }
             else if (type === 'push') {
-                data.request = makeRequest('c2s');
+                data.request = makeParam('c2s');
             }
             else if (type === 'notify') {
-                data.ack = makeAck();
+                data.ack = makeParam('s2c');
             }
             else {
                 alert("协议类型错误");
