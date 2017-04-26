@@ -1,9 +1,9 @@
 extends ../layout
 
 block content
-    mixin tableTemplateMixin(p)
-        table(class=p+'Template' border="1")
-            tr(class=p align="center")
+    mixin tableTemplateMixin()
+        table.Template(border="1")
+            tr.param(align="center")
                 td.paramName
                     input
                 td.param
@@ -13,10 +13,10 @@ block content
                         option simpleArray
                         option array
                         
-                    table(class=p+'Array' border="1" style="display:none")
+                    table.Array(border="1" style="display:none")
                         tr(align="center")
                             td
-                                a(href="#" onclick='onAdd'+p+'Array(0)') 添加
+                                a(href="#" onclick='onAddArray(this)') 添加
                         tr(align="center")
                             td 参数名
                             td 类型
@@ -24,9 +24,9 @@ block content
                 td.paramNote
                     input
 
-    mixin tableArrayTemplateMixin(p)
-        table(class=p+'ArrayTemplate' border="1")
-            tr(class='paramArray' align="center")
+    mixin tableArrayTemplateMixin()
+        table.ArrayTemplate(border="1")
+            tr.paramArray(align="center")
                 td.paramName
                     input
                 td.param
@@ -37,11 +37,11 @@ block content
                     input
 
 
-    mixin paramsMixin(p)
+    mixin paramsMixin()
         hr
         p 上行参数
-        a(href="#" onclick="onAdd"+p+"()") 添加
-        table(class=p border="1")
+        a(href="#" onclick="onAdd(this)") 添加
+        table(border="1")
             tr(align="center")
                 td 参数名
                 td 类型
@@ -49,105 +49,48 @@ block content
 
 
     script.
-        var g_c2sCount = 0;
-        var g_s2cCount = 0;
+        var g_paramIndexMap = {};
 
-        String.prototype.format = function(args) {
-            var result = this;
-            if (arguments.length > 0) {    
-                if (arguments.length == 1 && typeof (args) == "object") {
-                    for (var key in args) {
-                        if(args[key]!=undefined){
-                            var reg = new RegExp("({" + key + "})", "g");
-                            result = result.replace(reg, args[key]);
-                        }
-                    }
-                }
-                else {
-                    for (var i = 0; i < arguments.length; i++) {
-                        if (arguments[i] != undefined) {
-                            var reg = new RegExp("({[" + i + "]})", "g");
-                            result = result.replace(reg, arguments[i]);
-                        }
-                    }
-                }
+        function onAdd(obj) {
+            var tag = $(obj).closest('div').attr('class');
+            if (g_paramIndexMap[tag] == undefined) {
+                g_paramIndexMap[tag] = 0;
             }
-            return result;
-        }
 
-
-        function onAddc2s() {
-            var tb = $('table.c2s');
-            var firstTr = $('table.c2sTemplate tr:eq(0)');
+            var prefix = 'div.' + tag + ' table ';
+            var tb = $(prefix);
+            var firstTr = $('table.Template tr:eq(0)');
             var html = firstTr.html();
-            
-            //- html = html.replace("c2sArray", "c2sArray" + g_c2sCount);
-            html = html.replace("onAddc2sArray(0)", "onAddc2sArray(" + g_c2sCount + ")");
-            html = html.replace("select.paramType", "select.paramType" + g_c2sCount);
-            html = '<tr class="c2s" align="center">' + html + '</tr>';
+            html = '<tr class="param" align="center">' + html + '</tr>';
             
             tb.append(html);
 
-            $('table.c2s tr.c2s:eq(' + g_c2sCount + ') td.param select').change(function(index, o) {
-                var typeStr = $('table.c2s tr.c2s:eq(' + index + ') td.param select').val();
+            $(prefix + 'tr.param:eq(' + (tb.length - 1) + ') td.param select').change(function(o) {
+                var tr = $(o.currentTarget).closest('tr');
+                var typeStr = tr.find('select').val();
                 if (typeStr == 'array' || typeStr == 'simpleArray') {
-                    $('table.c2s tr.c2s:eq(' + index + ') td.param table').show();
+                    tr.find('table').show();
                 }
                 else {
-                    $('table.c2s tr.c2s:eq(' + index + ') td.param table').hide();
-                    $('table.c2s tr.c2s:eq(' + index + ') td.param table tr:gt(1)').remove();
+                    tr.find('table').hide();
+                    tr.find('table tr:gt(1)').remove();
                 }
-            }.bind(this, g_c2sCount));
+            });
 
-            g_c2sCount++;
+            g_paramIndexMap[tag]++;
         }
 
-        function onAddc2sArray(trIndex) {
-            var tableName = 'table.c2sArray' + trIndex;
+        function onAddArray(obj) {
+            var tag = $(obj).closest('div').attr('class');
+            var tableName = 'div.' + tag + ' table.Array';
             var tb = $(tableName);
-            var firstTr = $("table.c2sArrayTemplate tr:eq(0)");
+            var firstTr = $("table.ArrayTemplate tr:eq(0)");
             var html = firstTr.html();
-            html = '<tr class="c2sArray" align="center">' + html + '</tr>';
+            html = '<tr class="Array" align="center">' + html + '</tr>';
 
             tb.append(html);
         }
 
-        function onAdds2c() {
-            var tb = $('table.s2c');
-            var firstTr = $('table.s2cTemplate tr:eq(0)');
-            var html = firstTr.html();
-            
-            
-            //- html = html.replace("s2cArray", "s2cArray" + g_s2cCount);
-            html = html.replace("onAdds2cArray(0)", "onAdds2cArray(" + g_s2cCount + ")");
-            html = html.replace("paramType", "paramType" + g_s2cCount);
-            html = '<tr class="s2c" align="center">' + html + '</tr>';
-            
-            tb.append(html);
-
-            $('table.s2c tr.s2c:eq(' + g_s2cCount + ') td.param select').change(function(index, o) {
-                var typeStr = $('table.s2c tr.s2c:eq(' + index + ') td.param select').val();
-                if (typeStr == 'array' || typeStr == 'simpleArray') {
-                    $('table.s2c tr.s2c:eq(' + index + ') td.param table').show();
-                }
-                else {
-                    $('table.s2c tr.s2c:eq(' + index + ') td.param table').hide();
-                    $('table.s2c tr.s2c:eq(' + index + ') td.param table tr:gt(1)').remove();
-                }
-            }.bind(this, g_s2cCount));
-
-            g_s2cCount++;
-        }
-
-        function onAdds2cArray(trIndex) {
-            var tableName = 'table.s2cArray' + trIndex;
-            var tb = $(tableName);
-            var firstTr = $("table.s2cArrayTemplate tr:eq(0)");
-            var html = firstTr.html();
-            html = '<tr class="s2cArray" align="center">' + html + '</tr>';
-
-            tb.append(html);
-        }
 
         function makeArrayParam(prefix) {
             var data = {
@@ -211,11 +154,20 @@ block content
             return data;
         }
 
-        function makeRequest() {
+        function makeRequest(tag) {
             var data = {};
-            var len = $('table.c2s tr.c2s').length;
+            console.log('div.' + tag + ' > table');
+            var table = $('div.' + tag + ' > table');
+            console.log(table);
+            var trs = $('div.' + tag + ' > table tr.param');
 
-            for (var i = 0; i < len; ++i) {
+            console.log(trs);
+
+            for (var i = 0; i < trs.length; ++i) {
+                var tr = $(trs[i]);
+                console.log(i, tr);
+                continue;
+
                 var prefix = 'table.c2s tr.c2s:eq(' + i + ') ';
                 var name = $(prefix + 'td.paramName input').val();
                 var type = $(prefix + 'td.param select').val();
@@ -254,11 +206,11 @@ block content
             };
 
             if (type === 'request') {
-                data.request = makeRequest();
+                data.request = makeRequest('c2s');
                 data.ack = makeAck();
             }
             else if (type === 'push') {
-                data.request = makeRequest();
+                data.request = makeRequest('c2s');
             }
             else if (type === 'notify') {
                 data.ack = makeAck();
@@ -287,18 +239,16 @@ block content
                 option notify
 
         div.templates(style="display : none")
-            +tableTemplateMixin('c2s')
-            +tableTemplateMixin('s2c')
+            +tableTemplateMixin()
 
-            +tableArrayTemplateMixin('c2s')
-            +tableArrayTemplateMixin('s2c')
+            +tableArrayTemplateMixin()
 
 
         div.c2s
-            +paramsMixin('c2s')
+            +paramsMixin()
 
         div.s2c
-            +paramsMixin('s2c')
+            +paramsMixin()
 
 
         div
