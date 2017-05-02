@@ -244,6 +244,50 @@ class ProtocolManager {
         });
     }
 
+    addNewProtocol(proto, callback) {
+        console.log('--->', proto);
+        let self = this;
+        // 查找是否有同名的proto
+        let foundProtoId = -1;
+        for (let protoId in this.protocolBriefMap) {
+            if (this.protocolBriefMap[protoId].route === proto.route) {
+                foundProtoId = protoId;
+            }
+        }
+
+        console.log(1, proto.type);
+        switch (proto.type) {
+            case 'request':
+                proto.type = PROTO_TYPE.REQUEST;
+                break;
+            case 'push':
+                proto.type = PROTO_TYPE.PUSH;
+                break;
+            case 'notify':
+                proto.type = PROTO_TYPE.NOTIFY;
+                break;
+        }
+        console.log(2, proto.type);
+        if (foundProtoId == -1) {
+            g_protocolRunnerPersistent.addInstrumentPrototype(proto.route, JSON.stringify(proto.c2s), JSON.stringify(proto.s2c), proto.type, proto.note, proto.tag, (err, protoId) => {
+                if (err) {
+                    return callback(err);
+                }
+
+                proto.id = protoId;
+                if (g_common.isUndefinedOrNull(self.protocolBriefList[proto.tag])) {
+                    self.protocolBriefList[proto.tag] = [];
+                }
+                self.protocolBriefList[proto.tag].push(proto);
+                self.protocolBriefMap[proto.id] = proto;
+
+                return callback(null);
+            });
+        } else {
+
+        }
+    }
+
     // 获取job所对应的伪协议的id
     getJobInstId(jobId) {
         let jobProtos = this.protocolBriefList[JOB_TAG];
@@ -277,7 +321,9 @@ class ProtocolManager {
 
                     for (let i = 0; i < results.length; ++i) {
                         let res = results[i];
-                        self.jobCache[res.jobId] = {jobJson: res.jobJson};
+                        self.jobCache[res.jobId] = {
+                            jobJson: res.jobJson
+                        };
                     }
 
                     cb(null);
@@ -354,7 +400,9 @@ class ProtocolManager {
 
             jobObj.id = jobId;
 
-            self.jobCache[jobId] = {jobJson: jobJson};
+            self.jobCache[jobId] = {
+                jobJson: jobJson
+            };
 
 
             callback(null);
@@ -649,7 +697,10 @@ class ProtocolManager {
 
             let res = reg.exec(jobJson);
 
-            ret.push({id:key, name: res[1]});
+            ret.push({
+                id: key,
+                name: res[1]
+            });
         }
 
         return ret;

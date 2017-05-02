@@ -286,6 +286,12 @@ class protoJobManager {
                     });
                 }
             });
+
+            socket.on('AddRawProtocol', (data) => {
+                g_protoMgr.addNewProtocol(data, (err) => {
+                    checkMsgResult(err, '协议保存失败');
+                });
+            });
         });
     }
 
