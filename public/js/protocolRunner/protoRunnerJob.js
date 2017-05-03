@@ -11,7 +11,7 @@ let pomeloClass = require('./pomeloClient');
 const PROTO_TYPE = require('./protocolType');
 
 class protoRunnerJob {
-    constructor(jobName, evn, session) {
+    constructor(jobName, evn) {
         g_protoMgr = require('./protocolManager');  // protoMgr和protoRunnerJob存在互相require的问题，所以在构造instrument时再require一次
         this.instruments = [];
         this.name = jobName;
