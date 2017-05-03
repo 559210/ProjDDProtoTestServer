@@ -33,7 +33,6 @@ class protoJobManager {
         this.io = io;
         let self = this;
         this.io.sockets.on('connection', function(socket) {
-
             function checkMsgResult(err, msg) {
                 if (err) {
                     socket.emit('ErrorMsg', {
@@ -57,6 +56,7 @@ class protoJobManager {
 
                 if (commonJs.isUndefinedOrNull(self.sessions[userObj.uid])) {
                     self.sessions[userObj.uid] = new protoJobSessionClass(userObj);
+                    self.sessions[userObj.uid].setSocket(socket);
                 }
             });
 
@@ -296,7 +296,9 @@ class protoJobManager {
     }
 
     _getSession(socket) {
-        return this.sessions[socket.request.session.passport.user];
+        let obj = this.sessions[socket.request.session.passport.user];
+        obj.setSocket(socket);
+        return obj;
     }
 
     getOpenedJobDetail(uid) {

@@ -55,6 +55,14 @@ script.
         $('div#script').hide();
     }
 
+    function showConsoleWindow() {
+        $('div#console').show();
+    }
+
+    function closeConsoleWindow() {
+        $('div#console').hide();
+    }
+
 
     function onAddProto() {
         showDivFun();
@@ -169,6 +177,7 @@ script.
 
     function onRunClicked() {
         socket.emit('Run');
+        showConsoleWindow();
     }
 
     function onUpClicked(index) {
@@ -184,6 +193,15 @@ script.
             socket.emit('MoveProtoDown', {routeIndex: index});
         }
     }
+
+    socket.on('Console', function(data){
+        var ta = $('textarea.console');
+        ta.text(ta.val() + '\r\n' + data.text);
+
+        ta.scrollTop(ta[0].scrollHeight);
+
+        console.log(data.text);
+    });
 
 mixin c2sParamList(c2sParam)
     table(border='1' align='left')
@@ -270,6 +288,17 @@ div
             #codeEditorArea(style='display:none')
                 textarea.script(style='resize:none;width:100%;height:100%')
 
+
+    div.protocolPopupWindowDiv#console(style="display : none")
+        a(href="javascript:closeConsoleWindow()" style="right : 14; position : absolute;") 关闭窗口
+        div.protocolPopupDiv(onclick="closeConsoleWindow()")
+            span.protocolSpan x
+
+        div(style="width : 100%; height : 95%; top : 20; position : absolute; overflow : auto")
+            #consoleViewArea
+                textarea.console(style='resize:none;width:100%;height:100%', readonly="readonly")
+
+
     if jobDetail
         p
             a(href='javascript:void(0)', onclick='openShutManager(this, "table#current", false, "点击合上", "点击展开")') 点击合上
@@ -322,3 +351,5 @@ div
     br
     br
     a(href='javascript:void(0)', onclick='onRunClicked()') 运行
+    br
+    a(href='javascript:void(0)', onclick='showConsoleWindow()') 控制台

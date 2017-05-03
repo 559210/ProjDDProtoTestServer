@@ -11,7 +11,7 @@ let pomeloClass = require('./pomeloClient');
 const PROTO_TYPE = require('./protocolType');
 
 class protoRunnerJob {
-    constructor(jobName, evn) {
+    constructor(jobName, evn, session) {
         g_protoMgr = require('./protocolManager');  // protoMgr和protoRunnerJob存在互相require的问题，所以在构造instrument时再require一次
         this.instruments = [];
         this.name = jobName;
@@ -21,6 +21,19 @@ class protoRunnerJob {
             pomelo: null,
             variableManager: new variableManagerClass()
         };
+
+        this.session = null;
+    }
+
+    setSession(sess) {
+        this.session = sess;
+    }
+
+    sendSessionLog(text) {
+        if (commonJs.isUndefinedOrNull(this.session) == false) {
+            this.session.Console(text); 
+        }
+        console.log(text);
     }
 
 
@@ -97,8 +110,8 @@ class protoRunnerJob {
                 });
 
 
-                console.log("send: ", ins.route);
-                console.log("with params: ", ins.getC2SMsg());
+                self.sendSessionLog("send: " + ins.route);
+                self.sendSessionLog("with params: " + JSON.stringify(ins.getC2SMsg()));
                 this.envirment.pomelo.request(ins.route, ins.getC2SMsg(), (data) => {
                     self.envirment.pomelo.removeAllListeners('io-error');
                     self.envirment.pomelo.removeAllListeners('close');

@@ -1,11 +1,23 @@
 'use strict'
 
 let g_protoMgr = require('./protocolManager');
+let commonJs = require('../../../CommonJS/common');
 
 class protoJobSession {
     constructor(userObj) {
         this.userObj = userObj;
         this.curJob = null;
+        this.socket = null;
+    }
+
+    setSocket(skt) {
+        this.socket = skt;
+    }
+
+    Console(text) {
+        if (commonJs.isUndefinedOrNull(this.socket) == false) {
+            this.socket.emit("Console", {text: text});
+        }
     }
 
     getCurrentJobDetail() {
@@ -24,7 +36,7 @@ class protoJobSession {
             }
 
             self.curJob = jobObj;
-
+            self.curJob.setSession(self);
             return callback(null);
         });
     }
@@ -45,6 +57,7 @@ class protoJobSession {
             }
 
             this.curJob = jobObj;
+            this.curJob.setSession(this);
             callback(null);
         });
     }

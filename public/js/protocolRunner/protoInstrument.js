@@ -141,7 +141,8 @@ class protoInstrument {
     }
 
     onS2CMsg(data, callback) {
-        console.log('ack', data);
+        this.runner.sendSessionLog('ack' + JSON.stringify(data));
+        // console.log('ack', data);
         let varPrefix = this.route + '#';
         for (let key in data) {
             if (!this.runner.envirment.variableManager.createVariable(varPrefix + key, data[key])) {
