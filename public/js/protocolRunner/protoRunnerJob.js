@@ -23,13 +23,20 @@ class protoRunnerJob {
         };
 
         this.session = null;
+        this.sessionDepth = 0;
     }
 
-    setSession(sess) {
+    setSession(sess, depth) {
         this.session = sess;
+        if (depth) {
+            this.sessionDepth = depth;
+        }
     }
 
     sendSessionLog(text) {
+        for (let i = 0; i < this.sessionDepth; ++i) {
+            text = '\t' + text;
+        }
         if (commonJs.isUndefinedOrNull(this.session) == false) {
             this.session.Console(text); 
         }
@@ -69,10 +76,13 @@ class protoRunnerJob {
     }
 
     runAll(callback) {
+        this.sendSessionLog('------------------------------->');
+        this.sendSessionLog('start job' + this.name);
         async.eachSeries(this.instruments, (item, cb) => {
                 this._runInstrument(item, cb);
             },
             (err) => {
+                this.sendSessionLog('<-------------------------');
                 callback(err);
             });
     }
@@ -127,6 +137,7 @@ class protoRunnerJob {
                         return callback(err);
                     }
 
+                    job.setSession(self.session, self.sessionDepth + 1);
                     job.envirment = self.envirment;
                     let firstIns = job.getInstrument(0);
                     let msg = ins.getC2SMsg();
