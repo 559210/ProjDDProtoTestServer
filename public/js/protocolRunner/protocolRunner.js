@@ -297,7 +297,9 @@ class protoJobManager {
 
     _getSession(socket) {
         let obj = this.sessions[socket.request.session.passport.user];
-        obj.setSocket(socket);
+        if (obj) {
+            obj.setSocket(socket);
+        }
         return obj;
     }
 
