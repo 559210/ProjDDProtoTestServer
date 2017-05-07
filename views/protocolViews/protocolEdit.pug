@@ -21,8 +21,11 @@ block content
                             td 参数名
                             td 类型
                             td 描述
+                            td 操作
                 td.paramNote
                     input
+                td
+                    a(href="javascript:void(0)", onclick="onDeleteLine(this)") 删除
 
     mixin tableArrayTemplateMixin()
         table.ArrayTemplate(border="1")
@@ -35,6 +38,8 @@ block content
                         option string
                 td.paramNote
                     input
+                td
+                    a(href="javascript:void(0)", onclick="onDeleteLine(this)") 删除
 
 
     mixin paramsMixin(title)
@@ -46,10 +51,37 @@ block content
                 td 参数名
                 td 类型
                 td 描述
+                td 操作
 
 
     script.
+        var pugDataProto = !{JSON.stringify(proto ? proto : null)};
+
         var socket = io.connect();
+
+        $(function(){ 
+            // do something 
+            if (pugDataProto) {
+                console.log(pugDataProto);
+                $('input.route').val(pugDataProto.route);
+                $('input.route').attr({"readonly":"true"});
+                $('input.note').val(pugDataProto.note);
+
+                if (pugDataProto.c2s && pugDataProto.s2c) {
+                    $("select.type").get(0).options[0].selected = true;
+                }
+                else if (pugDataProto.c2s) {
+                    $("select.type").get(0).options[1].selected = true;
+                }
+                else if (pugDataProto.s2c) {
+                    $("select.type").get(0).options[2].selected = true;
+                }
+                
+            }
+            else {
+                
+            }
+        }); 
 
         socket.on('ErrorMsg', function(data) {
             alert(data.msg);
@@ -206,6 +238,12 @@ block content
             return data;
         }
 
+        function onDeleteLine(obj) {
+            var tr = $(obj).closest("tr");
+            tr.remove();
+        }
+
+
         function onCommitClicked() {
             var type = $('select.type').val();
             var data = {
@@ -237,10 +275,10 @@ block content
 
     div
         p 路由：
-            input.route() 
+            input.route(style="width:500") 
 
         p 描述：
-            input.note
+            input.note(style="width:500") 
 
         p 类型：
             select.type

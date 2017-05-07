@@ -83,14 +83,21 @@ module.exports = function(app, io) {
 
     app.get('/protocollist', checkLogin, (req, res) => {
         let ap = g_protoMgr.getProtocolBriefList();
-        console.log(ap);
         res.render('protocolViews/protocolView', {
             protocolList: ap
         });
     });
 
     app.get('/protocolEdit', checkLogin, (req, res) => {
-        res.render('protocolViews/protocolEdit');
+        // console.log('----------->', req.query);
+        if (req.query.protoId){
+            let proto = g_protoMgr.getBriefProtocolById(req.query.protoId);
+            console.log('-------->', proto);
+            res.render('protocolViews/protocolEdit', {proto: proto});
+        }
+        else {
+            res.render('protocolViews/protocolEdit');
+        }
     });
 
     // app.get('/PopupTest', checkLogin, (req, res) => {

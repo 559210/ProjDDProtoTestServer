@@ -20,7 +20,7 @@ script.
         }
     }
 
-    function onRouteClicked(protoId) {
+    function onRouteClicked(key, protoId) {
         g_event.trigger('protoList_routeclicked', {protoId: protoId});
     }
 div
@@ -44,12 +44,18 @@ div
                     td 路由
                     td 类型
                     td 说明
+                    td 操作
                 - for (var i = 0; i < item.length; ++i)
                     tr
                         td
                             a.route(href='javascript:void(0)', onclick='onRouteClicked(' + item[i].id + ')') #{item[i].route}
                         td= item[i].type
                         td= item[i].note
+                        td
+                            if key == 'job'
+                                ='JOB不允许编辑'
+                            else
+                                a(href='/protocolEdit?protoId=' + item[i].id) 编辑
         - firstLine = false;
 
 
