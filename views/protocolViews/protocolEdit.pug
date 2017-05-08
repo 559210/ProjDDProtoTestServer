@@ -59,6 +59,38 @@ block content
 
         var socket = io.connect();
 
+        function addParamData(tag, param) {
+            var _t = 'div.' + tag;
+            var addButtonObj = $(_t + ' > a');
+            
+            for (var key in param) {
+                var obj = param[key];
+                var tr = onAdd(addButtonObj);
+                tr.find('td.paramName input').val(key);
+                var typeIndex = 0;
+                switch (obj.type) {
+                case 'int':
+                    typeIndex = 0;
+                    break;
+                case 'string':
+                    typeIndex = 1;
+                    break;
+                case 'simpleArray':
+                    typeIndex = 2;
+                    break;
+                case 'array':
+                    var content = obj.content;
+                    typeIndex = 3;
+                    break;
+                }
+
+                tr.find('td.param select').get(0).options[typeIndex].selected = true;
+                tr.find('td.paramNote input').val(obj.desc);
+                console.log(param);
+            }
+            
+        }
+
         $(function(){ 
             // do something 
             if (pugDataProto) {
@@ -77,6 +109,12 @@ block content
                     $("select.type").get(0).options[2].selected = true;
                 }
                 
+                if (pugDataProto.c2s) {
+                    addParamData('c2s', pugDataProto.c2s);
+                }
+                if (pugDataProto.s2c) {
+                    addParamData('s2c', pugDataProto.s2c);
+                }
             }
             else {
                 
@@ -128,6 +166,8 @@ block content
             });
 
             g_paramIndexMap[tag]++;
+
+            return tb.find(' > tbody > tr:eq(' + (tbLen - 1) + ')');
         }
 
         function onAddArray(obj) {
@@ -286,7 +326,7 @@ block content
                 option push
                 option notify
 
-        p 分类:
+        p 分类：
             input.tag
 
         div.templates(style="display : none")
