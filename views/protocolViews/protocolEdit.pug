@@ -16,7 +16,7 @@ block content
                     table.Array(border="1" style="display:none")
                         tr(align="center")
                             td
-                                a(href="#" onclick='onAddArray(this)') 添加
+                                a.AddArray(href="#" onclick='onAddArray(this)') 添加
                         tr(align="center")
                             td 参数名
                             td 类型
@@ -79,14 +79,37 @@ block content
                     typeIndex = 2;
                     break;
                 case 'array':
-                    var content = obj.content;
                     typeIndex = 3;
                     break;
                 }
 
                 tr.find('td.param select').get(0).options[typeIndex].selected = true;
                 tr.find('td.paramNote input').val(obj.desc);
-                console.log(param);
+
+                switch (typeIndex) {
+                case 2:
+                    tr.find('table').show();
+                    var content = obj.content;
+                    console.log(JSON.stringify(content));
+
+                    var arrayTr = onAddArray(tr.find('table.Array a.AddArray'));
+                    arrayTr.find('td.paramName input').val('');
+                    arrayTr.find('td.param select').get(0).options[content.type=='int' ? 0 : 1].selected = true;
+                    arrayTr.find('td.paramNote input').val(content.desc);
+
+                    break;
+                case 3:
+                    tr.find('table').show();
+                    var content = obj.content;
+                    for (var _k in content) {
+                        var paramObj = content[_k];
+                        var arrayTr = onAddArray(tr.find('table.Array a.AddArray'));
+                        arrayTr.find('td.paramName input').val(_k);
+                        arrayTr.find('td.param select').get(0).options[paramObj.type=='int' ? 0 : 1].selected = true;
+                        arrayTr.find('td.paramNote input').val(paramObj.desc);
+                    }
+                    break;
+                }
             }
             
         }
@@ -94,7 +117,6 @@ block content
         $(function(){ 
             // do something 
             if (pugDataProto) {
-                console.log(pugDataProto);
                 $('input.route').val(pugDataProto.route);
                 $('input.route').attr({"readonly":"true"});
                 $('input.note').val(pugDataProto.note);
@@ -178,6 +200,9 @@ block content
             html = '<tr class="Array" align="center">' + html + '</tr>';
 
             tb.append(html);
+
+            var tbLen = tb.find('> tbody > tr').length;
+            return tb.find(' > tbody > tr:eq(' + (tbLen - 1) + ')');
         }
 
 
