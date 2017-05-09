@@ -148,6 +148,7 @@ class ProtocolManager {
             }
 
             bp.id = id;
+            bp.tag = JOB_TAG;
             self.protocolBriefList[JOB_TAG].push(bp);
             self.protocolBriefMap[bp.id] = bp;
             callback(null);
@@ -179,7 +180,7 @@ class ProtocolManager {
                 proto.c2s = bp.c2s;
                 proto.s2c = bp.s2c;
 
-                g_protocolRunnerPersistent.updateInstumentPrototype(proto.id, JSON.stringify(proto.c2s), JSON.stringify(proto.s2c), proto.note, JOB_TAG, (err) => {
+                g_protocolRunnerPersistent.updateInstumentPrototype(proto.id, proto.route, JSON.stringify(proto.c2s), JSON.stringify(proto.s2c), proto.note, JOB_TAG, (err) => {
                     cb(err);
                 });
             }
@@ -231,6 +232,7 @@ class ProtocolManager {
                 bp.type = dt.type;
                 bp.c2s = JSON.parse(dt.c2s);
                 bp.s2c = JSON.parse(dt.s2c);
+                bp.tag = dt.tag;
 
                 if (g_common.isUndefinedOrNull(self.protocolBriefList[dt.tag])) {
                     self.protocolBriefList[dt.tag] = [];
@@ -245,7 +247,6 @@ class ProtocolManager {
     }
 
     addNewProtocol(proto, callback) {
-        console.log('--->', proto);
         let self = this;
         // 查找是否有同名的proto
         let foundProtoId = -1;
@@ -284,7 +285,81 @@ class ProtocolManager {
                 return callback(null);
             });
         } else {
+            return callback(new Error('duplicated route name'));
+        }
+    }
 
+    updateProtocol(proto, callback) {
+        let self = this;
+
+        let foundProtoId = -1;
+        for (let protoId in this.protocolBriefMap) {
+            if (this.protocolBriefMap[protoId].route === proto.route && this.protocolBriefMap[protoId].id != proto.id) {
+                return callback(new Error('duplicated route name'));
+            }
+        }
+
+        let targetProto = this.protocolBriefMap[proto.id];
+        if (targetProto) {
+            g_protocolRunnerPersistent.updateInstumentPrototype(proto.id, proto.route, JSON.stringify(proto.c2s), JSON.stringify(proto.s2c), proto.note, proto.tag, (err) => {
+                if (err) {
+                    return callback(err);
+                }
+
+                switch (proto.type) {
+                    case 'request':
+                        targetProto.type = PROTO_TYPE.REQUEST;
+                        break;
+                    case 'push':
+                        targetProto.type = PROTO_TYPE.PUSH;
+                        break;
+                    case 'notify':
+                        targetProto.type = PROTO_TYPE.NOTIFY;
+                        break;
+                }
+
+                targetProto.route = proto.route;
+                targetProto.note = proto.note;
+                if (proto.c2s) {
+                    targetProto.c2s = proto.c2s;
+                } else {
+                    delete targetProto.c2s;
+                }
+
+                if (proto.s2c) {
+                    targetProto.s2c = proto.s2c;
+                } else {
+                    delete targetProto.s2c;
+                }
+
+                let oldTag = targetProto.tag;
+                targetProto.tag = proto.tag;
+
+                if (oldTag !== targetProto.tag) {
+                    let oldTagCate = self.protocolBriefList[oldTag];
+                    for (let i = 0; i < oldTagCate.length; ++i) {
+                        if (oldTagCate[i].id === targetProto.id) {
+                            oldTagCate.splice(i, 1);
+
+                            if (oldTagCate.length == 0) {
+                                delete self.protocolBriefList[oldTag];
+                            }
+                            break;
+                        }
+                    }
+
+                    if (self.protocolBriefList[targetProto.tag] === undefined) {
+                        self.protocolBriefList[targetProto.tag] = [];
+                    }
+
+                    self.protocolBriefList[targetProto.tag].push(targetProto);
+
+                    callback(null);
+                }
+            });
+
+        } else {
+            callback(new Error('can not find the protocol'));
         }
     }
 

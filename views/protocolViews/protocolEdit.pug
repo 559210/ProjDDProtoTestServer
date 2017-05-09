@@ -176,8 +176,9 @@ block content
             // do something 
             if (pugDataProto) {
                 $('input.route').val(pugDataProto.route);
-                $('input.route').attr({"readonly":"true"});
                 $('input.note').val(pugDataProto.note);
+                $('input.tag').val(pugDataProto.tag);
+                $('input.protoId').val(pugDataProto.id);
 
                 if (pugDataProto.c2s && pugDataProto.s2c) {
                     $("select.type").get(0).options[0].selected = true;
@@ -266,21 +267,29 @@ block content
         function makeArrayParam(tr) {
             var data = {
                 type: 'array',
+                desc: tr.find('> td.paramNote input').val(),
                 content: {}
             };
 
-            var len = tr.find('> td.param table tr').length;
+            var len = tr.find('> td.param > table > tbody > tr.param').length;
 
             for (var i = 0; i < len; ++i) {
-                var subTr = tr.find('> td.param table tr.Array:eq(' + i + ')');
-                var name = subTr.find('> td.paramName input').val();
-                var type = subTr.find('> td.param select').val();
+
+                var subTr = tr.find('> td.param > table > tbody > tr.param:eq(' + i + ')');
+                var name = subTr.find('> td.paramName > input').val();
+                var type = subTr.find('> td.param > select').val();
                 switch(type) {
                     case 'int':
                         data.content[name] = makeIntParam(subTr);
                         break;
                     case 'string':
                         data.content[name] = makeStringParam(subTr);
+                        break;
+                    case 'simpleArray':
+                        data.content[name] = makeSimpleArrayParam(subTr);
+                        break;
+                    case 'array':
+                        data.content[name] = makeArrayParam(subTr);
                         break;
                 }
             }
@@ -291,11 +300,12 @@ block content
         function makeSimpleArrayParam(tr) {
             var data = {
                 type: 'simpleArray',
+                desc: tr.find('> td.paramNote input').val(),
                 content: {}
             };
 
-            var subTr = tr.find('> td.param table tr.Array:eq(0)');
-            var type = subTr.find('> td.param select').val();
+            var subTr = tr.find('> td.param > table > tbody > tr.param:eq(0)');
+            var type = subTr.find('> td.param > select').val();
 
             switch(type) {
                 case 'int':
@@ -303,6 +313,12 @@ block content
                     break;
                 case 'string':
                     data.content = makeStringParam(subTr);
+                    break;
+                case 'simpleArray':
+                    data.content[name] = makeSimpleArrayParam(subTr);
+                    break;
+                case 'array':
+                    data.content[name] = makeArrayParam(subTr);
                     break;
             }
 
@@ -333,7 +349,7 @@ block content
             var data = {};
 
             var table = $('div.' + tag + ' > table');
-            var trs = $('div.' + tag + ' > table tr.param');
+            var trs = $('div.' + tag + ' > table > tbody > tr.param');
 
             for (var i = 0; i < trs.length; ++i) {
                 var tr = $(trs[i]);
@@ -367,6 +383,8 @@ block content
 
 
         function onCommitClicked() {
+            var isUpdate = ($('input.protoId').length > 0);
+            console.log('isUpdate', isUpdate);
             var type = $('select.type').val();
             var data = {
                 type: type,
@@ -374,6 +392,9 @@ block content
                 note: $('input.note').val(),
                 tag: $('input.tag').val()
             };
+            if (isUpdate) {
+                data.id = $('input.protoId').val();
+            }
 
             if (type === 'request') {
                 data.c2s = makeParam('c2s');
@@ -390,7 +411,15 @@ block content
                 return;
             }
 
-            socket.emit("AddRawProtocol", data);
+            console.log(data);
+
+            if (isUpdate) {
+                socket.emit("UpdateRawProtocol", data);
+            }
+            else {
+                socket.emit("AddRawProtocol", data);
+            }
+            
         }
 
     h1 协议编辑
@@ -398,6 +427,10 @@ block content
     div
         p 路由：
             input.route(style="width:500") 
+
+        if proto && proto.id
+            p 协议编号：
+                input.protoId(readonly="true")
 
         p 描述：
             input.note(style="width:500") 

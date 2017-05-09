@@ -109,8 +109,8 @@ exp.loadAllInstrumentsPrototype = function(callback) {
     });
 }
 
-exp.updateInstumentPrototype = function(id, c2s, s2c, note, tag, callback) {
-    pool.query("update `InstrumentPrototypes` set `c2s` = ?, `s2c` = ?, `note` = ?, `tag` = ? where instId = ?", [c2s, s2c, note, tag ? tag : null, id], callback);
+exp.updateInstumentPrototype = function(id, name, c2s, s2c, note, tag, callback) {
+    pool.query("update `InstrumentPrototypes` set `name` = ?, `c2s` = ?, `s2c` = ?, `note` = ?, `tag` = ? where instId = ?", [name, c2s, s2c, note, tag ? tag : null, id], callback);
 }
 
 
