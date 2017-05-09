@@ -16,7 +16,7 @@ block content
                     table.Array(border="1" style="display:none")
                         tr(align="center")
                             td
-                                a.AddArray(href="#" onclick='onAddArray(this)') 添加
+                                a.AddArray(href="#" onclick='onAdd(this)') 添加
                         tr(align="center")
                             td 参数名
                             td 类型
@@ -27,26 +27,29 @@ block content
                 td
                     a(href="javascript:void(0)", onclick="onDeleteLine(this)") 删除
 
-    mixin tableArrayTemplateMixin()
-        table.ArrayTemplate(border="1")
-            tr.paramArray(align="center")
-                td.paramName
-                    input
-                td.param
-                    select.paramType
-                        option int
-                        option string
-                td.paramNote
-                    input
-                td
-                    a(href="javascript:void(0)", onclick="onDeleteLine(this)") 删除
+    //- mixin tableArrayTemplateMixin()
+    //-     table.ArrayTemplate(border="1")
+    //-         tr.paramArray(align="center")
+    //-             td.paramName
+    //-                 input
+    //-             td.param
+    //-                 select.paramType
+    //-                     option int
+    //-                     option string
+    //-             td.paramNote
+    //-                 input
+    //-             td
+    //-                 a(href="javascript:void(0)", onclick="onDeleteLine(this)") 删除
 
 
     mixin paramsMixin(title)
         hr
         p= title
-        a(href="#" onclick="onAdd(this)") 添加
+        
         table(border="1")
+            tr
+                td
+                    a(href="#" onclick="onAdd(this)") 添加
             tr(align="center")
                 td 参数名
                 td 类型
@@ -60,58 +63,113 @@ block content
         var socket = io.connect();
 
         function addParamData(tag, param) {
-            var _t = 'div.' + tag;
-            var addButtonObj = $(_t + ' > a');
+            var addButtonObj = $('div.' + tag + ' > table > tbody > tr:eq(0) > td > a');
             
             for (var key in param) {
                 var obj = param[key];
                 var tr = onAdd(addButtonObj);
-                tr.find('td.paramName input').val(key);
-                var typeIndex = 0;
+                tr.find('td.paramName > input').val(key);
+                tr.find('td.paramNote > input').val(obj.desc);
+
                 switch (obj.type) {
                 case 'int':
-                    typeIndex = 0;
+                    tr.find('td.param > select').get(0).options[0].selected = true;
                     break;
                 case 'string':
-                    typeIndex = 1;
+                    tr.find('td.param > select').get(0).options[1].selected = true;
                     break;
                 case 'simpleArray':
-                    typeIndex = 2;
+                    tr.find('td.param > select').get(0).options[2].selected = true;
+                    addParamSimpleArrayData(tr, obj.content);
                     break;
                 case 'array':
-                    typeIndex = 3;
+                    tr.find('td.param > select').get(0).options[3].selected = true;
+                    addParamArrayData(tr, obj.content);
                     break;
                 }
 
-                tr.find('td.param select').get(0).options[typeIndex].selected = true;
-                tr.find('td.paramNote input').val(obj.desc);
+                
+                
 
-                switch (typeIndex) {
-                case 2:
-                    tr.find('table').show();
-                    var content = obj.content;
-                    console.log(JSON.stringify(content));
+                //- switch (typeIndex) {
+                //- case 2:
+                //-     tr.find('table').show();
+                //-     var content = obj.content;
+                //-     console.log(JSON.stringify(content));
 
-                    var arrayTr = onAddArray(tr.find('table.Array a.AddArray'));
-                    arrayTr.find('td.paramName input').val('');
-                    arrayTr.find('td.param select').get(0).options[content.type=='int' ? 0 : 1].selected = true;
-                    arrayTr.find('td.paramNote input').val(content.desc);
+                //-     var arrayTr = onAdd(tr.find('table.Array > tbody > tr:eq(0) > td > a.AddArray'));
+                //-     console.log(arrayTr);
+                //-     arrayTr.find('td.paramName > input').val('');
+                //-     arrayTr.find('td.param > select').get(0).options[content.type=='int' ? 0 : 1].selected = true;
+                //-     arrayTr.find('td.paramNote > input').val(content.desc);
 
+                //-     break;
+                //- case 3:
+                //-     tr.find('table').show();
+                //-     var content = obj.content;
+                //-     for (var _k in content) {
+                //-         var paramObj = content[_k];
+                //-         var arrayTr = onAdd(tr.find('table.Array > tbody > tr:eq(0) > td > a.AddArray'));
+                //-         arrayTr.find('td.paramName input').val(_k);
+                //-         arrayTr.find('td.param > select').get(0).options[paramObj.type=='int' ? 0 : 1].selected = true;
+                //-         arrayTr.find('td.paramNote > input').val(paramObj.desc);
+                //-     }
+                //-     break;
+                //- }
+            }
+            
+        }
+
+        function addParamArrayData(tr, content) {
+            tr.find('table').show();
+            for (var _k in content) {
+                var paramObj = content[_k];
+                var arrayTr = onAdd(tr.find('table.Array > tbody > tr:eq(0) > td > a.AddArray'));
+                arrayTr.find('td.paramName input').val(_k);
+                
+                arrayTr.find('td.paramNote > input').val(paramObj.desc);
+
+                switch(paramObj.type) {
+                case 'int':
+                    arrayTr.find('td.param > select').get(0).options[0].selected = true;
                     break;
-                case 3:
-                    tr.find('table').show();
-                    var content = obj.content;
-                    for (var _k in content) {
-                        var paramObj = content[_k];
-                        var arrayTr = onAddArray(tr.find('table.Array a.AddArray'));
-                        arrayTr.find('td.paramName input').val(_k);
-                        arrayTr.find('td.param select').get(0).options[paramObj.type=='int' ? 0 : 1].selected = true;
-                        arrayTr.find('td.paramNote input').val(paramObj.desc);
-                    }
+                case 'string':
+                    arrayTr.find('td.param > select').get(0).options[1].selected = true;
+                    break;
+                case 'simpleArray':
+                    arrayTr.find('td.param > select').get(0).options[2].selected = true;
+                    addParamSimpleArrayData(arrayTr, paramObj.content);
+                    break;
+                case 'array':
+                    arrayTr.find('td.param > select').get(0).options[3].selected = true;
+                    addParamArrayData(arrayTr, paramObj.content);
                     break;
                 }
             }
-            
+        }
+
+        function addParamSimpleArrayData(tr, content) {
+            tr.find('table').show();
+            var arrayTr = onAdd(tr.find('table.Array > tbody > tr:eq(0) > td > a.AddArray'));
+            arrayTr.find('td.paramName > input').val('');
+            arrayTr.find('td.paramNote > input').val(content.desc);
+
+            switch(content.type) {
+            case 'int':
+                arrayTr.find('td.param > select').get(0).options[0].selected = true;
+                break;
+            case 'string':
+                arrayTr.find('td.param > select').get(0).options[1].selected = true;
+                break;
+            case 'simpleArray':
+                arrayTr.find('td.param > select').get(0).options[2].selected = true;
+                addParamSimpleArrayData(arrayTr, paramObj.content);
+                break;
+            case 'array':
+                arrayTr.find('td.param > select').get(0).options[3].selected = true;
+                addParamArrayData(arrayTr, paramObj.content);
+                break;
+            }
         }
 
         $(function(){ 
@@ -165,8 +223,7 @@ block content
                 g_paramIndexMap[tag] = 0;
             }
 
-            var prefix = 'div.' + tag + ' > table ';
-            var tb = $(prefix);
+            var tb = $(obj.closest('table'));
             var firstTr = $('table.Template tr:eq(0)');
             var html = firstTr.html();
             html = '<tr class="param" align="center">' + html + '</tr>';
@@ -192,18 +249,18 @@ block content
             return tb.find(' > tbody > tr:eq(' + (tbLen - 1) + ')');
         }
 
-        function onAddArray(obj) {
-            var tag = $(obj).closest('div').attr('class');
-            var tb = $(obj).closest('table');
-            var firstTr = $("table.ArrayTemplate tr:eq(0)");
-            var html = firstTr.html();
-            html = '<tr class="Array" align="center">' + html + '</tr>';
+        //- function onAddArray(obj) {
+        //-     var tag = $(obj).closest('div').attr('class');
+        //-     var tb = $(obj).closest('table');
+        //-     var firstTr = $("table.ArrayTemplate tr:eq(0)");
+        //-     var html = firstTr.html();
+        //-     html = '<tr class="Array" align="center">' + html + '</tr>';
 
-            tb.append(html);
+        //-     tb.append(html);
 
-            var tbLen = tb.find('> tbody > tr').length;
-            return tb.find(' > tbody > tr:eq(' + (tbLen - 1) + ')');
-        }
+        //-     var tbLen = tb.find('> tbody > tr').length;
+        //-     return tb.find(' > tbody > tr:eq(' + (tbLen - 1) + ')');
+        //- }
 
 
         function makeArrayParam(tr) {
@@ -357,7 +414,7 @@ block content
         div.templates(style="display : none")
             +tableTemplateMixin()
 
-            +tableArrayTemplateMixin()
+            //- +tableArrayTemplateMixin()
 
 
         div.c2s
