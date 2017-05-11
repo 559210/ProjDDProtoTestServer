@@ -396,6 +396,7 @@ class ProtocolManager {
 
                     for (let i = 0; i < results.length; ++i) {
                         let res = results[i];
+
                         self.jobCache[res.jobId] = {
                             jobJson: res.jobJson
                         };
@@ -767,14 +768,23 @@ class ProtocolManager {
         let ret = [];
         // {"name":"xxx","id":1,"instruments":[]}
         let reg = /\"name\":\"(.*?)\"/;
+        let regTag = /\"tag\":\"(.*?)\"/;
         for (let key in this.jobCache) {
             let jobJson = this.jobCache[key].jobJson;
 
             let res = reg.exec(jobJson);
+            let jobName = res[1];
+
+            res = regTag.exec(jobJson);
+            let jobTag = (res && res.length >= 2) ? res[1] : '';
+
+            // for test
+            jobTag = 'AAA';
 
             ret.push({
                 id: key,
-                name: res[1]
+                name: jobName,
+                tag: jobTag
             });
         }
 

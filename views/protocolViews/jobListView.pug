@@ -1,8 +1,30 @@
 
 script(type="text/javascript").
     var pugDataJobList = !{JSON.stringify(jobList)};
+    var currentDirectory = '';
 
-    function onJobClicked(jobIdx) {
+    $(function(){ 
+        // do something 
+        var jobTable = $('div > table.jobList');
+        var templateTr = $('div.template > table tr:eq(0)');
+
+        var html = templateTr.html();
+        
+
+        for (var i = 0; i < pugDataJobList.length; ++i) {
+            var ht = '<tr class="jobId" jobIndex="' + i + '">' + html + '</tr>';
+            ht = ht.replace('__jobName__', pugDataJobList[i].name);
+
+            console.log(pugDataJobList[i].tag.search(currentDirectory));
+            if (pugDataJobList[i].tag.search(currentDirectory) == 0)
+                jobTable.append(ht);
+        }
+    }); 
+
+
+    function onJobClicked(obj) {
+        var tr = $(obj).closest('tr.jobId');
+        var jobIdx = tr.attr("jobIndex");
         socket.emit('OpenJob', {jobName: pugDataJobList[jobIdx].name, jobId: pugDataJobList[jobIdx].id});
     }
 
@@ -10,69 +32,80 @@ script(type="text/javascript").
         socket.emit('AddJob', {jobName: $('input.newJobName').val()});
     }
 
-    function onRenameJobClicked(jobIdx) {
-        var jobName = $('a#jobName' + jobIdx)[0].innerHTML;
+    function onRenameJobClicked(obj) {
+        var tr = $(obj).closest('tr.jobId');
+        var jobIdx = tr.attr("jobIndex");
 
-        $('a#jobName' + jobIdx).hide();
-        $('div#normal' + jobIdx).hide();
+        var jobName = pugDataJobList[jobIdx].name;
 
-        $('input#input' + jobIdx).show();
-        $('div#rename' + jobIdx).show();
+        tr.find('> td:eq(0) > a#jobName').hide();
+        tr.find('> td:eq(1) > div#normal').hide();
 
-        $('input#input' + jobIdx).val(jobName);
+        tr.find('> td:eq(0) > input#input').show();
+        tr.find('> td:eq(1) > div#rename').show();
+
+        tr.find('> td:eq(0) > input#input').val(jobName);
     }
 
-    function onRemoveJobClicked(jobIdx) {
+    function onRemoveJobClicked(obj) {
+        var tr = $(obj).closest('tr.jobId');
+        var jobIdx = tr.attr("jobIndex");
+
         if (confirm("删除是不可恢复的，你确认要删除 " + pugDataJobList[jobIdx].name + " 吗？")) {
             socket.emit('RemoveJob', {jobName: pugDataJobList[jobIdx].name, jobId: pugDataJobList[jobIdx].id});
         }
     }
 
-    function onRenameJobOKClicked(jobIdx) {
+    function onRenameJobOKClicked(obj) {
+        var tr = $(obj).closest('tr.jobId');
+        var jobIdx = tr.attr("jobIndex");
+
         var jobName = pugDataJobList[jobIdx].name;
-        var newName = $('input#input' + jobIdx).val();
+        var newName = tr.find('> td:eq(0) > input#input').val();
         if (newName.length == 0) {
             alert('请输入新名字');
             return;
         }
 
-        $('a#jobName' + jobIdx).show();
-        $('div#normal' + jobIdx).show();
+        tr.find('> td:eq(0) > a#jobName').show();
+        tr.find('> td:eq(1) > div#normal').show();
 
-        $('input#input' + jobIdx).hide();
-        $('div#rename' + jobIdx).hide();
+        tr.find('> td:eq(0) > input#input').hide();
+        tr.find('> td:eq(1) > div#rename').hide();
 
         socket.emit('RenameJob', {jobName: jobName, jobId: pugDataJobList[jobIdx].id, newJobName: newName});
     }
 
-    function onRenameJobCancelClicked(jobIdx) {
-        $('a#jobName' + jobIdx).show();
-        $('div#normal' + jobIdx).show();
+    function onRenameJobCancelClicked(obj) {
+        var tr = $(obj).closest('tr.jobId');
+        var jobIdx = tr.attr("jobIndex");
 
-        $('input#input' + jobIdx).hide();
-        $('div#rename' + jobIdx).hide();    
+        tr.find('> td:eq(0) > a#jobName').show();
+        tr.find('> td:eq(1) > div#normal').show();
+
+        tr.find('> td:eq(0) > input#input').hide();
+        tr.find('> td:eq(1) > div#rename').hide();  
     }
-div
-    //- ul(style="list-style-type:none;")
+
+div.template(style="display : none")
     table(border='1', align='center')
         tr
-            td(align='center') job名
+            td(style='width:110px', align='center')
+                a(id='jobName', href="javascript:void(0)", onclick='onJobClicked(this)') __jobName__
+                input(id='input', type='text', style='width:100px; display:none')
             td
-        - for (var i = 0; i < jobList.length; ++i)
-            tr
-                td(style='width:110px', align='center')
-                    a(id='jobName' + i, href="javascript:void(0)", onclick='onJobClicked(' + i + ')') #{jobList[i].name}
-                    input(id='input' + i, type='text', style='width:100px; display:none')
-                td
-                    div(id='normal' + i)
-                        a(href="javascript:void(0)", onclick="onRenameJobClicked(" + i + ")") 改名
-                        br
-                        a(href="javascript:void(0)", onclick="onRemoveJobClicked(" + i + ")") 删除
-                    div(id='rename' + i, style='display:none')
-                        a(href="javascript:void(0)", onclick="onRenameJobOKClicked(" + i + ")") 确定
-                        br
-                        a(href="javascript:void(0)", onclick="onRenameJobCancelClicked(" + i + ")") 取消                        
+                div(id='normal')
+                    a(href="javascript:void(0)", onclick="onRenameJobClicked(this)") 改名
+                    br
+                    a(href="javascript:void(0)", onclick="onRemoveJobClicked(this)") 删除
+                div(id='rename', style='display:none')
+                    a(href="javascript:void(0)", onclick="onRenameJobOKClicked(this)") 确定
+                    br
+                    a(href="javascript:void(0)", onclick="onRenameJobCancelClicked(this)") 取消
 
+div
+    //- ul(style="list-style-type:none;")
+    table.jobList(border='1', align='center')
 
     br
     br
