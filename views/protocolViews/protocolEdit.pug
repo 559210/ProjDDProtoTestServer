@@ -12,6 +12,7 @@ block content
                         option string
                         option simpleArray
                         option array
+                        option object
                         
                     table.Array(border="1" style="display:none")
                         tr(align="center")
@@ -86,6 +87,10 @@ block content
                     tr.find('td.param > select').get(0).options[3].selected = true;
                     addParamArrayData(tr, obj.content);
                     break;
+                case 'object':
+                    tr.find('td.param > select').get(0).options[4].selected = true;
+                    addParamObjectData(tr, obj.content);
+                    break;
                 }
 
                 
@@ -144,6 +149,10 @@ block content
                     arrayTr.find('td.param > select').get(0).options[3].selected = true;
                     addParamArrayData(arrayTr, paramObj.content);
                     break;
+                case 'object':
+                    arrayTr.find('td.param > select').get(0).options[4].selected = true;
+                    addParamObjectData(arrayTr, paramObj.content);
+                    break;
                 }
             }
         }
@@ -169,7 +178,43 @@ block content
                 arrayTr.find('td.param > select').get(0).options[3].selected = true;
                 addParamArrayData(arrayTr, paramObj.content);
                 break;
+            case 'object':
+                arrayTr.find('td.param > select').get(0).options[4].selected = true;
+                addParamObjectData(arrayTr, paramObj.content);
+                break;    
             }
+        }
+
+        function addParamObjectData(tr, content) {
+            tr.find('table').show();
+            for (var _k in content) {
+                var paramObj = content[_k];
+                var arrayTr = onAdd(tr.find('table.Array > tbody > tr:eq(0) > td > a.AddArray'));
+                arrayTr.find('td.paramName input').val(_k);
+                
+                arrayTr.find('td.paramNote > input').val(paramObj.desc);
+
+                switch(paramObj.type) {
+                case 'int':
+                    arrayTr.find('td.param > select').get(0).options[0].selected = true;
+                    break;
+                case 'string':
+                    arrayTr.find('td.param > select').get(0).options[1].selected = true;
+                    break;
+                case 'simpleArray':
+                    arrayTr.find('td.param > select').get(0).options[2].selected = true;
+                    addParamSimpleArrayData(arrayTr, paramObj.content);
+                    break;
+                case 'array':
+                    arrayTr.find('td.param > select').get(0).options[3].selected = true;
+                    addParamArrayData(arrayTr, paramObj.content);
+                    break;
+                case 'object':
+                    arrayTr.find('td.param > select').get(0).options[4].selected = true;
+                    addParamObjectData(arrayTr, paramObj.content);
+                    break;
+                }
+            }   
         }
 
         $(function(){ 
@@ -236,7 +281,7 @@ block content
             tb.find(' > tbody > tr:eq(' + (tbLen - 1) + ') > td.param select').change(function(o) {
                 var tr = $(o.currentTarget).closest('tr');
                 var typeStr = tr.find('select').val();
-                if (typeStr == 'array' || typeStr == 'simpleArray') {
+                if (typeStr == 'array' || typeStr == 'simpleArray' || typeStr == 'object') {
                     tr.find('table').show();
                 }
                 else {
@@ -291,6 +336,9 @@ block content
                     case 'array':
                         data.content[name] = makeArrayParam(subTr);
                         break;
+                    case 'object':
+                        data.content[name] = makeObjectParam(subTr);
+                        break;
                 }
             }
 
@@ -320,11 +368,50 @@ block content
                 case 'array':
                     data.content[name] = makeArrayParam(subTr);
                     break;
+                case 'object':
+                    data.content[name] = makeObjectParam(subTr);
+                    break;
             }
 
 
             return data;
         }
+
+        function makeObjectParam(tr) {
+            var data = {
+                type: 'object',
+                desc: tr.find('> td.paramNote input').val(),
+                content: {}
+            }
+            var len = tr.find('> td.param > table > tbody > tr.param').length;
+
+            for (var i = 0; i < len; ++i) {
+
+                var subTr = tr.find('> td.param > table > tbody > tr.param:eq(' + i + ')');
+                var name = subTr.find('> td.paramName > input').val();
+                var type = subTr.find('> td.param > select').val();
+                switch(type) {
+                    case 'int':
+                        data.content[name] = makeIntParam(subTr);
+                        break;
+                    case 'string':
+                        data.content[name] = makeStringParam(subTr);
+                        break;
+                    case 'simpleArray':
+                        data.content[name] = makeSimpleArrayParam(subTr);
+                        break;
+                    case 'array':
+                        data.content[name] = makeArrayParam(subTr);
+                        break;
+                    case 'object':
+                        data.content[name] = makeObjectParam(subTr);
+                        break;
+                }
+            }
+
+            return data;
+
+         }
 
         function makeIntParam(tr) {
             var data = {
@@ -369,6 +456,9 @@ block content
                         break;
                     case 'simpleArray':
                         data[name] = makeSimpleArrayParam(tr);
+                        break;
+                    case 'object':
+                        data[name] = makeObjectParam(tr);
                         break;
                 }
             }

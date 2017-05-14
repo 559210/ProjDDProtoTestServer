@@ -289,13 +289,13 @@ class protoJobManager {
 
             socket.on('AddRawProtocol', (data) => {
                 g_protoMgr.addNewProtocol(data, (err) => {
-                    checkMsgResult(err, '协议保存失败. ' + err.toString());
+                    checkMsgResult(err, '协议保存失败. ' + (err ? err.toString() : ''));
                 });
             });
 
             socket.on('UpdateRawProtocol', (data) => {
                 g_protoMgr.updateProtocol(data, (err) => {
-                    checkMsgResult(err, '协议更新失败. ' + err.toString());
+                    checkMsgResult(err, '协议更新失败. ' + (err ? err.toString() : ''));
                 });
             });
         });
