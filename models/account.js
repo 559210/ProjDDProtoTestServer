@@ -1,4 +1,6 @@
 // sample model
+"use strict";
+
 var async = require('async');
 var pool = require('./mySQLPool');
 var session = require('express-session');

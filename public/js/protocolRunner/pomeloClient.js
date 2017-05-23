@@ -1,3 +1,4 @@
+"use strict";
 /////////////////////////////////////////////////////////////
 var WebSocket = require('ws');
 var userName = require('pomelo-protocol');
