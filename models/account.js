@@ -62,13 +62,13 @@ exp.getSessionStore = () => {
 
 
 exp.authenticate = (userName, password, callback) => {
-    // console.log('authenticate =================');
+    console.log('authenticate =================', userName);
     pool.query("select * from `Account` where `userName` = ? ", [userName], (err, results, fields) => {
         if (err) {
             return callback(err);
         }
 
-        // console.log(results);
+        console.log(results);
         // console.log(fields);
 
         if (results && results.length == 1) {
