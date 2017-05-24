@@ -5,21 +5,63 @@ script(type="text/javascript").
 
     $(function(){ 
         // do something 
+        createJobList();
+    });
+
+    function createJobList() {
         var jobTable = $('div > table.jobList');
+        jobTable.find('> tbody > tr').remove();
+
         var templateTr = $('div.template > table tr:eq(0)');
+        var templateSubDirTr = $('div.templateSubDir > table tr:eq(0)');
 
         var html = templateTr.html();
+        var subDirHtml = templateSubDirTr.html();
         
-
+        var reg = new RegExp(".*/.*");
+        var addedDirList = {};
         for (var i = 0; i < pugDataJobList.length; ++i) {
-            var ht = '<tr class="jobId" jobIndex="' + i + '">' + html + '</tr>';
-            ht = ht.replace('__jobName__', pugDataJobList[i].name);
-
-            console.log(pugDataJobList[i].tag.search(currentDirectory));
-            if (pugDataJobList[i].tag.search(currentDirectory) == 0)
+            var tag = pugDataJobList[i].tag;
+            if (tag === currentDirectory) {
+                var ht = '<tr class="jobId" jobIndex="' + i + '">' + html + '</tr>';
+                ht = ht.replace('__jobName__', pugDataJobList[i].name);
                 jobTable.append(ht);
+            }
+            else {
+                var found = tag.search(currentDirectory);
+                if (found === 0) {
+                    var subTag = tag.replace(currentDirectory, '');
+                    console.log('1', subTag);
+                    if (subTag.search('/') >= 0) {
+                        var result = subTag.match("(.*?)/.*");
+                        if (result && result.length > 1) {
+                            subTag = result[1];
+                        }
+                    }
+
+                    console.log('2', subTag);
+                    if (addedDirList[subTag] === undefined) {
+                        addedDirList[subTag] = 1;
+
+                        var ht = '<tr class="jobDir">' + subDirHtml + '</tr>';
+                        ht = ht.replace('__jobName__', subTag);
+                        jobTable.append(ht);
+                    }
+                }
+            }
+        }    
+    }
+
+    function onSubDirClicked(obj) {
+        if (currentDirectory.length > 0) {
+            currentDirectory = currentDirectory + $(obj).text() + '/';
         }
-    }); 
+        else {
+            currentDirectory = $(obj).text() + '/';
+        }
+        console.log('---', currentDirectory);
+        createJobList();
+    }
 
 
     function onJobClicked(obj) {
@@ -102,6 +144,15 @@ div.template(style="display : none")
                     a(href="javascript:void(0)", onclick="onRenameJobOKClicked(this)") 确定
                     br
                     a(href="javascript:void(0)", onclick="onRenameJobCancelClicked(this)") 取消
+
+div.templateSubDir(style="display : none")
+    table(border='1', align='center')
+        tr
+            td(style='width:110px', align='center')
+                a(id='jobName', href="javascript:void(0)", onclick='onSubDirClicked(this)') __jobName__
+                input(id='input', type='text', style='width:100px; display:none')
+            td
+
 
 div
     //- ul(style="list-style-type:none;")
