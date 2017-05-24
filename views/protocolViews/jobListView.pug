@@ -2,6 +2,7 @@
 script(type="text/javascript").
     var pugDataJobList = !{JSON.stringify(jobList)};
     var currentDirectory = '';
+    var ttt = 'abcdefttt';
 
     $(function(){ 
         // do something 
@@ -129,6 +130,14 @@ script(type="text/javascript").
         tr.find('> td:eq(1) > div#rename').hide();  
     }
 
+    function showDirTree() {
+        $('div#dirTree').show();
+    }
+
+    function hideDirTree() {
+        $('div#dirTree').hide();
+    }
+
 div.template(style="display : none")
     table(border='1', align='center')
         tr
@@ -154,6 +163,20 @@ div.templateSubDir(style="display : none")
             td
 
 
+div.protocolPopupWindowDiv#dirTree(style="display : none")
+    a(href="javascript:hideDirTree()" style="right : 14; position : absolute;") 关闭窗口
+    div.protocolPopupDiv(onclick="hideDirTree()")
+        span.protocolSpan x
+
+    div(style="width : 100%; height : 95%; top : 20; position : absolute; overflow : auto")
+        include dirTree
+        //- script.
+        //-     // g_event is defined in protocolList
+        //-     g_event.bind('protoList_routeclicked', function(data) {
+        //-         socket.emit('AddProto', data);
+        //-         closeDivFun();
+        //-     });
+
 div
     //- ul(style="list-style-type:none;")
     table.jobList(border='1', align='center')
@@ -166,3 +189,6 @@ div
                 input.newJobName(type='text', style='width:100px')
             td
                 a(href='javascript:void(0)', onclick='onAddJobClicked()') 新建
+
+div
+    a(href='javascript:void(0)', onclick='showDirTree()') test
