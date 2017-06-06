@@ -2,7 +2,26 @@
 script(type="text/javascript").
     var pugDataJobList = !{JSON.stringify(jobList)};
     var currentDirectory = '';
-    var ttt = 'abcdefttt';
+
+    var zTreeObj;
+    // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
+    var setting = {
+        callback: {
+            onRightClick: onZTreeRightClick
+        }
+    };
+    // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
+
+    function onZTreeRightClick(event, treeId, treeNode) {
+        alert(1);
+        if (!treeNode && event.target.tagName.toLowerCase() != "button" && $(event.target).parents("a").length == 0) {
+            zTree.cancelSelectedNode();
+            showRMenu("root", event.clientX, event.clientY);
+        } else if (treeNode && !treeNode.noR) {
+            zTree.selectNode(treeNode);
+            showRMenu("node", event.clientX, event.clientY);
+        }
+    }
 
     $(function(){ 
         // do something 
@@ -50,7 +69,94 @@ script(type="text/javascript").
                     }
                 }
             }
-        }    
+        }
+
+        //- var zNodes = [{
+        //-     name: "test1",
+        //-     open: true,
+        //-     children: [{
+        //-         name: "test1_1"
+        //-     }, {
+        //-         name: "test1_2"
+        //-     }]
+        //- }, {
+        //-     name: "test2",
+        //-     open: true,
+        //-     children: [{
+        //-         name: "test2_1"
+        //-     }, {
+        //-         name: "test2_2"
+        //-     }]
+        //- }];
+
+
+        var splitPath = function(path) {
+            var ret = [];
+            var parts = path.split('/');
+            if (parts.length > 1) {
+                var s = '';
+                for (var i = 0; i < parts.length - 1; ++i) {
+                    if (i === 0) {
+                        s += parts[i];
+                    } else {
+                        s += '/' + parts[i];
+                    }
+                }
+
+                ret.push(s);
+                ret.push(parts[parts.length - 1]);
+            } else {
+                ret.push(path);
+            }
+
+            return ret;
+        };
+
+
+        var zNodes = [];
+        var helpNode = {}; // tag, node
+
+        var createTreeNode = function(fullPathname) {
+            var node = helpNode[fullPathname];
+            if (node) {
+                return;
+            }
+            var sp = splitPath(fullPathname);
+            if (sp.length > 1) {
+                // 有上级目录
+                node = helpNode[sp[0]];
+                if (node === undefined) {
+                    // 上级目录不存在，创建上级目录
+                    createTreeNode(sp[0]);
+                }
+                // 确保上级目录已经存在，创建自己
+                var newNode = {
+                    name: sp[1],
+                }
+                node = helpNode[sp[0]];
+                if (node.children === undefined) {
+                    node.children = [];
+                }
+                node.children.push(newNode);
+                helpNode[fullPathname] = newNode;
+            } else {
+                var newNode = {
+                    name: fullPathname,
+                }
+
+                zNodes.push(newNode);
+                helpNode[fullPathname] = newNode;
+            }
+        }
+
+
+        for (var i = 0; i < pugDataJobList.length; ++i) {
+            var tag = pugDataJobList[i].tag;
+            var fullPathname = tag + (tag.length > 0 ? '/' : '') + pugDataJobList[i].name;
+            createTreeNode(fullPathname);
+        }
+
+        zTreeObj = $.fn.zTree.init($("#jobList"), setting, zNodes);
     }
 
     function onSubDirClicked(obj) {
@@ -180,7 +286,7 @@ div.protocolPopupWindowDiv#dirTree(style="display : none")
 div
     //- ul(style="list-style-type:none;")
     table.jobList(border='1', align='center')
-
+    div.ztree#jobList
     br
     br
     table
@@ -189,6 +295,8 @@ div
                 input.newJobName(type='text', style='width:100px')
             td
                 a(href='javascript:void(0)', onclick='onAddJobClicked()') 新建
+
+
 
 div
     a(href='javascript:void(0)', onclick='showDirTree()') test
