@@ -7,6 +7,12 @@ script(type="text/javascript").
     var zTreeNode = [];
     var zTreeSetting = {
         edit: {
+            drag: {
+                autoExpandTrigger: true,
+                prev: false,//function(){return false;},
+                inner: onZTreeEditDragInner,
+                next: false //function(){return false;}
+            },
             enable: false,
             showRemoveBtn: true,
             showRenameBtn: true,
@@ -242,7 +248,7 @@ script(type="text/javascript").
                     nodes[i].isParent = true;
                 }
             }
-            zTreeObj = $.fn.zTree.init($("#jobList"), zTreeObj.setting.setting, nodes);
+            zTreeObj = $.fn.zTree.init($("#jobList"), zTreeObj.setting, nodes);
 
             console.log(zTreeObj.getNodes());
         }    
@@ -261,12 +267,26 @@ script(type="text/javascript").
         if (moveType === 'inner' && targetNode.isParent === false) {
             return false;
         }
+
+        if (moveType === 'prev' || moveType === 'next') {
+            return false;
+        }
+
+        console.log(moveType);
     }
 
     function onTreeClick(event, treeId, treeNode, clickFlag) {
         if (treeNode.isParent === false) {
             socket.emit('OpenJob', {jobId: treeNode.id});
         }
+    }
+
+    function onZTreeEditDragInner(treeId, nodes, targetNode) {
+        if (targetNode.isParent === true) {
+            return true;
+        }
+
+        return false;
     }
 div
     div.ztree#jobList
