@@ -779,7 +779,7 @@ class ProtocolManager {
             let jobTag = (res && res.length >= 2) ? res[1] : '';
 
             // for test
-            jobTag = 'AAA';
+            // jobTag = 'AAA';
 
             ret.push({
                 id: key,

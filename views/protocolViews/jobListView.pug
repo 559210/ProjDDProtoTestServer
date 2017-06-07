@@ -4,21 +4,34 @@ script(type="text/javascript").
     var currentDirectory = '';
 
     var zTreeObj;
-    // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
-    var setting = {
+    var zTreeNode = [];
+    var zTreeSetting = {
+        edit: {
+            enable: false,
+            showRemoveBtn: true,
+            showRenameBtn: true,
+        },
+        view: {
+            dblClickExpand: false
+        },
         callback: {
-            onRightClick: onZTreeRightClick
+            onRightClick: null,
+            onRemove: onTreeRemove,
+            onRename: onTreeRename,
+            beforeDrop: onTreeBeforeDrop,
+            onClick: onTreeClick
         }
     };
+    var rMenu;
+
     // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
 
     function onZTreeRightClick(event, treeId, treeNode) {
-        alert(1);
         if (!treeNode && event.target.tagName.toLowerCase() != "button" && $(event.target).parents("a").length == 0) {
-            zTree.cancelSelectedNode();
+            zTreeObj.cancelSelectedNode();
             showRMenu("root", event.clientX, event.clientY);
         } else if (treeNode && !treeNode.noR) {
-            zTree.selectNode(treeNode);
+            zTreeObj.selectNode(treeNode);
             showRMenu("node", event.clientX, event.clientY);
         }
     }
@@ -29,67 +42,6 @@ script(type="text/javascript").
     });
 
     function createJobList() {
-        var jobTable = $('div > table.jobList');
-        jobTable.find('> tbody > tr').remove();
-
-        var templateTr = $('div.template > table tr:eq(0)');
-        var templateSubDirTr = $('div.templateSubDir > table tr:eq(0)');
-
-        var html = templateTr.html();
-        var subDirHtml = templateSubDirTr.html();
-        
-        var reg = new RegExp(".*/.*");
-        var addedDirList = {};
-        for (var i = 0; i < pugDataJobList.length; ++i) {
-            var tag = pugDataJobList[i].tag;
-            if (tag === currentDirectory) {
-                var ht = '<tr class="jobId" jobIndex="' + i + '">' + html + '</tr>';
-                ht = ht.replace('__jobName__', pugDataJobList[i].name);
-                jobTable.append(ht);
-            }
-            else {
-                var found = tag.search(currentDirectory);
-                if (found === 0) {
-                    var subTag = tag.replace(currentDirectory, '');
-                    console.log('1', subTag);
-                    if (subTag.search('/') >= 0) {
-                        var result = subTag.match("(.*?)/.*");
-                        if (result && result.length > 1) {
-                            subTag = result[1];
-                        }
-                    }
-
-                    console.log('2', subTag);
-                    if (addedDirList[subTag] === undefined) {
-                        addedDirList[subTag] = 1;
-
-                        var ht = '<tr class="jobDir">' + subDirHtml + '</tr>';
-                        ht = ht.replace('__jobName__', subTag);
-                        jobTable.append(ht);
-                    }
-                }
-            }
-        }
-
-        //- var zNodes = [{
-        //-     name: "test1",
-        //-     open: true,
-        //-     children: [{
-        //-         name: "test1_1"
-        //-     }, {
-        //-         name: "test1_2"
-        //-     }]
-        //- }, {
-        //-     name: "test2",
-        //-     open: true,
-        //-     children: [{
-        //-         name: "test2_1"
-        //-     }, {
-        //-         name: "test2_2"
-        //-     }]
-        //- }];
-
-
         var splitPath = function(path) {
             var ret = [];
             var parts = path.split('/');
@@ -112,10 +64,8 @@ script(type="text/javascript").
             return ret;
         };
 
-
-        var zNodes = [];
+        //- var zNodes = [];
         var helpNode = {}; // tag, node
-
         var createTreeNode = function(fullPathname) {
             var node = helpNode[fullPathname];
             if (node) {
@@ -136,6 +86,7 @@ script(type="text/javascript").
                 node = helpNode[sp[0]];
                 if (node.children === undefined) {
                     node.children = [];
+                    node.isParent = true;
                 }
                 node.children.push(newNode);
                 helpNode[fullPathname] = newNode;
@@ -144,7 +95,7 @@ script(type="text/javascript").
                     name: fullPathname,
                 }
 
-                zNodes.push(newNode);
+                zTreeNode.push(newNode);
                 helpNode[fullPathname] = newNode;
             }
         }
@@ -154,22 +105,45 @@ script(type="text/javascript").
             var tag = pugDataJobList[i].tag;
             var fullPathname = tag + (tag.length > 0 ? '/' : '') + pugDataJobList[i].name;
             createTreeNode(fullPathname);
+            helpNode[fullPathname].id = pugDataJobList[i].id;
         }
 
-        zTreeObj = $.fn.zTree.init($("#jobList"), setting, zNodes);
+        $.fn.zTree.init($("#jobList"), zTreeSetting, zTreeNode);
+        zTreeObj = $.fn.zTree.getZTreeObj("jobList");
+
+        rMenu = $("#rMenu");
     }
 
-    function onSubDirClicked(obj) {
-        if (currentDirectory.length > 0) {
-            currentDirectory = currentDirectory + $(obj).text() + '/';
-        }
-        else {
-            currentDirectory = $(obj).text() + '/';
-        }
-        console.log('---', currentDirectory);
-        createJobList();
+    function setzTreeEditorMode(edit) {
+        zTreeObj.setting.edit.enable = edit;
+        zTreeObj.setting.callback.onRightClick = edit ? onZTreeRightClick : null;
     }
 
+    function showRMenu(type, x, y) {
+        $("#rMenu ul").show();
+        if (type=="root") {
+            //- $("#m_del").hide();
+            //- $("#m_check").hide();
+            //- $("#m_unCheck").hide();
+        } else {
+            //- $("#m_del").show();
+            //- $("#m_check").show();
+            //- $("#m_unCheck").show();
+        }
+        rMenu.css({"top":y+"px", "left":x+"px", "visibility":"visible"});
+
+        $("body").bind("mousedown", onBodyMouseDown);
+    }
+    function hideRMenu() {
+        if (rMenu) rMenu.css({"visibility": "hidden"});
+        $("body").unbind("mousedown", onBodyMouseDown);
+    }
+
+    function onBodyMouseDown(event){
+        if (!(event.target.id == "rMenu" || $(event.target).parents("#rMenu").length>0)) {
+            rMenu.css({"visibility" : "hidden"});
+        }
+    }
 
     function onJobClicked(obj) {
         var tr = $(obj).closest('tr.jobId');
@@ -236,56 +210,65 @@ script(type="text/javascript").
         tr.find('> td:eq(1) > div#rename').hide();  
     }
 
-    function showDirTree() {
-        $('div#dirTree').show();
+    function onMenuNewFolder() {
+        hideRMenu();
+
+        //- zTreeObj.
     }
 
-    function hideDirTree() {
-        $('div#dirTree').hide();
+    function onTreeRemove(event, treeId, treeNode) {
     }
 
-div.template(style="display : none")
-    table(border='1', align='center')
-        tr
-            td(style='width:110px', align='center')
-                a(id='jobName', href="javascript:void(0)", onclick='onJobClicked(this)') __jobName__
-                input(id='input', type='text', style='width:100px; display:none')
-            td
-                div(id='normal')
-                    a(href="javascript:void(0)", onclick="onRenameJobClicked(this)") 改名
-                    br
-                    a(href="javascript:void(0)", onclick="onRemoveJobClicked(this)") 删除
-                div(id='rename', style='display:none')
-                    a(href="javascript:void(0)", onclick="onRenameJobOKClicked(this)") 确定
-                    br
-                    a(href="javascript:void(0)", onclick="onRenameJobCancelClicked(this)") 取消
+    function onTreeRename(event, treeId, treeNode) {
+    }
 
-div.templateSubDir(style="display : none")
-    table(border='1', align='center')
-        tr
-            td(style='width:110px', align='center')
-                a(id='jobName', href="javascript:void(0)", onclick='onSubDirClicked(this)') __jobName__
-                input(id='input', type='text', style='width:100px; display:none')
-            td
+    function toggleTreeEditor(edit) {
+        var toggle = $("a.toggleEdit");
+        var cancelBtn = $("a.cancelEdit");
 
+        if (edit) {
+            setzTreeEditorMode(true);
+            toggle.text("保存编辑");
+            cancelBtn.show();
+        }
+        else {
+            setzTreeEditorMode(false);
+            toggle.text("编辑目录结构");
+            cancelBtn.hide();
 
-div.protocolPopupWindowDiv#dirTree(style="display : none")
-    a(href="javascript:hideDirTree()" style="right : 14; position : absolute;") 关闭窗口
-    div.protocolPopupDiv(onclick="hideDirTree()")
-        span.protocolSpan x
+            var nodes = zTreeObj.getNodes();
+            for (var i = 0; i < nodes.length; ++i) {
+                if (nodes[i].children !== undefined) {
+                    nodes[i].isParent = true;
+                }
+            }
+            zTreeObj = $.fn.zTree.init($("#jobList"), zTreeObj.setting.setting, nodes);
 
-    div(style="width : 100%; height : 95%; top : 20; position : absolute; overflow : auto")
-        include dirTree
-        //- script.
-        //-     // g_event is defined in protocolList
-        //-     g_event.bind('protoList_routeclicked', function(data) {
-        //-         socket.emit('AddProto', data);
-        //-         closeDivFun();
-        //-     });
+            console.log(zTreeObj.getNodes());
+        }    
+    }
 
+    function onEditTree() {
+        toggleTreeEditor(!zTreeObj.setting.edit.enable);
+    }
+
+    function onCancelEditTree() {
+        toggleTreeEditor(false);
+    }
+
+    function onTreeBeforeDrop(treeId, treeNodes, targetNode, moveType) {
+        // 放置一个job被拖入另一个job的子节点
+        if (moveType === 'inner' && targetNode.isParent === false) {
+            return false;
+        }
+    }
+
+    function onTreeClick(event, treeId, treeNode, clickFlag) {
+        if (treeNode.isParent === false) {
+            socket.emit('OpenJob', {jobId: treeNode.id});
+        }
+    }
 div
-    //- ul(style="list-style-type:none;")
-    table.jobList(border='1', align='center')
     div.ztree#jobList
     br
     br
@@ -297,6 +280,9 @@ div
                 a(href='javascript:void(0)', onclick='onAddJobClicked()') 新建
 
 
-
+div#rMenu
+    ul
+        li#m_newFolder(onclick='onMenuNewFolder') 新建目录
 div
-    a(href='javascript:void(0)', onclick='showDirTree()') test
+    a.cancelEdit(href='javascript:void(0)', onclick='onCancelEditTree()', style="display : none") 取消编辑 
+    a.toggleEdit(href='javascript:void(0)', onclick='onEditTree()') 编辑目录结构
