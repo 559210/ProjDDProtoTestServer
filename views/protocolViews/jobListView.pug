@@ -13,7 +13,7 @@ script(type="text/javascript").
                 inner: onZTreeEditDragInner,
                 next: false //function(){return false;}
             },
-            enable: false,
+            enable: true,
             showRemoveBtn: true,
             showRenameBtn: true,
         },
@@ -21,7 +21,8 @@ script(type="text/javascript").
             dblClickExpand: false
         },
         callback: {
-            onRightClick: null,
+            onRightClick: onZTreeRightClick,
+            beforeRemove: onTreeBeforeRemove,
             onRemove: onTreeRemove,
             onRename: onTreeRename,
             beforeDrop: onTreeBeforeDrop,
@@ -29,6 +30,8 @@ script(type="text/javascript").
             onClick: onTreeClick
         }
     };
+
+    var editMode = false;
     var rMenu;
     var curMenuSelectedNode;
     var oldParentOnDrop;
@@ -130,22 +133,25 @@ script(type="text/javascript").
         rMenu = $("#rMenu");
     }
 
-    function setzTreeEditorMode(edit) {
-        zTreeObj.setting.edit.enable = edit;
-        zTreeObj.setting.callback.onRightClick = edit ? onZTreeRightClick : null;
-    }
 
     function showRMenu(type, x, y) {
         $("#rMenu ul").show();
-        if (type=="root") {
-            //- $("#m_del").hide();
-            //- $("#m_check").hide();
-            //- $("#m_unCheck").hide();
-        } else {
-            //- $("#m_del").show();
-            //- $("#m_check").show();
-            //- $("#m_unCheck").show();
+        if (editMode === false) {
+            $("#m_newFolder").hide();
         }
+        else {
+            $("#m_newFolder").show();
+        }
+        //- if (type=="root") {
+
+        //-     //- $("#m_del").hide();
+        //-     //- $("#m_check").hide();
+        //-     //- $("#m_unCheck").hide();
+        //- } else {
+        //-     //- $("#m_del").show();
+        //-     //- $("#m_check").show();
+        //-     //- $("#m_unCheck").show();
+        //- }
         rMenu.css({"top":y+"px", "left":x+"px", "visibility":"visible"});
 
         $("body").bind("mousedown", onBodyMouseDown);
@@ -256,32 +262,63 @@ script(type="text/javascript").
                 zTreeObj.editName(newNodes[0]);
             }
         }
-        else {
-
-        }
     }
 
     function onMenuNewJob() {
+        hideRMenu();
 
+        var newJobName = 'newJob';
+        var newJobNameIndex = 1;
+        var done = true;
+
+        do {
+            done = true;
+            for (var i = 0; i < pugDataJobList.length; ++i) {
+                if (newJobName === pugDataJobList[i].name) {
+                    newJobName += newJobNameIndex;
+                    newJobNameIndex++;
+                    done = false;
+                    break;
+                }
+            }
+        } while(done === false);
+
+        if (curMenuSelectedNode) {
+            socket.emit('AddJob', {jobName: newJobName});
+        }
+    }
+
+    function onTreeBeforeRemove(treeId, treeNode) {
+        if (treeNode.isParent === false) {
+            if (confirm("删除是不可恢复的，你确认要删除 " + treeNode.name + " 吗？")) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     function onTreeRemove(event, treeId, treeNode) {
+        if (treeNode.isParent === false) {
+            socket.emit('RemoveJob', {jobId: treeNode.id});
+        }
     }
 
     function onTreeRename(event, treeId, treeNode) {
+        console.log(treeNode);
+        socket.emit('RenameJob', {jobId: treeNode.id, newJobName: treeNode.name});
     }
 
     function toggleTreeEditor(edit) {
+        editMode = edit;
         var toggle = $("a.toggleEdit");
         var cancelBtn = $("a.cancelEdit");
 
         if (edit) {
-            setzTreeEditorMode(true);
             toggle.text("保存编辑");
             cancelBtn.show();
         }
         else {
-            setzTreeEditorMode(false);
             toggle.text("编辑目录结构");
             cancelBtn.hide();
 
@@ -298,7 +335,7 @@ script(type="text/javascript").
     }
 
     function onEditTree() {
-        toggleTreeEditor(!zTreeObj.setting.edit.enable);
+        toggleTreeEditor(!editMode);
     }
 
     function onCancelEditTree() {
@@ -308,7 +345,7 @@ script(type="text/javascript").
 
     
     function onTreeBeforeDrop(treeId, treeNodes, targetNode, moveType) {
-        if (targetNode === null) {
+        if (editMode === false || targetNode === null) {
             return false;
         }
 
@@ -325,7 +362,7 @@ script(type="text/javascript").
     }
 
     function onTreeClick(event, treeId, treeNode, clickFlag) {
-        if (zTreeObj.setting.edit.enable === false && treeNode.isParent === false) {
+        if (editMode === false && treeNode.isParent === false) {
             socket.emit('OpenJob', {jobId: treeNode.id});
         }
     }
@@ -337,6 +374,7 @@ script(type="text/javascript").
 
         return false;
     }
+
 div
     div.ztree#jobList
     br

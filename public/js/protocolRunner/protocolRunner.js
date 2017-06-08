@@ -78,6 +78,8 @@ class protoJobManager {
                         session.createJob(data.jobName, cb);
                     }
                 ], (err) => {
+                    if (err)
+                        console.log(err);
                     checkMsgResult(err, 'CreateJob failed: ' + data.jobName);
 
                 });
