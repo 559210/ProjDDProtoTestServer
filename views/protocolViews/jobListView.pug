@@ -25,14 +25,23 @@ script(type="text/javascript").
             onRemove: onTreeRemove,
             onRename: onTreeRename,
             beforeDrop: onTreeBeforeDrop,
+            onDrop: onTreeDrop,
             onClick: onTreeClick
         }
     };
     var rMenu;
+    var curMenuSelectedNode;
+    var oldParentOnDrop;
+
+    var operatorList = [];  // {op: 1创建job,2 job改名, 3 删除job, jobId: , jobName}
 
     // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
 
     function onZTreeRightClick(event, treeId, treeNode) {
+        if (treeNode === null || treeNode.isParent !== true) {
+            return;
+        }
+        curMenuSelectedNode = treeNode;
         if (!treeNode && event.target.tagName.toLowerCase() != "button" && $(event.target).parents("a").length == 0) {
             zTreeObj.cancelSelectedNode();
             showRMenu("root", event.clientX, event.clientY);
@@ -114,6 +123,7 @@ script(type="text/javascript").
             helpNode[fullPathname].id = pugDataJobList[i].id;
         }
 
+        zTreeNode = [{name: 'ALL JOBS', isParent: true, children: zTreeNode, open: true}];
         $.fn.zTree.init($("#jobList"), zTreeSetting, zTreeNode);
         zTreeObj = $.fn.zTree.getZTreeObj("jobList");
 
@@ -219,7 +229,40 @@ script(type="text/javascript").
     function onMenuNewFolder() {
         hideRMenu();
 
-        //- zTreeObj.
+        if (curMenuSelectedNode) {
+            var nodes = curMenuSelectedNode.children;
+            var newFolderName = 'newFolder';
+            var nameIndex = 1;
+            var done = true;
+            do{
+                done = true;
+                for (var i = 0; i < nodes.length; ++i) {
+                    if (newFolderName === nodes[i].name) {
+                        newFolderName += nameIndex;
+                        nameIndex++;
+                        done = false;
+                        break;
+                    }
+                }
+            } while(false == done);
+
+            var newNodes = zTreeObj.addNodes(curMenuSelectedNode, {
+                    name: newFolderName,
+                    isParent: true,
+                    children: []
+                });
+
+            if (newNodes && newNodes.length > 0) {
+                zTreeObj.editName(newNodes[0]);
+            }
+        }
+        else {
+
+        }
+    }
+
+    function onMenuNewJob() {
+
     }
 
     function onTreeRemove(event, treeId, treeNode) {
@@ -242,15 +285,15 @@ script(type="text/javascript").
             toggle.text("编辑目录结构");
             cancelBtn.hide();
 
-            var nodes = zTreeObj.getNodes();
-            for (var i = 0; i < nodes.length; ++i) {
-                if (nodes[i].children !== undefined) {
-                    nodes[i].isParent = true;
-                }
-            }
-            zTreeObj = $.fn.zTree.init($("#jobList"), zTreeObj.setting, nodes);
+            //- var nodes = zTreeObj.getNodes();
+            //- for (var i = 0; i < nodes.length; ++i) {
+            //-     if (nodes[i].children !== undefined) {
+            //-         nodes[i].isParent = true;
+            //-     }
+            //- }
+            //- zTreeObj = $.fn.zTree.init($("#jobList"), zTreeObj.setting, nodes);
 
-            console.log(zTreeObj.getNodes());
+            //- console.log(zTreeObj.getNodes());
         }    
     }
 
@@ -262,27 +305,33 @@ script(type="text/javascript").
         toggleTreeEditor(false);
     }
 
+
+    
     function onTreeBeforeDrop(treeId, treeNodes, targetNode, moveType) {
-        // 放置一个job被拖入另一个job的子节点
-        if (moveType === 'inner' && targetNode.isParent === false) {
+        if (targetNode === null) {
             return false;
         }
 
-        if (moveType === 'prev' || moveType === 'next') {
-            return false;
-        }
+        oldParentOnDrop = treeNodes[0].getParentNode();
 
-        console.log(moveType);
+        return true;
+    }
+
+    function onTreeDrop(event, treeId, treeNodes, targetNode, moveType) {
+        if (oldParentOnDrop) {
+            oldParentOnDrop.isParent = true;
+            zTreeObj.updateNode(oldParentOnDrop);
+        }
     }
 
     function onTreeClick(event, treeId, treeNode, clickFlag) {
-        if (treeNode.isParent === false) {
+        if (zTreeObj.setting.edit.enable === false && treeNode.isParent === false) {
             socket.emit('OpenJob', {jobId: treeNode.id});
         }
     }
 
     function onZTreeEditDragInner(treeId, nodes, targetNode) {
-        if (targetNode.isParent === true) {
+        if (targetNode === null || targetNode.isParent === true) {
             return true;
         }
 
@@ -302,7 +351,8 @@ div
 
 div#rMenu
     ul
-        li#m_newFolder(onclick='onMenuNewFolder') 新建目录
+        li#m_newFolder(onclick='onMenuNewFolder()') 新建目录
+        li#m_newJob(onClick='onMenuNewJob()') 新Job
 div
     a.cancelEdit(href='javascript:void(0)', onclick='onCancelEditTree()', style="display : none") 取消编辑 
     a.toggleEdit(href='javascript:void(0)', onclick='onEditTree()') 编辑目录结构
