@@ -546,6 +546,7 @@ class ProtocolManager {
         let obj = {
             name: jobObj.name,
             id: jobObj.id,
+            tag: jobObj.tag,
             instruments: []
         };
 
@@ -562,7 +563,8 @@ class ProtocolManager {
         try {
             let obj = JSON.parse(jsonStr);
             jobObj.name = obj.name;
-            jobObj.id = obj.id
+            jobObj.id = obj.id;
+            jobObj.tag = obj.tag;
             for (let i = 0; i < obj.instruments.length; ++i) {
                 let instObj = JSON.parse(obj.instruments[i]);
                 let instrument = new protoInstrumentClass(instObj.id);
@@ -789,6 +791,22 @@ class ProtocolManager {
         }
 
         return ret;
+    }
+
+    updateJobTag(jobId, newTag, callback) {
+        let self = this;
+        async.waterfall([
+            (cb) => {
+                self.loadJobById(jobId, cb);
+            },
+            (jobObj, cb) => {
+                jobObj.tag = newTag;
+                self.saveJob(jobObj, cb);
+            }
+        ], (err) => {
+            console.log('-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-> ', err);
+            callback(err);
+        });
     }
 }
 

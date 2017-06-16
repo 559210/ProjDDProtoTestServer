@@ -300,6 +300,15 @@ class protoJobManager {
                     checkMsgResult(err, '协议更新失败. ' + (err ? err.toString() : ''));
                 });
             });
+
+            socket.on('UpdateJobTagBatch', (data) => {
+                console.log('---------------> data', data);
+                async.map(data, (it, cb) => {
+                    g_protoMgr.updateJobTag(it.jobId, it.newTag, cb);
+                }, (err) => {
+                    checkMsgResult(err, '一些或所有路径修改失败. ' + (err ? err.toString() : ''));
+                });
+            });
         });
     }
 

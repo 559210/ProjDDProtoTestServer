@@ -322,12 +322,37 @@ script(type="text/javascript").
             toggle.text("编辑目录结构");
             cancelBtn.hide();
 
-            //- var nodes = zTreeObj.getNodes();
-            //- for (var i = 0; i < nodes.length; ++i) {
-            //-     if (nodes[i].children !== undefined) {
-            //-         nodes[i].isParent = true;
-            //-     }
-            //- }
+            var dirtyJobs = [];
+            var nodes = zTreeObj.transformToArray(zTreeObj.getNodes());
+            for (var i = 0; i < nodes.length; ++i) {
+                if (nodes[i].dirty === true) {
+                    nodes[i].dirty = false;
+                    
+                    var parent = nodes[i].getParentNode();
+                    var path = '';
+                    if (parent) {
+                        path = parent.name;
+                        console.log('path 1', path);
+                        while (parent.getParentNode() !== null) {
+                            parent = parent.getParentNode();
+
+                            if (parent.getParentNode() !== null) {
+                                path = parent.name + '/' + path;
+                            }
+                        }
+                    }
+
+                    dirtyJobs.push({
+                        newTag: path,
+                        jobId: nodes[i].id
+                    });
+                }
+            }
+
+            if (dirtyJobs.length > 0) {
+                socket.emit('UpdateJobTagBatch', dirtyJobs);
+            }
+            console.log(dirtyJobs);
             //- zTreeObj = $.fn.zTree.init($("#jobList"), zTreeObj.setting, nodes);
 
             //- console.log(zTreeObj.getNodes());
@@ -359,6 +384,8 @@ script(type="text/javascript").
             oldParentOnDrop.isParent = true;
             zTreeObj.updateNode(oldParentOnDrop);
         }
+
+        treeNodes[0].dirty = true;
     }
 
     function onTreeClick(event, treeId, treeNode, clickFlag) {
