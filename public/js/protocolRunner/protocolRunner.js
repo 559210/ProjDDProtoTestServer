@@ -116,6 +116,9 @@ class protoJobManager {
                     (cb) => {
                         // 从数据库删除
                         g_protoMgr.removeJob(data.jobId, cb);
+                    },
+                    (cb) => {
+                        session.clearCurrentJob(cb);
                     }
                 ], (err) => {
                     checkMsgResult(err, 'Remove job failed: ' + data.jobName);

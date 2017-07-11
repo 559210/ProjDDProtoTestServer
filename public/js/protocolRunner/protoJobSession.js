@@ -66,6 +66,11 @@ class protoJobSession {
         this.curJob.name = newName;
         this.saveCurrentJob(callback);
     }
+
+    clearCurrentJob(callback) {
+        this.curJob = null;
+        callback(null);
+    }
 }
 
 module.exports = protoJobSession;
