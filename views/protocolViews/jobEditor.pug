@@ -234,8 +234,8 @@ mixin c2sParamList(c2sParam)
                                 td
                                     select(id='param' + tag)
                                         - for (var k = 0; k < i; ++k)
-                                            each val in jobDetail[k].s2c
-                                                option= jobDetail[k].route + '#' + val.name
+                                            each val in jobDetail.instruments[k].s2c
+                                                option= jobDetail.instruments[k].route + '#' + val.name
                                 td
                                     a(href='javascript:void(0)', onclick='onSaveVarParam(' + i + ',' + j + ",'" + c2sParam[j].name + "')") 保存
                                     
@@ -298,10 +298,10 @@ div
             #consoleViewArea
                 textarea.console(style='resize:none;width:100%;height:100%', readonly="readonly")
 
-
     if jobDetail
-        p
-            a(href='javascript:void(0)', onclick='openShutManager(this, "table#current", false, "点击合上", "点击展开")') 点击合上
+        h2 #{jobDetail.jobName}
+        //- p
+        //-     a(href='javascript:void(0)', onclick='openShutManager(this, "table#current", false, "点击合上", "点击展开")') 点击合上
         table#current(border='5')
             tr
                 td(align='center') 操作
@@ -310,7 +310,7 @@ div
                 td(align='center') 协议类型
                 td(align='center') 参数
                 td
-            - for (var i = 0; i < jobDetail.length; ++i)
+            - for (var i = 0; i < jobDetail.instruments.length; ++i)
                 tr
                     td(align='center')
                         table
@@ -320,22 +320,22 @@ div
                                     button(onclick='onDownClicked(' + i + ')') 下
                                 td
                                     a(href='javascript:void(0)', onclick='onRemoveProto(' + i + ')') 删除
-                    td(align='center') #{jobDetail[i].route}
-                    td(align='center') #{jobDetail[i].note}
-                    td(align='center') #{jobDetail[i].type}
+                    td(align='center') #{jobDetail.instruments[i].route}
+                    td(align='center') #{jobDetail.instruments[i].note}
+                    td(align='center') #{jobDetail.instruments[i].type}
                     td(align='center')
                         table(border='3' align='left')
                             tr
                                 td(align='center') 上行参数
                                 td(align='center')
-                                    +c2sParamList(jobDetail[i].c2s)
+                                    +c2sParamList(jobDetail.instruments[i].c2s)
                             tr
                                 td(align='center') 下行参数
                                 td(align='center')
-                                    +s2cParamList(jobDetail[i].s2c)
+                                    +s2cParamList(jobDetail.instruments[i].s2c)
 
                     td(align='center')
-                        if jobDetail[i].hasScript
+                        if jobDetail.instruments[i].hasScript
                             a(href='javascript:void(0)', onclick='onShowScript(' + i + ')') 编辑脚本
                         else
                             a(href='javascript:void(0)', onclick='onShowScript(' + i + ')') 新建脚本

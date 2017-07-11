@@ -784,7 +784,7 @@ class ProtocolManager {
             // jobTag = 'AAA';
 
             ret.push({
-                id: key,
+                id: parseInt(key),
                 name: jobName,
                 tag: jobTag
             });

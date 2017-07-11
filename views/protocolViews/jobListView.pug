@@ -1,6 +1,7 @@
 
 script(type="text/javascript").
     var pugDataJobList = !{JSON.stringify(jobList)};
+    var pugDataJobDetail = !{JSON.stringify(jobDetail !== undefined ? jobDetail : null)};
     var currentDirectory = '';
 
     var zTreeObj;
@@ -56,6 +57,8 @@ script(type="text/javascript").
 
     $(function(){ 
         // do something 
+        //- console.log(pugDataJobDetail);
+        //- console.log(pugDataJobList);
         createJobList();
     });
 
@@ -81,6 +84,11 @@ script(type="text/javascript").
 
             return ret;
         };
+
+        var selectedJobId = null;
+        if (pugDataJobDetail !== undefined && pugDataJobDetail !== null) {
+            selectedJobId = pugDataJobDetail.jobId;
+        }
 
         //- var zNodes = [];
         var helpNode = {}; // tag, node
@@ -129,6 +137,12 @@ script(type="text/javascript").
         zTreeNode = [{name: 'ALL JOBS', isParent: true, children: zTreeNode, open: true}];
         $.fn.zTree.init($("#jobList"), zTreeSetting, zTreeNode);
         zTreeObj = $.fn.zTree.getZTreeObj("jobList");
+
+        var selectedNode = zTreeObj.getNodeByParam('id', selectedJobId);
+
+        if (selectedNode !== null) {
+            zTreeObj.selectNode(selectedNode);
+        }
 
         rMenu = $("#rMenu");
     }

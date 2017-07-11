@@ -204,6 +204,8 @@ class protoRunnerJob {
         //     s2c: []
         // }
 
+        console.log('getJobDetail------------> %j, %j, %j', this.name, this.id, typeof this.id);
+
         let detail = [];
 
         for (let i = 0; i < this.instruments.length; ++i) {
@@ -233,7 +235,11 @@ class protoRunnerJob {
             detail.push(det);
         }
 
-        return detail;
+        return {
+            jobName: this.name,
+            jobId: this.id,
+            instruments: detail
+        };
     }
 
     // getJobProtocol() {
