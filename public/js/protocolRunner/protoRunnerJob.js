@@ -93,6 +93,9 @@ class protoRunnerJob {
         switch (ins.type) {
             case PROTO_TYPE.CONNECT:
                 if (this.envirment.pomelo) {
+                    self.envirment.pomelo.removeAllListeners('io-error');
+                    self.envirment.pomelo.removeAllListeners('close');
+
                     this.envirment.pomelo.disconnect();
                     this.envirment.pomelo = null;
                 }
@@ -108,23 +111,24 @@ class protoRunnerJob {
                     if (commonJs.isUndefinedOrNull(socketObj)) {
                         return callback(new Error('pomelo init failed!'));
                     }
+
+                    self.envirment.pomelo.on('io-error', () => {
+                        return callback(new Error('io-error'));
+                    });
+                    self.envirment.pomelo.on('close', () => {
+                        return callback(new Error('network closed'));
+                    });
                     return callback(null);
                 });
                 break;
             case PROTO_TYPE.REQUEST:
-                this.envirment.pomelo.on('io-error', () => {
-                    return callback(new Error('io-error'));
-                });
-                this.envirment.pomelo.on('close', () => {
-                    return callback(new Error('network closed'));
-                });
-
 
                 self.sendSessionLog("send: " + ins.route);
                 self.sendSessionLog("with params: " + JSON.stringify(ins.getC2SMsg()));
                 this.envirment.pomelo.request(ins.route, ins.getC2SMsg(), (data) => {
-                    self.envirment.pomelo.removeAllListeners('io-error');
-                    self.envirment.pomelo.removeAllListeners('close');
+                    // TODO: 这里要移到真正整个任务做完的地方
+                    // self.envirment.pomelo.removeAllListeners('io-error');
+                    // self.envirment.pomelo.removeAllListeners('close');
 
                     ins.onS2CMsg(data, callback);
                     // return callback(null);
@@ -150,7 +154,22 @@ class protoRunnerJob {
 
                     job.runAll(callback);
 
-                })
+                });
+                break;
+            case PROTO_TYPE.PUSH:
+                self.sendSessionLog("listening to onPush message: " + ins.route);
+                self.envirment.pomelo.removeAllListeners(ins.route);
+                this.envirment.pomelo.on(ins.route, (data) => {
+                    self.sendSessionLog("onPush: " + ins.route);
+                    ins.onS2CMsg(data, (err)=>{});
+                });
+                callback(null);
+                break;
+            case PROTO_TYPE.NOTIFY:
+                self.sendSessionLog("send notify: " + ins.route);
+                self.sendSessionLog("with params: " + JSON.stringify(ins.getC2SMsg()));
+                this.envirment.pomelo.notify(ins.route, ins.getC2SMsg());
+                callback(null);
                 break;
         }
     }
