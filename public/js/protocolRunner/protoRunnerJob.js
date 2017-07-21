@@ -17,31 +17,31 @@ class protoRunnerJob {
         this.name = jobName;
         this.id = -1;
 
-        this.envirment = evn ? evn : {
-            pomelo: null,
-            variableManager: new variableManagerClass()
-        };
+        // this.envirment = evn ? evn : {
+        //     pomelo: null,
+        //     variableManager: new variableManagerClass()
+        // };
 
-        this.session = null;
-        this.sessionDepth = 0;
+        // this.session = null;
+        // this.sessionDepth = 0;
     }
 
-    setSession(sess, depth) {
-        this.session = sess;
-        if (depth) {
-            this.sessionDepth = depth;
-        }
-    }
+    // setSession(sess, depth) {
+    //     this.session = sess;
+    //     if (depth) {
+    //         this.sessionDepth = depth;
+    //     }
+    // }
 
-    sendSessionLog(text) {
-        for (let i = 0; i < this.sessionDepth; ++i) {
-            text = '\t' + text;
-        }
-        if (commonJs.isUndefinedOrNull(this.session) == false) {
-            this.session.Console(text); 
-        }
-        console.log(text);
-    }
+    // sendSessionLog(text) {
+    //     for (let i = 0; i < this.sessionDepth; ++i) {
+    //         text = '\t' + text;
+    //     }
+    //     if (commonJs.isUndefinedOrNull(this.session) == false) {
+    //         this.session.Console(text); 
+    //     }
+    //     console.log(text);
+    // }
 
 
     addInstrument(ins) {
@@ -66,113 +66,113 @@ class protoRunnerJob {
         return this.instruments[index];
     }
 
-    runByStep(index, callback) {
-        let ins = this.getInstrument(index);
-        if (ins) {
-            this._runInstrument(ins, callback);
-        } else {
-            return callback(new Error('no instrument was found'));
-        }
-    }
+    // runByStep(index, callback) {
+    //     let ins = this.getInstrument(index);
+    //     if (ins) {
+    //         this._runInstrument(ins, callback);
+    //     } else {
+    //         return callback(new Error('no instrument was found'));
+    //     }
+    // }
 
-    runAll(callback) {
-        this.sendSessionLog('------------------------------->');
-        this.sendSessionLog('start job' + this.name);
-        async.eachSeries(this.instruments, (item, cb) => {
-                this._runInstrument(item, cb);
-            },
-            (err) => {
-                this.sendSessionLog('<-------------------------');
-                callback(err);
-            });
-    }
+    // runAll(callback) {
+    //     this.sendSessionLog('------------------------------->');
+    //     this.sendSessionLog('start job' + this.name);
+    //     async.eachSeries(this.instruments, (item, cb) => {
+    //             this._runInstrument(item, cb);
+    //         },
+    //         (err) => {
+    //             this.sendSessionLog('<-------------------------');
+    //             callback(err);
+    //         });
+    // }
 
-    _runInstrument(ins, callback) {
-        let self = this;
+    // _runInstrument(ins, callback) {
+    //     let self = this;
 
-        switch (ins.type) {
-            case PROTO_TYPE.CONNECT:
-                if (this.envirment.pomelo) {
-                    self.envirment.pomelo.removeAllListeners('io-error');
-                    self.envirment.pomelo.removeAllListeners('close');
+    //     switch (ins.type) {
+    //         case PROTO_TYPE.CONNECT:
+    //             if (this.envirment.pomelo) {
+    //                 self.envirment.pomelo.removeAllListeners('io-error');
+    //                 self.envirment.pomelo.removeAllListeners('close');
 
-                    this.envirment.pomelo.disconnect();
-                    this.envirment.pomelo = null;
-                }
+    //                 this.envirment.pomelo.disconnect();
+    //                 this.envirment.pomelo = null;
+    //             }
 
-                this.envirment.pomelo = new pomeloClass();
+    //             this.envirment.pomelo = new pomeloClass();
 
-                let params = ins.getC2SMsg();
-                this.envirment.pomelo.init({
-                    host: params['host'],
-                    port: params['port'],
-                    log: true
-                }, (socketObj) => {
-                    if (commonJs.isUndefinedOrNull(socketObj)) {
-                        return callback(new Error('pomelo init failed!'));
-                    }
+    //             let params = ins.getC2SMsg();
+    //             this.envirment.pomelo.init({
+    //                 host: params['host'],
+    //                 port: params['port'],
+    //                 log: true
+    //             }, (socketObj) => {
+    //                 if (commonJs.isUndefinedOrNull(socketObj)) {
+    //                     return callback(new Error('pomelo init failed!'));
+    //                 }
 
-                    self.envirment.pomelo.on('io-error', () => {
-                        return callback(new Error('io-error'));
-                    });
-                    self.envirment.pomelo.on('close', () => {
-                        return callback(new Error('network closed'));
-                    });
-                    return callback(null);
-                });
-                break;
-            case PROTO_TYPE.REQUEST:
+    //                 self.envirment.pomelo.on('io-error', () => {
+    //                     return callback(new Error('io-error'));
+    //                 });
+    //                 self.envirment.pomelo.on('close', () => {
+    //                     return callback(new Error('network closed'));
+    //                 });
+    //                 return callback(null);
+    //             });
+    //             break;
+    //         case PROTO_TYPE.REQUEST:
 
-                self.sendSessionLog("send: " + ins.route);
-                self.sendSessionLog("with params: " + JSON.stringify(ins.getC2SMsg()));
-                this.envirment.pomelo.request(ins.route, ins.getC2SMsg(), (data) => {
-                    // TODO: 这里要移到真正整个任务做完的地方
-                    // self.envirment.pomelo.removeAllListeners('io-error');
-                    // self.envirment.pomelo.removeAllListeners('close');
+    //             self.sendSessionLog("send: " + ins.route);
+    //             self.sendSessionLog("with params: " + JSON.stringify(ins.getC2SMsg()));
+    //             this.envirment.pomelo.request(ins.route, ins.getC2SMsg(), (data) => {
+    //                 // TODO: 这里要移到真正整个任务做完的地方
+    //                 // self.envirment.pomelo.removeAllListeners('io-error');
+    //                 // self.envirment.pomelo.removeAllListeners('close');
 
-                    ins.onS2CMsg(data, callback);
-                    // return callback(null);
-                });
-                break;
-            case PROTO_TYPE.JOB:
-                let jobId = ins.route;
-                g_protoMgr.loadJobById(jobId, (err, job) => {
-                    if (err) {
-                        return callback(err);
-                    }
+    //                 ins.onS2CMsg(data, callback);
+    //                 // return callback(null);
+    //             });
+    //             break;
+    //         case PROTO_TYPE.JOB:
+    //             let jobId = ins.route;
+    //             g_protoMgr.loadJobById(jobId, (err, job) => {
+    //                 if (err) {
+    //                     return callback(err);
+    //                 }
 
-                    job.setSession(self.session, self.sessionDepth + 1);
-                    job.envirment = self.envirment;
-                    let firstIns = job.getInstrument(0);
-                    let msg = ins.getC2SMsg();
-                    for (let key in msg) {
-                        if (msg[key]) {
-                            firstIns.setC2SParamValue(key, msg[key]);
-                        }
-                    }
+    //                 job.setSession(self.session, self.sessionDepth + 1);
+    //                 job.envirment = self.envirment;
+    //                 let firstIns = job.getInstrument(0);
+    //                 let msg = ins.getC2SMsg();
+    //                 for (let key in msg) {
+    //                     if (msg[key]) {
+    //                         firstIns.setC2SParamValue(key, msg[key]);
+    //                     }
+    //                 }
 
 
-                    job.runAll(callback);
+    //                 job.runAll(callback);
 
-                });
-                break;
-            case PROTO_TYPE.PUSH:
-                self.sendSessionLog("listening to onPush message: " + ins.route);
-                self.envirment.pomelo.removeAllListeners(ins.route);
-                this.envirment.pomelo.on(ins.route, (data) => {
-                    self.sendSessionLog("onPush: " + ins.route);
-                    ins.onS2CMsg(data, (err)=>{});
-                });
-                callback(null);
-                break;
-            case PROTO_TYPE.NOTIFY:
-                self.sendSessionLog("send notify: " + ins.route);
-                self.sendSessionLog("with params: " + JSON.stringify(ins.getC2SMsg()));
-                this.envirment.pomelo.notify(ins.route, ins.getC2SMsg());
-                callback(null);
-                break;
-        }
-    }
+    //             });
+    //             break;
+    //         case PROTO_TYPE.PUSH:
+    //             self.sendSessionLog("listening to onPush message: " + ins.route);
+    //             self.envirment.pomelo.removeAllListeners(ins.route);
+    //             this.envirment.pomelo.on(ins.route, (data) => {
+    //                 self.sendSessionLog("onPush: " + ins.route);
+    //                 ins.onS2CMsg(data, (err)=>{});
+    //             });
+    //             callback(null);
+    //             break;
+    //         case PROTO_TYPE.NOTIFY:
+    //             self.sendSessionLog("send notify: " + ins.route);
+    //             self.sendSessionLog("with params: " + JSON.stringify(ins.getC2SMsg()));
+    //             this.envirment.pomelo.notify(ins.route, ins.getC2SMsg());
+    //             callback(null);
+    //             break;
+    //     }
+    // }
 
     // serialize() {
     //     let obj = {
