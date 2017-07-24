@@ -2,12 +2,16 @@
 
 let g_protoMgr = require('./protocolManager');
 let commonJs = require('../../../CommonJS/common');
+let g_runningJobMgr = require('./runningJobManager');
 
 class protoJobSession {
     constructor(userObj) {
         this.userObj = userObj;
         this.curJob = null;
         this.socket = null;
+        
+        this.runningJobIDs = [];
+        this.sessionIDInRunningJobMgr = g_runningJobMgr.getID(this);
     }
 
     setSocket(skt) {
@@ -36,7 +40,6 @@ class protoJobSession {
             }
 
             self.curJob = jobObj;
-            self.curJob.setSession(self);
             return callback(null);
         });
     }
@@ -57,7 +60,7 @@ class protoJobSession {
             }
 
             this.curJob = jobObj;
-            this.curJob.setSession(this);
+            // this.curJob.setSession(this);
             callback(null);
         });
     }
@@ -69,6 +72,13 @@ class protoJobSession {
 
     clearCurrentJob(callback) {
         this.curJob = null;
+        callback(null);
+    }
+
+    runJob(callback) {
+        let runningJobId = g_runningJobMgr.runJob(this.sessionIDInRunningJobMgr, this.curJob);
+        this.runningJobIDs.push(runningJobId);
+
         callback(null);
     }
 }

@@ -52,3 +52,7 @@ class runningJobManager{
         return true;
     }
 };
+
+
+module.exports = new runningJobManager();
+

@@ -42,8 +42,9 @@ class runningJob {
 
     runAll(callback) {
         this.sendSessionLog('------------------------------->');
-        this.sendSessionLog('start job' + this.name);
+        this.sendSessionLog('start job' + this.jobObj.name);
         async.eachSeries(this.jobObj.instruments, (item, cb) => {
+                item.runner = this;
                 this._runInstrument(item, cb);
             },
             (err) => {
@@ -105,7 +106,7 @@ class runningJob {
                     if (err) {
                         return callback(err);
                     }
-                    let runningJob = new runningJob(job, this.session, this.sessionDepth + 1, this.envirment);
+                    let runningJobObj = new runningJob(job, this.session, this.sessionDepth + 1, this.envirment);
 
                     let firstIns = job.getInstrument(0);
                     let msg = ins.getC2SMsg();
@@ -116,7 +117,7 @@ class runningJob {
                     }
 
 
-                    runningJob.runAll(callback);
+                    runningJobObj.runAll(callback);
 
                 });
                 break;

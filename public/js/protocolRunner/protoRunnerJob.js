@@ -45,7 +45,6 @@ class protoRunnerJob {
 
 
     addInstrument(ins) {
-        ins.runner = this;
         this.instruments.push(ins);
     }
 
