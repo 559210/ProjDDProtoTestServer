@@ -1,0 +1,61 @@
+script.
+    var pugDataRunningJobs = !{JSON.stringify(runningJobs)};
+    var zTreeObj;
+    var zTreeNode = [];
+    var zTreeSetting = {
+        edit: {
+            drag: {
+                autoExpandTrigger: true,
+                prev: false,//function(){return false;},
+                //- inner: onZTreeEditDragInner,
+                next: false //function(){return false;}
+            },
+            enable: true,
+            //- showRemoveBtn: true,
+            //- showRenameBtn: true,
+        },
+        view: {
+            dblClickExpand: false
+        },
+        //- callback: {
+        //-     onRightClick: onZTreeRightClick,
+        //-     beforeRemove: onTreeBeforeRemove,
+        //-     onRemove: onTreeRemove,
+        //-     onRename: onTreeRename,
+        //-     beforeDrop: onTreeBeforeDrop,
+        //-     onDrop: onTreeDrop,
+        //-     onClick: onTreeClick
+        //- }
+    };
+
+    $(function(){ 
+        // do something 
+        //- console.log(pugDataRunningJobs);
+        createRunningJobList();
+    });
+
+    function createRunningJobList() {
+        zTreeNode = [];
+        for (var key in pugDataRunningJobs) {
+            let node = {name: key, isParent: true, children: []};
+            
+            for (var i = 0; i < pugDataRunningJobs[key].length; ++i) {
+                console.log(pugDataRunningJobs[key][i]);
+                node.children.push({name: pugDataRunningJobs[key][i].name, isParent: false, id: pugDataRunningJobs[key][i].runningJobId});
+            }
+
+            zTreeNode.push(node);
+        }
+
+        zTreeNode = [{name: 'ALL JOBS', isParent: true, children: zTreeNode, open: true}];
+        $.fn.zTree.init($("#runningJobList"), zTreeSetting, zTreeNode);
+        zTreeObj = $.fn.zTree.getZTreeObj("runningJobList");
+
+        //- var selectedNode = zTreeObj.getNodeByParam('id', selectedJobId);
+
+        //- if (selectedNode !== null) {
+        //-     zTreeObj.selectNode(selectedNode);
+        //- }
+    }
+div
+    div.ztree#runningJobList

@@ -9,6 +9,7 @@ let logger = log4js.getLogger();
 let g_protoMgr = require('./public/js/protocolRunner/protocolManager');
 let g_protoJobManager = require('./public/js/protocolRunner/protocolRunner');
 let commonJs = require('./CommonJS/common');
+let g_runningJobMgr = require('./public/js/protocolRunner/runningJobManager');
 
 
 
@@ -136,6 +137,25 @@ module.exports = function(app, io) {
                 
                 res.render('protocolViews/protocolJobs', resJson);
             });
+    });
+
+    app.get('/RunningJobs', checkLogin, (req, res) => {
+        let resJson = {
+            runningJobs: {}
+        };
+        let runningJobsMap = g_runningJobMgr.getAllRunningJobs();
+        for (let key in runningJobsMap) {
+            if (resJson.runningJobs[key] === undefined || resJson.runningJobs[key] === null) {
+                resJson.runningJobs[key] = [];
+            }
+
+            for (let i = 0; i < runningJobsMap[key].length; ++i) {
+                resJson.runningJobs[key].push({name:runningJobsMap[key][i].getName(), runningJobId: runningJobsMap[key][i].getRunningJobId()});
+            }
+        }
+        console.log('--------------------===============')
+        console.log(resJson);
+        res.render('protocolViews/runningJobView', resJson);
     });
 
     // app.get('/CodeTest', checkLogin, (req, res) => {

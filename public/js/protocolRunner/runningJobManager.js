@@ -31,6 +31,7 @@ class runningJobManager{
         let runningJobObj = new runningJobClass(jobObj, session, 0, null);
         let runningJobId = this.runningJobMap[id].length;
         this.runningJobMap[id].push(runningJobObj);
+        runningJobObj.runningJobId = runningJobId;
         runningJobObj.runAll((err) => {});
 
         return runningJobId;
@@ -50,6 +51,15 @@ class runningJobManager{
         runningJobs[runningJobId] = null;
         runningJob.stop();
         return true;
+    }
+
+    getAllRunningJobs(sessionId) {
+        if (sessionId === undefined || sessionId === null) {
+            return this.runningJobMap;
+        }
+        else {
+            return this.runningJobsMap[sessionId];
+        }
     }
 };
 

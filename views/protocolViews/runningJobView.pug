@@ -1,0 +1,12 @@
+extends ../layout
+
+block content
+    h1 运行中job管理
+
+    div
+        div(style="background-color:white;left:0%;width:10%;float:left;")
+            h4 模板列表
+            include runningJobList
+        div(style="width:80%;left:10%;float:left;")
+            h4 模板细节
+            //- include jobEditor

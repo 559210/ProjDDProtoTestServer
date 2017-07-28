@@ -15,21 +15,33 @@ class runningJob {
         this.jobObj = jobObj;
         this.session = sess;
         this.sessionDepth = sessionDepth;
+        this.runningJobId = null;
         this.envirment = evn ? evn : {
             pomelo: null,
             variableManager: new variableManagerClass()
         };
+        this.outputs = '';
     };
 
     sendSessionLog(text) {
         for (let i = 0; i < this.sessionDepth; ++i) {
             text = '\t' + text;
         }
+        this.outputs += text + '\n';
+        
         if (commonJs.isUndefinedOrNull(this.session) == false) {
             this.session.Console(text); 
         }
         console.log(text);
     };
+
+    clearOutputs() {
+        this.outputs = '';
+    }
+
+    getOutputs() {
+        return this.outputs;
+    }
 
     runByStep(index, callback) {
         let ins = this.jobObj.getInstrument(index);
@@ -41,6 +53,7 @@ class runningJob {
     };
 
     runAll(callback) {
+        this.clearOutputs();
         this.sendSessionLog('------------------------------->');
         this.sendSessionLog('start job' + this.jobObj.name);
         async.eachSeries(this.jobObj.instruments, (item, cb) => {
@@ -146,6 +159,14 @@ class runningJob {
         this.envirment.pomelo.disconnect();
         this.envirment.pomelo = null;
         callback(null);
+    }
+
+    getName() {
+        return this.jobObj.name;
+    }
+
+    getRunningJobId() {
+        return this.runningJobId;
     }
 };
 
