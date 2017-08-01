@@ -11,17 +11,30 @@ class protoJobSession {
         this.socket = null;
         
         this.runningJobIDs = [];
-        this.sessionIDInRunningJobMgr = g_runningJobMgr.getID(this);
+        this.sessionIDInRunningJobMgr = g_runningJobMgr.getSessionID(this);
+    }
+
+    getSessionIdInRunningJobMgr() {
+        return this.sessionIDInRunningJobMgr;
     }
 
     setSocket(skt) {
         this.socket = skt;
     }
 
-    Console(text) {
+    Console(text, runningJobId) {
         if (commonJs.isUndefinedOrNull(this.socket) == false) {
-            this.socket.emit("Console", {text: text});
+            this.socket.emit("Console", {text: text, runningJobId: runningJobId});
         }
+    }
+
+    subscribeToJobConsole(runningJobId) {
+        g_runningJobMgr.subscribeToJobConsole(this.sessionIDInRunningJobMgr, runningJobId);
+    }
+
+
+    unSubscribeToJobConsole(runningJobId) {
+        g_runningJobMgr.unSubscribeToJobConsole(this.sessionIDInRunningJobMgr, runningJobId);
     }
 
     getCurrentJobDetail() {
@@ -60,7 +73,6 @@ class protoJobSession {
             }
 
             this.curJob = jobObj;
-            // this.curJob.setSession(this);
             callback(null);
         });
     }
@@ -80,6 +92,10 @@ class protoJobSession {
         this.runningJobIDs.push(runningJobId);
 
         callback(null);
+    }
+
+    close() {
+        g_runningJobMgr.removeSession(this.sessionIDInRunningJobMgr);
     }
 }
 

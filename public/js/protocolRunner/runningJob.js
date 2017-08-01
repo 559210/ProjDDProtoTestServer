@@ -11,10 +11,11 @@ let pomeloClass = require('./pomeloClient');
 const PROTO_TYPE = require('./protocolType');
 
 class runningJob {
-    constructor(jobObj, sess, sessionDepth, evn) {
+    constructor(jobObj, runningJobManager, consoleLogDepth, evn) {
         this.jobObj = jobObj;
-        this.session = sess;
-        this.sessionDepth = sessionDepth;
+        this.runningJobId = -1;
+        this.runningJobManager = runningJobManager;
+        this.consoleLogDepth = consoleLogDepth;
         this.runningJobId = null;
         this.envirment = evn ? evn : {
             pomelo: null,
@@ -23,6 +24,14 @@ class runningJob {
         this.outputs = '';
     };
 
+    setRunningJobId(id) {
+        this.runningJobId = id;
+    }
+
+    getRunningJobId() {
+        return this.runningJobId;
+    }
+
     sendSessionLog(text) {
         for (let i = 0; i < this.sessionDepth; ++i) {
             text = '\t' + text;
@@ -30,7 +39,7 @@ class runningJob {
         this.outputs += text + '\n';
         
         if (commonJs.isUndefinedOrNull(this.session) == false) {
-            this.session.Console(text); 
+            this.runningJobManager.log(this.runningJobId, text); 
         }
         console.log(text);
     };

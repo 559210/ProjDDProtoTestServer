@@ -11,6 +11,7 @@ let variableManagerClass = require('./variableManager');
 let protoInstrumentClass = require('./protoInstrument');
 let protoRunnerJobClass = require('./protoRunnerJob');
 let protoJobSessionClass = require('./protoJobSession');
+let g_runningJobMgr = require('./runningJobManager');
 const PROTO_TYPE = require('./protocolType');
 
 class protoJobManager {
@@ -312,6 +313,17 @@ class protoJobManager {
                     checkMsgResult(err, '一些或所有路径修改失败. ' + (err ? err.toString() : ''));
                 });
             });
+
+            socket.on('onSubscribeLog', (data) => {
+                g_runningJobMgr.subscribeToJobConsole(session.getSessionIdInRunningJobMgr(), data.jobId);
+            });
+
+            socket.on('disconnect', (reason) => {
+                console.log('user id: %j', socket.request.session.passport.user);
+                console.log('socket io disconnect: %j', reason);
+                session.close();
+                self._removeSession(socket);
+            });
         });
     }
 
@@ -321,6 +333,10 @@ class protoJobManager {
             obj.setSocket(socket);
         }
         return obj;
+    }
+
+    _removeSession(socket) {
+        delete this.sessions[socket.request.session.passport.user];
     }
 
     getOpenedJobDetail(uid) {

@@ -8,15 +8,27 @@ let runningJobClass = require('./runningJob');
 class runningJobManager{
     constructor() {
         this.globalIndex = 0;
-        this.sessionMap = {};           // id -> session
-        this.runningJobMap = {};        // id -> job array
+        this.sessionMap = {};           // sessionId -> session
+        this.runningJobMap = {};        // runningJobId -> job array
+        this.runningJobSubscribeMap = {};  // runningJobId --> sessoinId
     };
 
-    getID(session) {
+    getSessionID(session) {
         let id = this.globalIndex;
         this.globalIndex++;
         this.sessionMap[id] = session;
         return id;
+    }
+
+    removeSession(sessionId) {
+        delete this.sessionMap[sessionId];
+        for (let jobId in this.runningJobSubscribeMap) {
+            let sessions = this.runningJobSubscribeMap[jobId];
+            let idx = sessions.indexOf(sessionId);
+            if (idx >= 0) {
+                sessions.splice(idx, 1);
+            }
+        }
     }
 
     runJob(id, jobObj) {
@@ -30,6 +42,7 @@ class runningJobManager{
 
         let runningJobObj = new runningJobClass(jobObj, session, 0, null);
         let runningJobId = this.runningJobMap[id].length;
+        runningJobObj.setRunningJobId(runningJobId);
         this.runningJobMap[id].push(runningJobObj);
         runningJobObj.runningJobId = runningJobId;
         runningJobObj.runAll((err) => {});
@@ -59,6 +72,56 @@ class runningJobManager{
         }
         else {
             return this.runningJobsMap[sessionId];
+        }
+    }
+
+    subscribeToJobConsole(sessionId, jobId) {
+        if (common.isUndefinedOrNull(this.runningJobSubscribeMap[jobId])) {
+            this.runningJobSubscribeMap[jobId] = [];
+        }
+
+        let found = false;
+        for (let i = 0; i < this.runningJobSubscribeMap[jobId].length; ++i) {
+            if (this.runningJobSubscribeMap[jobId][i] === sessionId) {
+                found = true;
+                break;
+            }
+        }
+
+        if (found === false) {
+            this.runningJobSubscribeMap[jobId].push(sessionId);
+
+            // subscribe之后要把之前所有log都发送过去
+            let jobObj = this.runningJobMap[jobId];
+            let sessionObj = this.sessionMap[sessionId];
+
+            if (common.isUndefinedOrNull(jobObj) || common.isUndefinedOrNull(sessionObj)) {
+                return;
+            }
+
+            sessionObj.Console.log(jobObj.getOutputs(), jobId);
+        }
+    }
+
+    unSubscribeToJobConsole(seesionId, jobId) {
+        if (common.isUndefinedOrNull(this.runningJobSubscribeMap[jobId])) {
+            return;
+        }
+
+        let index = this.runningJobSubscribeMap[jobId].indexOf(sessionId);
+        if (index >= 0) {
+            this.runningJobSubscribeMap[jobId].splice(index, 1);
+        }
+    }
+
+    log(runningJobId, text) {
+        let sessions = this.runningJobSubscribeMap[runningJobId];
+        if (common.isUndefinedOrNull(sessions)) {
+            return;
+        }
+
+        for (let i = 0; i < sessions.length; ++i) {
+            sessions[i].Console(text, runningJobId);
         }
     }
 };
