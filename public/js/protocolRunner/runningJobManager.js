@@ -7,51 +7,47 @@ let runningJobClass = require('./runningJob');
 
 class runningJobManager{
     constructor() {
-        this.globalIndex = 0;
-        this.sessionMap = {};           // sessionId -> session
+        this.sessionMap = {};           // uid -> session
         this.runningJobMap = {};        // runningJobId -> job array
-        this.runningJobSubscribeMap = {};  // runningJobId --> sessoinId
+        this.runningJobSubscribeMap = {};  // runningJobId --> uid
     };
 
-    getSessionID(session) {
-        let id = this.globalIndex;
-        this.globalIndex++;
-        this.sessionMap[id] = session;
-        return id;
+    registerSession(uid, sessionObj) {
+        this.sessionMap[uid] = session;
     }
 
-    removeSession(sessionId) {
-        delete this.sessionMap[sessionId];
-        for (let jobId in this.runningJobSubscribeMap) {
-            let sessions = this.runningJobSubscribeMap[jobId];
-            let idx = sessions.indexOf(sessionId);
-            if (idx >= 0) {
-                sessions.splice(idx, 1);
-            }
-        }
+    unRegisterSession(uid) {
+        delete this.sessionMap[uid];
+        // for (let jobId in this.runningJobSubscribeMap) {
+        //     let sessions = this.runningJobSubscribeMap[jobId];
+        //     let idx = sessions.indexOf(sessionId);
+        //     if (idx >= 0) {
+        //         sessions.splice(idx, 1);
+        //     }
+        // }
     }
 
-    runJob(id, jobObj) {
-        let session = this.sessionMap[id];
+    runJob(uid, jobObj) {
+        let session = this.sessionMap[uid];
         if (commonJs.isUndefinedOrNull(session)) {
             return -1;
         }
-        if (commonJs.isUndefinedOrNull(this.runningJobMap[id])) {
-            this.runningJobMap[id] = [];
+        if (commonJs.isUndefinedOrNull(this.runningJobMap[uid])) {
+            this.runningJobMap[uid] = [];
         }
 
         let runningJobObj = new runningJobClass(jobObj, session, 0, null);
-        let runningJobId = this.runningJobMap[id].length;
+        let runningJobId = this.runningJobMap[uid].length;
         runningJobObj.setRunningJobId(runningJobId);
-        this.runningJobMap[id].push(runningJobObj);
+        this.runningJobMap[uid].push(runningJobObj);
         runningJobObj.runningJobId = runningJobId;
         runningJobObj.runAll((err) => {});
 
         return runningJobId;
     }
 
-    stopJob(id, runningJobId) {
-        let runningJobs = this.runningJobMap[id]
+    stopJob(uid, runningJobId) {
+        let runningJobs = this.runningJobMap[uid]
         if (commonJs.isUndefinedOrNull(runningJobs)) {
             return false;
         }
@@ -66,62 +62,65 @@ class runningJobManager{
         return true;
     }
 
-    getAllRunningJobs(sessionId) {
-        if (sessionId === undefined || sessionId === null) {
+    getAllRunningJobs(uid) {
+        if (common.isUndefinedOrNull(uid)) {
             return this.runningJobMap;
         }
         else {
-            return this.runningJobsMap[sessionId];
+            return this.runningJobsMap[uid];
         }
     }
 
-    subscribeToJobConsole(sessionId, jobId) {
+    subscribeToJobConsole(uid, jobId) {
         if (common.isUndefinedOrNull(this.runningJobSubscribeMap[jobId])) {
             this.runningJobSubscribeMap[jobId] = [];
         }
 
         let found = false;
         for (let i = 0; i < this.runningJobSubscribeMap[jobId].length; ++i) {
-            if (this.runningJobSubscribeMap[jobId][i] === sessionId) {
+            if (this.runningJobSubscribeMap[jobId][i] === uid) {
                 found = true;
                 break;
             }
         }
 
         if (found === false) {
-            this.runningJobSubscribeMap[jobId].push(sessionId);
+            this.runningJobSubscribeMap[jobId].push(uid);
 
             // subscribe之后要把之前所有log都发送过去
             let jobObj = this.runningJobMap[jobId];
-            let sessionObj = this.sessionMap[sessionId];
+            let sessionObj = this.sessionMap[uid];
 
             if (common.isUndefinedOrNull(jobObj) || common.isUndefinedOrNull(sessionObj)) {
                 return;
             }
 
-            sessionObj.Console.log(jobObj.getOutputs(), jobId);
+            sessionObj.Console(jobObj.getOutputs(), jobId);
         }
     }
 
-    unSubscribeToJobConsole(seesionId, jobId) {
+    unSubscribeToJobConsole(uid, jobId) {
         if (common.isUndefinedOrNull(this.runningJobSubscribeMap[jobId])) {
             return;
         }
 
-        let index = this.runningJobSubscribeMap[jobId].indexOf(sessionId);
+        let index = this.runningJobSubscribeMap[jobId].indexOf(uid);
         if (index >= 0) {
             this.runningJobSubscribeMap[jobId].splice(index, 1);
         }
     }
 
     log(runningJobId, text) {
-        let sessions = this.runningJobSubscribeMap[runningJobId];
-        if (common.isUndefinedOrNull(sessions)) {
+        let uids = this.runningJobSubscribeMap[runningJobId];
+        if (common.isUndefinedOrNull(uids)) {
             return;
         }
 
-        for (let i = 0; i < sessions.length; ++i) {
-            sessions[i].Console(text, runningJobId);
+        for (let i = 0; i < uids.length; ++i) {
+            let session = this.sessionMap[uids[i]];
+            if (common.isUndefinedOrNull(session) === false) {
+                session.Console(text, runningJobId);
+            }
         }
     }
 };
