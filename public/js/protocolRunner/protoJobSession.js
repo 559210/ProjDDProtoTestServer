@@ -7,15 +7,16 @@ let g_runningJobMgr = require('./runningJobManager');
 class protoJobSession {
     constructor(userObj) {
         this.userObj = userObj;
+        this.uid = userObj.uid;
         this.curJob = null;
         this.socket = null;
         
         this.runningJobIDs = [];
-        this.sessionIDInRunningJobMgr = g_runningJobMgr.getSessionID(this);
+        g_runningJobMgr.registerSession(this.uid, this);
     }
 
     getSessionIdInRunningJobMgr() {
-        return this.sessionIDInRunningJobMgr;
+        return this.uid;
     }
 
     setSocket(skt) {
@@ -29,12 +30,12 @@ class protoJobSession {
     }
 
     subscribeToJobConsole(runningJobId) {
-        g_runningJobMgr.subscribeToJobConsole(this.sessionIDInRunningJobMgr, runningJobId);
+        g_runningJobMgr.subscribeToJobConsole(this.uid, runningJobId);
     }
 
 
     unSubscribeToJobConsole(runningJobId) {
-        g_runningJobMgr.unSubscribeToJobConsole(this.sessionIDInRunningJobMgr, runningJobId);
+        g_runningJobMgr.unSubscribeToJobConsole(this.uid, runningJobId);
     }
 
     getCurrentJobDetail() {
@@ -88,14 +89,14 @@ class protoJobSession {
     }
 
     runJob(callback) {
-        let runningJobId = g_runningJobMgr.runJob(this.sessionIDInRunningJobMgr, this.curJob);
+        let runningJobId = g_runningJobMgr.runJob(this.uid, this.curJob);
         this.runningJobIDs.push(runningJobId);
 
         callback(null);
     }
 
     close() {
-        g_runningJobMgr.removeSession(this.sessionIDInRunningJobMgr);
+        g_runningJobMgr.removeSession(this.uid);
     }
 }
 
