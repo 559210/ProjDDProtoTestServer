@@ -11,21 +11,21 @@ script.
                 next: false //function(){return false;}
             },
             enable: true,
-            //- showRemoveBtn: true,
-            //- showRenameBtn: true,
+            showRemoveBtn: true,
+            showRenameBtn: false,
         },
         view: {
             dblClickExpand: false
         },
-        //- callback: {
+        callback: {
         //-     onRightClick: onZTreeRightClick,
-        //-     beforeRemove: onTreeBeforeRemove,
-        //-     onRemove: onTreeRemove,
+            beforeRemove: onTreeBeforeRemove,
+            onRemove: onTreeRemove,
         //-     onRename: onTreeRename,
         //-     beforeDrop: onTreeBeforeDrop,
         //-     onDrop: onTreeDrop,
         //-     onClick: onTreeClick
-        //- }
+        }
     };
 
     $(function(){ 
@@ -56,6 +56,22 @@ script.
         //- if (selectedNode !== null) {
         //-     zTreeObj.selectNode(selectedNode);
         //- }
+    }
+
+    function onTreeRemove(event, treeId, treeNode) {
+        if (treeNode.isParent === false) {
+            socket.emit('closeRunningJob', {runningJobId: treeNode.id});
+        }
+    }
+
+    function onTreeBeforeRemove(treeId, treeNode) {
+        if (treeNode.isParent === false) {
+            if (confirm("确定要关闭此Job吗？ job名字: " + treeNode.name)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 div
     div.ztree#runningJobList

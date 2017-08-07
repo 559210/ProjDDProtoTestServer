@@ -8,8 +8,10 @@ let runningJobClass = require('./runningJob');
 class runningJobManager{
     constructor() {
         this.sessionMap = {};           // uid -> session
-        this.runningJobMap = {};        // runningJobId -> job array
+        this.runningJobMap = {};        // uid -> job map( runningJobId -> runningJobObject)
         this.runningJobSubscribeMap = {};  // runningJobId --> uid
+
+        this.maxRunningJobId = 0;
     };
 
     registerSession(uid, sessionObj) {
@@ -37,10 +39,11 @@ class runningJobManager{
         }
 
         let runningJobObj = new runningJobClass(jobObj, session, 0, null);
-        let runningJobId = this.runningJobMap[uid].length;
+        let runningJobId = this.maxRunningJobId;
+        this.maxRunningJobId++;
+
         runningJobObj.setRunningJobId(runningJobId);
-        this.runningJobMap[uid].push(runningJobObj);
-        runningJobObj.runningJobId = runningJobId;
+        this.runningJobMap[uid][runningJobId] = runningJobObj;
         runningJobObj.runAll((err) => {});
 
         return runningJobId;
@@ -57,8 +60,9 @@ class runningJobManager{
         }
 
         let runningJob = runningJobs[runningJobId];
-        runningJobs[runningJobId] = null;
-        runningJob.stop();
+        runningJob.stop((err)=>{});
+        delete runningJobs[runningJobId];
+        
         return true;
     }
 
@@ -67,7 +71,7 @@ class runningJobManager{
             return this.runningJobMap;
         }
         else {
-            return this.runningJobsMap[uid];
+            return this.runningJobMap[uid];
         }
     }
 

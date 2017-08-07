@@ -149,9 +149,11 @@ module.exports = function(app, io) {
                 resJson.runningJobs[key] = [];
             }
 
-            for (let i = 0; i < runningJobsMap[key].length; ++i) {
-                resJson.runningJobs[key].push({name:runningJobsMap[key][i].getName(), runningJobId: runningJobsMap[key][i].getRunningJobId()});
+            for (let runningJobId in runningJobsMap[key]) {
+                let runningJobObject = runningJobsMap[key][runningJobId];
+                resJson.runningJobs[key].push({name:runningJobObject.getName(), runningJobId: runningJobId});
             }
+
         }
         console.log('--------------------===============')
         console.log(resJson);

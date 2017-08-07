@@ -327,6 +327,12 @@ class protoJobManager {
                 console.log('socket io disconnect: %j', reason);
                 session.setActive(false);
             });
+
+            // for running job
+            socket.on('closeRunningJob', (data) => {
+                g_runningJobMgr.stopJob(socket.request.session.passport.user, data.runningJobId);
+                checkMsgResult(null, '');
+            });
         });
     }
 

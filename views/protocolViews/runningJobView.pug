@@ -1,6 +1,21 @@
 extends ../layout
 
 block content
+    script.
+        var socket = io.connect();
+
+        socket.on('ErrorMsg', function(data) {
+            alert(data.msg);
+        });
+
+        function onRefresh() {
+            window.location.reload();
+        }
+
+        socket.on('Refresh', function() {
+            onRefresh();
+        });
+        
     h1 运行中job管理
 
     div
