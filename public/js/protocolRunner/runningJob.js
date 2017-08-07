@@ -12,6 +12,7 @@ const PROTO_TYPE = require('./protocolType');
 
 class runningJob {
     constructor(jobObj, runningJobManager, consoleLogDepth, evn) {
+        console.log('runningJob constructor: jobObj: %j', jobObj);
         this.jobObj = jobObj;
         this.runningJobId = -1;
         this.runningJobManager = runningJobManager;

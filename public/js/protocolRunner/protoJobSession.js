@@ -6,6 +6,7 @@ let g_runningJobMgr = require('./runningJobManager');
 
 class protoJobSession {
     constructor(userObj) {
+        this.isActive = true;
         this.userObj = userObj;
         this.uid = userObj.uid;
         this.curJob = null;
@@ -13,6 +14,14 @@ class protoJobSession {
         
         this.runningJobIDs = [];
         g_runningJobMgr.registerSession(this.uid, this);
+    }
+
+    setActive(active) {
+        this.isActive = active === false ? false : true;
+    }
+
+    isActive() {
+        return this.isActive;
     }
 
     getSessionIdInRunningJobMgr() {
@@ -52,7 +61,6 @@ class protoJobSession {
             if (err) {
                 return callback(err);
             }
-
             self.curJob = jobObj;
             return callback(null);
         });
@@ -89,15 +97,16 @@ class protoJobSession {
     }
 
     runJob(callback) {
+        console.log('protoJobSession runJob: curJob: %j', this.curJob);
         let runningJobId = g_runningJobMgr.runJob(this.uid, this.curJob);
         this.runningJobIDs.push(runningJobId);
 
         callback(null);
     }
 
-    close() {
-        g_runningJobMgr.removeSession(this.uid);
-    }
+    // close() {
+    //     g_runningJobMgr.unRegisterSession(this.uid);
+    // }
 }
 
 module.exports = protoJobSession;

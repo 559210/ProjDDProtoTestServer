@@ -13,19 +13,19 @@ class runningJobManager{
     };
 
     registerSession(uid, sessionObj) {
-        this.sessionMap[uid] = session;
+        this.sessionMap[uid] = sessionObj;
     }
 
-    unRegisterSession(uid) {
-        delete this.sessionMap[uid];
-        // for (let jobId in this.runningJobSubscribeMap) {
-        //     let sessions = this.runningJobSubscribeMap[jobId];
-        //     let idx = sessions.indexOf(sessionId);
-        //     if (idx >= 0) {
-        //         sessions.splice(idx, 1);
-        //     }
-        // }
-    }
+    // unRegisterSession(uid) {
+    //     delete this.sessionMap[uid];
+    //     // for (let jobId in this.runningJobSubscribeMap) {
+    //     //     let sessions = this.runningJobSubscribeMap[jobId];
+    //     //     let idx = sessions.indexOf(sessionId);
+    //     //     if (idx >= 0) {
+    //     //         sessions.splice(idx, 1);
+    //     //     }
+    //     // }
+    // }
 
     runJob(uid, jobObj) {
         let session = this.sessionMap[uid];
@@ -63,7 +63,7 @@ class runningJobManager{
     }
 
     getAllRunningJobs(uid) {
-        if (common.isUndefinedOrNull(uid)) {
+        if (commonJs.isUndefinedOrNull(uid)) {
             return this.runningJobMap;
         }
         else {
@@ -72,7 +72,7 @@ class runningJobManager{
     }
 
     subscribeToJobConsole(uid, jobId) {
-        if (common.isUndefinedOrNull(this.runningJobSubscribeMap[jobId])) {
+        if (commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[jobId])) {
             this.runningJobSubscribeMap[jobId] = [];
         }
 
@@ -91,7 +91,7 @@ class runningJobManager{
             let jobObj = this.runningJobMap[jobId];
             let sessionObj = this.sessionMap[uid];
 
-            if (common.isUndefinedOrNull(jobObj) || common.isUndefinedOrNull(sessionObj)) {
+            if (commonJs.isUndefinedOrNull(jobObj) || commonJs.isUndefinedOrNull(sessionObj)) {
                 return;
             }
 
@@ -100,7 +100,7 @@ class runningJobManager{
     }
 
     unSubscribeToJobConsole(uid, jobId) {
-        if (common.isUndefinedOrNull(this.runningJobSubscribeMap[jobId])) {
+        if (commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[jobId])) {
             return;
         }
 
@@ -112,13 +112,13 @@ class runningJobManager{
 
     log(runningJobId, text) {
         let uids = this.runningJobSubscribeMap[runningJobId];
-        if (common.isUndefinedOrNull(uids)) {
+        if (commonJs.isUndefinedOrNull(uids)) {
             return;
         }
 
         for (let i = 0; i < uids.length; ++i) {
             let session = this.sessionMap[uids[i]];
-            if (common.isUndefinedOrNull(session) === false) {
+            if (commonJs.isUndefinedOrNull(session) === false && session.isActive() === true) {
                 session.Console(text, runningJobId);
             }
         }

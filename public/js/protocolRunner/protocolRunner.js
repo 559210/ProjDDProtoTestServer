@@ -17,7 +17,7 @@ const PROTO_TYPE = require('./protocolType');
 class protoJobManager {
     constructor() {
         this.io = null;
-        this.sessions = {};
+        this.sessions = {};     // uid -> sessionObject
     }
 
     _getCachedJobByName(jobName) {
@@ -50,6 +50,7 @@ class protoJobManager {
                 return;
             }
 
+            console.log('socket io connected');
             g_account.deserializeUser(socket.request.session.passport.user, (err, userObj) => {
                 if (commonJs.isUndefinedOrNull(userObj)) {
                     return;
@@ -58,6 +59,9 @@ class protoJobManager {
                 if (commonJs.isUndefinedOrNull(self.sessions[userObj.uid])) {
                     self.sessions[userObj.uid] = new protoJobSessionClass(userObj);
                     self.sessions[userObj.uid].setSocket(socket);
+                }
+                else {
+                    self.sessions[userObj.uid].setActive();
                 }
             });
 
@@ -321,8 +325,7 @@ class protoJobManager {
             socket.on('disconnect', (reason) => {
                 console.log('user id: %j', socket.request.session.passport.user);
                 console.log('socket io disconnect: %j', reason);
-                session.close();
-                self._removeSession(socket);
+                session.setActive(false);
             });
         });
     }
@@ -335,9 +338,9 @@ class protoJobManager {
         return obj;
     }
 
-    _removeSession(socket) {
-        delete this.sessions[socket.request.session.passport.user];
-    }
+    // _removeSession(socket) {
+    //     delete this.sessions[socket.request.session.passport.user];
+    // }
 
     getOpenedJobDetail(uid) {
         let session = this.sessions[uid];
