@@ -17,6 +17,10 @@ script.
         view: {
             dblClickExpand: false
         },
+        check: {
+            enable: true,
+            chkboxType: { "Y": "", "N": "" }
+        },
         callback: {
         //-     onRightClick: onZTreeRightClick,
             beforeRemove: onTreeBeforeRemove,
@@ -24,7 +28,10 @@ script.
         //-     onRename: onTreeRename,
         //-     beforeDrop: onTreeBeforeDrop,
         //-     onDrop: onTreeDrop,
-        //-     onClick: onTreeClick
+            onClick: onTreeClick,
+
+            beforeCheck: onTreeBeforeCheck,
+            onCheck: onTreeCheck,
         }
     };
 
@@ -33,6 +40,20 @@ script.
         //- console.log(pugDataRunningJobs);
         createRunningJobList();
     });
+
+    socket.on('Console', function(data){
+        console.log(data.text);
+        return;
+        var ta = $('textarea.console');
+        ta.text(ta.val() + '\r\n' + data.text);
+
+        ta.scrollTop(ta[0].scrollHeight);
+
+        console.log(data.text);
+    });
+
+
+    /////////////////////////////////
 
     function createRunningJobList() {
         zTreeNode = [];
@@ -73,5 +94,36 @@ script.
 
         return false;
     }
+
+    function onTreeClick(event, treeId, treeNode, clickFlag) {
+        console.log('event: ');
+        console.log(event);
+        console.log('treeId: ');
+        console.log(treeId);
+        console.log('clickFlag');
+        console.log(clickFlag);
+        //- console.log('event: %j, treeId: %j, clickFlag: %j', event, treeId, clickFlag);
+        //- if (treeNode.isParent === false) {
+        //-     socket.emit('subscribeConsole', {runningJobId: treeNode.id});
+        //- }
+    }
+
+    function onTreeBeforeCheck(treeId, treeNode) {
+        if (treeNode.isParent) {
+            return false;
+        }
+
+        return true;
+    };
+
+    function onTreeCheck(event, treeId, treeNode) {
+        //- console.log(treeNode.tId + ", " + treeNode.name + "," + treeNode.checked);
+        if (treeNode.checked) {
+            socket.emit('subscribeConsole', {runningJobId: treeNode.id});
+        }
+        else {
+            socket.emit('unSubscribeConsole', {runningJobId: treeNode.id});
+        }
+    };
 div
     div.ztree#runningJobList

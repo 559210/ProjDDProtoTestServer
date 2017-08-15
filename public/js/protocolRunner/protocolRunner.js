@@ -333,6 +333,14 @@ class protoJobManager {
                 g_runningJobMgr.stopJob(socket.request.session.passport.user, data.runningJobId);
                 checkMsgResult(null, '');
             });
+
+            socket.on('subscribeConsole', (data) => {
+                g_runningJobMgr.subscribeToJobConsole(socket.request.session.passport.user, data.runningJobId);
+            });
+
+            socket.on('unSubscribeConsole', (data) => {
+                g_runningJobMgr.unSubscribeToJobConsole(socket.request.session.passport.user, data.runningJobId);
+            });
         });
     }
 

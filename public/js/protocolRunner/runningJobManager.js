@@ -35,7 +35,7 @@ class runningJobManager{
             return -1;
         }
         if (commonJs.isUndefinedOrNull(this.runningJobMap[uid])) {
-            this.runningJobMap[uid] = [];
+            this.runningJobMap[uid] = {};
         }
 
         let runningJobObj = new runningJobClass(jobObj, session, 0, null);
@@ -92,7 +92,7 @@ class runningJobManager{
             this.runningJobSubscribeMap[jobId].push(uid);
 
             // subscribe之后要把之前所有log都发送过去
-            let jobObj = this.runningJobMap[jobId];
+            let jobObj = this.runningJobMap[uid][jobId];
             let sessionObj = this.sessionMap[uid];
 
             if (commonJs.isUndefinedOrNull(jobObj) || commonJs.isUndefinedOrNull(sessionObj)) {
