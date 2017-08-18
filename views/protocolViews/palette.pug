@@ -1,0 +1,43 @@
+script.
+    var paletteCallback = null;
+
+    function showGlobalPalette(callback){
+        paletteCallback = callback;
+        $('div#palette').show();
+    }
+
+    function closeGlobalPalette() {
+        $('div#palette').hide();
+    }
+
+    function setColor(color) {
+        $('input.color').val(color);
+    }
+
+    function onOK() {
+        closeGlobalPalette();
+        let color = $('input.color').val();
+
+        if (paletteCallback) {
+            paletteCallback(color);
+        }
+    }
+
+div.protocolPopupWindowDiv#palette(style="display : none")
+    a(href="javascript:closeGlobalPalette()" style="right : 14; position : absolute;") 关闭窗口
+    div.protocolPopupDiv(onclick="closeGlobalPalette()")
+        span.protocolSpan x
+
+    div(style="width : 100%; height : 95%; top : 20; position : absolute; overflow : auto")
+        table(border='1')
+            tr
+                td(bgcolor="red" onclick="setColor('ff0000');" style="width: 16; height: 16")
+                td(bgcolor="green" onclick="setColor('00ff00');" style="width: 16; height: 16")
+                td(bgcolor="blue" onclick="setColor('00000ff');" style="width: 16; height: 16")
+                    
+
+        p 颜色值
+        input.color
+        a(href='#' onclick="onOK()") 确定
+        br
+        div.preview(style="background: #00ff00; width: 24; height: 24")

@@ -41,17 +41,6 @@ script.
         createRunningJobList();
     });
 
-    socket.on('Console', function(data){
-        console.log(data.text);
-        return;
-        var ta = $('textarea.console');
-        ta.text(ta.val() + '\r\n' + data.text);
-
-        ta.scrollTop(ta[0].scrollHeight);
-
-        console.log(data.text);
-    });
-
 
     /////////////////////////////////
 
@@ -108,7 +97,13 @@ script.
         //- }
     }
 
+    function onPaletteDone(color) {
+        alert(color);
+    }
+
     function onTreeBeforeCheck(treeId, treeNode) {
+        showGlobalPalette(onPaletteDone);
+        
         if (treeNode.isParent) {
             return false;
         }
@@ -118,12 +113,21 @@ script.
 
     function onTreeCheck(event, treeId, treeNode) {
         //- console.log(treeNode.tId + ", " + treeNode.name + "," + treeNode.checked);
+        
+
         if (treeNode.checked) {
             socket.emit('subscribeConsole', {runningJobId: treeNode.id});
         }
         else {
             socket.emit('unSubscribeConsole', {runningJobId: treeNode.id});
         }
+
+
     };
+
 div
     div.ztree#runningJobList
+    include palette
+
+
+

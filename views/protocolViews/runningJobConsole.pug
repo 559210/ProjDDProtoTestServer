@@ -1,0 +1,30 @@
+script.
+
+    socket.on('Console', function(data){
+        var ta = $('code1.console');
+        var text = ta.val() + '<br/><font color="green">' + data.text + '</font>';
+        text = text.replace(/\n/g, '<br/>')
+        for (var i = 0; i < 200; ++i) {
+            text += "<br/>aaaa";
+        }
+        text += "<div id='end'>^--------this is the end<div/>";
+        ta.html(text);
+
+        var end = $('div#end');
+
+        end[0].scrollIntoView();
+
+        //- ta.scrollTop(ta[0].scrollHeight);
+
+    });
+
+    $(function(){ 
+        // do something 
+        //- console.log(pugDataRunningJobs);
+
+    });
+div
+    //- button(onclick='onButton()') aaa
+    div(style="background:#000; width:100%; height:80%; overflow: auto")
+        code1.console(readonly="readonly" style="width:100%; height:100%")
+
