@@ -1,6 +1,18 @@
 script.
     var paletteCallback = null;
 
+    $(function(){ 
+        // do something 
+        //- console.log(pugDataRunningJobs);
+        var defaultColor = 'ff0000';
+        $("input.color").val(defaultColor);
+        $('div.preview').css({"background": "#" + defaultColor});
+        $("input.color").bind('input propertychange', function() {
+            var color = $('input.color').val();
+            setColor(color);
+        });
+    });
+
     function showGlobalPalette(callback){
         paletteCallback = callback;
         $('div#palette').show();
@@ -12,16 +24,18 @@ script.
 
     function setColor(color) {
         $('input.color').val(color);
+        $('div.preview').css({"background": "#" + color});
     }
 
     function onOK() {
         closeGlobalPalette();
-        let color = $('input.color').val();
+        var color = $('input.color').val();
 
         if (paletteCallback) {
             paletteCallback(color);
         }
     }
+
 
 div.protocolPopupWindowDiv#palette(style="display : none")
     a(href="javascript:closeGlobalPalette()" style="right : 14; position : absolute;") 关闭窗口
@@ -30,10 +44,17 @@ div.protocolPopupWindowDiv#palette(style="display : none")
 
     div(style="width : 100%; height : 95%; top : 20; position : absolute; overflow : auto")
         table(border='1')
-            tr
-                td(bgcolor="red" onclick="setColor('ff0000');" style="width: 16; height: 16")
-                td(bgcolor="green" onclick="setColor('00ff00');" style="width: 16; height: 16")
-                td(bgcolor="blue" onclick="setColor('00000ff');" style="width: 16; height: 16")
+            - 
+                var  palette = [
+                    ["ff0000", "00ff00", "0000ff"],
+                    ["ffff00", "00ffff", "ff00ff"],
+                    ["7f0000", "007f00", "00007f"],
+                    ["7f7f00", "007f7f", "7f007f"]
+                ];
+            - for(var i = 0; i < palette.length; ++i)
+                tr
+                    - for (var j = 0; j < palette[i].length; ++j) 
+                        td(bgcolor=palette[i][j]  style="width: 16; height: 16" onclick="setColor('" + palette[i][j] + "')") 
                     
 
         p 颜色值
