@@ -15,14 +15,15 @@ script.
             showRenameBtn: false,
         },
         view: {
-            dblClickExpand: false
+            dblClickExpand: false,
+            fontCss : getFontCss,
         },
         check: {
             enable: true,
             chkboxType: { "Y": "", "N": "" }
         },
         callback: {
-        //-     onRightClick: onZTreeRightClick,
+            onRightClick: onTreeRightClick,
             beforeRemove: onTreeBeforeRemove,
             onRemove: onTreeRemove,
         //-     onRename: onTreeRename,
@@ -35,6 +36,10 @@ script.
         }
     };
 
+    var rMenu;
+    var curMenuSelectedNode;
+    var selectedJobId;
+
     $(function(){ 
         // do something 
         //- console.log(pugDataRunningJobs);
@@ -43,6 +48,13 @@ script.
 
 
     /////////////////////////////////
+    socket.on('onInnerRefresh', function(data) {
+        console.log(data);
+        pugDataRunningJobs = data;
+        console.log(pugDataRunningJobs);
+        createRunningJobList();
+    });
+
 
     function createRunningJobList() {
         zTreeNode = [];
@@ -51,7 +63,17 @@ script.
             
             for (var i = 0; i < pugDataRunningJobs[key].length; ++i) {
                 console.log(pugDataRunningJobs[key][i]);
-                node.children.push({name: pugDataRunningJobs[key][i].name, isParent: false, id: pugDataRunningJobs[key][i].runningJobId});
+                node.children.push({
+                    name: pugDataRunningJobs[key][i].name, 
+                    isParent: false, 
+                    id: pugDataRunningJobs[key][i].runningJobId,
+                    checked: pugDataRunningJobs[key][i].isSubscribed,
+                    consoleColor: pugDataRunningJobs[key][i].consoleColor
+                });
+
+                if (pugDataRunningJobs[key][i].isSubscribed) {
+
+                }
             }
 
             zTreeNode.push(node);
@@ -61,11 +83,13 @@ script.
         $.fn.zTree.init($("#runningJobList"), zTreeSetting, zTreeNode);
         zTreeObj = $.fn.zTree.getZTreeObj("runningJobList");
 
-        //- var selectedNode = zTreeObj.getNodeByParam('id', selectedJobId);
+        var selectedNode = zTreeObj.getNodeByParam('id', selectedJobId);
 
-        //- if (selectedNode !== null) {
-        //-     zTreeObj.selectNode(selectedNode);
-        //- }
+        if (selectedNode !== null) {
+            zTreeObj.selectNode(selectedNode);
+        }
+
+        rMenu = $("#rMenu");
     }
 
     function onTreeRemove(event, treeId, treeNode) {
@@ -85,24 +109,22 @@ script.
     }
 
     function onTreeClick(event, treeId, treeNode, clickFlag) {
-        console.log('event: ');
-        console.log(event);
-        console.log('treeId: ');
-        console.log(treeId);
-        console.log('clickFlag');
-        console.log(clickFlag);
+        //- console.log('event: ');
+        //- console.log(event);
+        //- console.log('treeId: ');
+        //- console.log(treeId);
+        //- console.log('clickFlag');
+        //- console.log(clickFlag);
         //- console.log('event: %j, treeId: %j, clickFlag: %j', event, treeId, clickFlag);
         //- if (treeNode.isParent === false) {
         //-     socket.emit('subscribeConsole', {runningJobId: treeNode.id});
         //- }
+
     }
 
-    function onPaletteDone(color) {
-        alert(color);
-    }
 
     function onTreeBeforeCheck(treeId, treeNode) {
-        showGlobalPalette(onPaletteDone);
+        
         
         if (treeNode.isParent) {
             return false;
@@ -125,9 +147,63 @@ script.
 
     };
 
+    function onTreeRightClick(event, treeId, treeNode) {
+        if (treeNode === null || treeNode.isParent === true) {
+            return;
+        }
+        curMenuSelectedNode = treeNode;
+        if (!treeNode && event.target.tagName.toLowerCase() != "button" && $(event.target).parents("a").length == 0) {
+            zTreeObj.cancelSelectedNode();
+            showRMenu("root", event.clientX, event.clientY);
+        } else if (treeNode && !treeNode.noR) {
+            zTreeObj.selectNode(treeNode);
+            showRMenu("node", event.clientX, event.clientY);
+        }
+    }
+
+    function showRMenu(type, x, y) {
+        $("#rMenu ul").show();
+
+        rMenu.css({"top":y+"px", "left":x+"px", "visibility":"visible"});
+
+        $("body").bind("mousedown", onBodyMouseDown);
+    }
+
+    function onBodyMouseDown(event){
+        if (!(event.target.id == "rMenu" || $(event.target).parents("#rMenu").length>0)) {
+            rMenu.css({"visibility" : "hidden"});
+        }
+    }
+
+    function onMenuPickColor() {
+        function onPaletteDone(color) {
+            if (curMenuSelectedNode !== undefined && curMenuSelectedNode !== null) {
+                selectedJobId = curMenuSelectedNode.id;
+                socket.emit('setSubscribedConsoleColor', {runningJobId: selectedJobId, color: color})
+                //- curMenuSelectedNode.consoleColor = color;
+            }
+        }
+
+        showGlobalPalette(onPaletteDone);
+    }
+
+
+
+    function getFontCss(treeId, treeNode) {
+        if (typeof treeNode.consoleColor === 'string') {
+            return {color: "#" + treeNode.consoleColor};
+        }
+        else {
+            return {};
+
+        }
+    }
+
 div
     div.ztree#runningJobList
     include palette
 
-
+div#rMenu
+    ul
+        li#m_newFolder(onclick='onMenuPickColor()') 设置颜色
 

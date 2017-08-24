@@ -9,7 +9,7 @@ class runningJobManager{
     constructor() {
         this.sessionMap = {};           // uid -> session
         this.runningJobMap = {};        // uid -> job map( runningJobId -> runningJobObject)
-        this.runningJobSubscribeMap = {};  // runningJobId --> uid
+        this.runningJobSubscribeMap = {};  // runningJobId --> uid map(uid -> color)
 
         this.maxRunningJobId = 0;
     };
@@ -67,29 +67,49 @@ class runningJobManager{
     }
 
     getAllRunningJobs(uid) {
-        if (commonJs.isUndefinedOrNull(uid)) {
-            return this.runningJobMap;
+        let runningJobsMap = this.runningJobMap;
+
+        if (commonJs.isUndefinedOrNull(runningJobsMap)) {
+            return {};
         }
-        else {
-            return this.runningJobMap[uid];
+
+        let ret = {};
+        for (let key in runningJobsMap) {
+            if (commonJs.isUndefinedOrNull(ret[key])) {
+                ret[key] = [];
+            }
+
+            for (let runningJobId in runningJobsMap[key]) {
+                let runningJobObject = runningJobsMap[key][runningJobId];
+                
+                let obj = {name:runningJobObject.getName(), runningJobId: runningJobId, isSubscribed: false, subscribedColor: '000000'};
+                
+                if (commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[runningJobId]) === false) {
+                    let subscribedInfo = this.runningJobSubscribeMap[runningJobId][uid];
+                    if (commonJs.isUndefinedOrNull(subscribedInfo) === false) {
+                        obj.isSubscribed = true;
+                        obj.consoleColor = subscribedInfo.color;
+                    }
+                }
+
+                ret[key].push(obj);
+            }
+
         }
+
+        return ret;
     }
 
-    subscribeToJobConsole(uid, jobId) {
+    // 参数color可以省略，用于控制前端显示的颜色用的，省略的话用默认颜色
+    subscribeToJobConsole(uid, jobId, color) {
         if (commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[jobId])) {
-            this.runningJobSubscribeMap[jobId] = [];
+            this.runningJobSubscribeMap[jobId] = {};
         }
 
-        let found = false;
-        for (let i = 0; i < this.runningJobSubscribeMap[jobId].length; ++i) {
-            if (this.runningJobSubscribeMap[jobId][i] === uid) {
-                found = true;
-                break;
-            }
-        }
+        let jobSubscribeMap = this.runningJobSubscribeMap[jobId];
+        if (commonJs.isUndefinedOrNull(jobSubscribeMap[uid])) {
 
-        if (found === false) {
-            this.runningJobSubscribeMap[jobId].push(uid);
+            jobSubscribeMap[uid] = {uid: uid, color: color};
 
             // subscribe之后要把之前所有log都发送过去
             let jobObj = this.runningJobMap[uid][jobId];
@@ -99,31 +119,36 @@ class runningJobManager{
                 return;
             }
 
-            sessionObj.Console(jobObj.getOutputs(), jobId);
+            sessionObj.Console(jobObj.getOutputs(), jobId, color);
         }
     }
 
     unSubscribeToJobConsole(uid, jobId) {
-        if (commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[jobId])) {
+        if (commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[jobId]) || commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[jobId][uid])) {
             return;
         }
 
-        let index = this.runningJobSubscribeMap[jobId].indexOf(uid);
-        if (index >= 0) {
-            this.runningJobSubscribeMap[jobId].splice(index, 1);
+        delete this.runningJobSubscribeMap[jobId][uid];
+    }
+
+    setSubscribedConsoleColor(uid, jobId, color) {
+        if (commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[jobId]) || commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[jobId][uid])) {
+            return;
         }
+
+        this.runningJobSubscribeMap[jobId][uid].color = color;
     }
 
     log(runningJobId, text) {
-        let uids = this.runningJobSubscribeMap[runningJobId];
-        if (commonJs.isUndefinedOrNull(uids)) {
+        let jobSubscribeMap = this.runningJobSubscribeMap[runningJobId];
+        if (commonJs.isUndefinedOrNull(jobSubscribeMap)) {
             return;
         }
 
-        for (let i = 0; i < uids.length; ++i) {
-            let session = this.sessionMap[uids[i]];
+        for (let uid in jobSubscribeMap) {
+            let session = this.sessionMap[jobSubscribeMap[uid].uid];
             if (commonJs.isUndefinedOrNull(session) === false && session.isActive() === true) {
-                session.Console(text, runningJobId);
+                session.Console(text, runningJobId, jobSubscribeMap[uid].color);
             }
         }
     }

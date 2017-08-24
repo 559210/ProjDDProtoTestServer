@@ -143,20 +143,21 @@ module.exports = function(app, io) {
         let resJson = {
             runningJobs: {}
         };
-        let runningJobsMap = g_runningJobMgr.getAllRunningJobs();
-        for (let key in runningJobsMap) {
-            if (resJson.runningJobs[key] === undefined || resJson.runningJobs[key] === null) {
-                resJson.runningJobs[key] = [];
-            }
 
-            for (let runningJobId in runningJobsMap[key]) {
-                let runningJobObject = runningJobsMap[key][runningJobId];
-                resJson.runningJobs[key].push({name:runningJobObject.getName(), runningJobId: runningJobId});
-            }
+        resJson.runningJobs = g_runningJobMgr.getAllRunningJobs(req.session.passport.user);
+        // for (let key in runningJobsMap) {
+        //     if (resJson.runningJobs[key] === undefined || resJson.runningJobs[key] === null) {
+        //         resJson.runningJobs[key] = [];
+        //     }
 
-        }
-        console.log('--------------------===============')
-        console.log(resJson);
+        //     for (let runningJobId in runningJobsMap[key]) {
+        //         let runningJobObject = runningJobsMap[key][runningJobId];
+        //         resJson.runningJobs[key].push({name:runningJobObject.getName(), runningJobId: runningJobId});
+        //     }
+
+        // }
+        // console.log('--------------------===============')
+        // console.log(resJson);
         res.render('protocolViews/runningJobView', resJson);
     });
 

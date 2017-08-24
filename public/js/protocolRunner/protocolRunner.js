@@ -45,6 +45,10 @@ class protoJobManager {
                 socket.emit('Refresh');
             }
 
+            function emitInnerRefresh(data) {
+                socket.emit("onInnerRefresh", data);
+            }
+
             if (commonJs.isUndefinedOrNull(socket.request.session) ||
                 commonJs.isUndefinedOrNull(socket.request.session.passport)) {
                 return;
@@ -340,6 +344,13 @@ class protoJobManager {
 
             socket.on('unSubscribeConsole', (data) => {
                 g_runningJobMgr.unSubscribeToJobConsole(socket.request.session.passport.user, data.runningJobId);
+            });
+
+
+            socket.on('setSubscribedConsoleColor', (data) => {
+                g_runningJobMgr.setSubscribedConsoleColor(socket.request.session.passport.user, data.runningJobId, data.color);
+
+                emitInnerRefresh(g_runningJobMgr.getAllRunningJobs(socket.request.session.passport.user));
             });
         });
     }
