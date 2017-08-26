@@ -43,7 +43,6 @@ class protoRunnerJob {
     //     console.log(text);
     // }
 
-
     addInstrument(ins) {
         this.instruments.push(ins);
     }
@@ -249,7 +248,7 @@ class protoRunnerJob {
                 let prot = s2c[key];
                 det.s2c.push(prot);
             }
-
+            det.bindVariable = ins.getBindVariable();
             detail.push(det);
         }
 

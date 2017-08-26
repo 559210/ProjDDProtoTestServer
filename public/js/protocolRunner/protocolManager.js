@@ -267,6 +267,9 @@ class ProtocolManager {
             case 'notify':
                 proto.type = PROTO_TYPE.NOTIFY;
                 break;
+            case 'variable':
+                proto.type = PROTO_TYPE.VARIABLE;
+                break;
         }
         console.log(2, proto.type);
         if (foundProtoId == -1) {
@@ -315,6 +318,9 @@ class ProtocolManager {
                         break;
                     case 'notify':
                         targetProto.type = PROTO_TYPE.NOTIFY;
+                        break;
+                    case 'variable':
+                        targetProto.type = PROTO_TYPE.VARIABLE;
                         break;
                 }
 
@@ -529,6 +535,9 @@ class ProtocolManager {
             pluginFunc: instrument.pluginFunc,
             params: []
         };
+        if (instrument.bindVariable.name) {
+            obj.bindVariable = instrument.bindVariable;
+        }
 
         for (let key in instrument.c2sParsedParams) {
             let param = instrument.c2sParsedParams[key];
@@ -577,6 +586,10 @@ class ProtocolManager {
                     let param = instObj.params[j];
                     // TODO: 需要考虑此name的参数已经不存在的情况，另外要考虑新的协议参数未被设置的情况
                     instrument.setC2SParamValue(param.name, param.value, param.isVar);
+                }
+
+                if (instObj.bindVariable) {
+                    instrument.setBindVariable(instObj.bindVariable);
                 }
 
                 jobObj.addInstrument(instrument);

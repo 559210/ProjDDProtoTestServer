@@ -159,6 +159,12 @@ class runningJob {
                 this.envirment.pomelo.notify(ins.route, ins.getC2SMsg());
                 callback(null);
                 break;
+            case PROTO_TYPE.VARIABLE:
+                if (ins.bindVariable && ins.bindVariable.name) {
+                    this.envirment.variableManager.createVariable(ins.bindVariable.name, null);
+                }
+                callback(null);
+                break;
         }
     };
 

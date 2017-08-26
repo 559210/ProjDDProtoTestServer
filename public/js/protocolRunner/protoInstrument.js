@@ -12,6 +12,8 @@ class protoInstrument {
         this.pluginFunc = null;
         this.runner = null;
 
+        this.bindVariable = {}; // {name:, desc:}
+
         let proto = g_protoMgr.getBriefProtocolById(id);
         if (proto) {
             this.id = id;
@@ -167,6 +169,14 @@ class protoInstrument {
         } else {
             callback(null);
         }
+    }
+
+    setBindVariable(definedVar) {
+        this.bindVariable = definedVar;
+    }
+
+    getBindVariable() {
+        return this.bindVariable;
     }
 
     // serialize() {

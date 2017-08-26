@@ -88,6 +88,8 @@ script.
         var paramVar = 'table#paramVar' + getTag(i, j);
         var input = 'input#param' + getTag(i, j);
 
+        
+
         socket.emit('SetC2SParamValue', {routeIndex: i, paramName: paramName, value:$(input).val(), isVar: false});
 
         //- $(paramEdit).hide();
@@ -111,6 +113,10 @@ script.
         var select = 'select#param' + getTag(i, j);
 
         var selectedText = $(select).find("option:selected").text();
+        var idx = selectedText.indexOf('#');
+        if (idx > -1) {
+            selectedText = selectedText.slice(0, idx);
+        }
         socket.emit('SetC2SParamValue', {routeIndex: i, paramName: paramName, value:selectedText, isVar: true});
 
         //- $(paramEdit).hide();
@@ -126,6 +132,65 @@ script.
 
         $('code.codeArea').html('loading....');
     }
+
+    // 变量指令-----------------------------------------------
+
+    function getTag2(i) {
+        return i;
+    }
+
+    function onCreateVariable(i) {
+        var paramCreate = 'table#varParamCreate' + getTag2(i);
+        var paramEdit = 'table#varParamEdit' + getTag2(i);
+
+        $(paramEdit).show();
+        $(paramCreate).hide();
+    }
+
+    function onCancelCreateVariable(i) {
+        var paramCreate = 'table#varParamCreate' + getTag2(i);
+        var paramEdit = 'table#varParamEdit' + getTag2(i);
+
+        $(paramEdit).hide();
+        $(paramCreate).show();
+    }
+
+    function onSaveVariable(i) {
+        var input = 'input#varParamText' + getTag2(i);
+        var inputDesc = 'input#varParamTextDesc' + getTag2(i);
+        socket.emit('createVariable', {routeIndex: i, varName: $(input).val(), varDesc: $(inputDesc).val()});
+    }
+
+    function onModifyVariable(i) {
+        var param = 'table#varParam' + getTag2(i);
+        var paramEdit2 = 'table#varParamEdit2' + getTag2(i);
+
+        var input = 'input#varParamText' + getTag2(i);
+        var inputDesc = 'input#varParamTextDesc' + getTag2(i);
+
+        $(param).hide();
+        $(paramEdit2).show();
+    }
+
+    function onDeleteVariable(i) {
+        socket.emit('setBindVariable', {routeIndex: i, varName: null, varDesc: null});
+    }
+
+
+    function onModifyVariableOk(i) {
+        var input2 = 'input#varParamText2' + getTag2(i);
+        var inputDesc2 = 'input#varParamTextDesc2' + getTag2(i);
+        socket.emit('setBindVariable', {routeIndex: i, varName: $(input2).val(), varDesc: $(inputDesc2).val()});
+    }
+
+    function onCancelModifyVariable(i) {
+        var paramEdit2 = 'table#varParamEdit2' + getTag2(i);
+        var varParam = 'table#varParam' + getTag2(i);
+
+        $(paramEdit2).hide();
+        $(varParam).show();
+    }
+    // 变量指令-----------------------------------------------
 
     socket.on('DispatchScript', function(data) {
         onCancelScriptClicked();
@@ -234,8 +299,8 @@ mixin c2sParamList(c2sParam)
                                 td
                                     select(id='param' + tag)
                                         - for (var k = 0; k < i; ++k)
-                                            each val in jobDetail.instruments[k].s2c
-                                                option= jobDetail.instruments[k].route + '#' + val.name
+                                            - if (Object.keys(jobDetail.instruments[k].bindVariable).length > 0) 
+                                                option= jobDetail.instruments[k].bindVariable.name + '#' + jobDetail.instruments[k].bindVariable.desc
                                 td
                                     a(href='javascript:void(0)', onclick='onSaveVarParam(' + i + ',' + j + ",'" + c2sParam[j].name + "')") 保存
                                     
@@ -252,6 +317,76 @@ mixin s2cParamList(s2cParam)
                     td(align='center') 参数#{j+1}
                     td(align='center') #{s2cParam[j].name}
                     td(align='center') #{s2cParam[j].type}
+
+mixin createVariable(bindVariable)
+    table(border='0' align='left')
+        - if (!bindVariable || !bindVariable.name)
+            - var tag = i;
+            tr
+                    td(align='center')
+                        table(id='varParamCreate' + tag, border='0')
+                            tr
+                                td
+                                    a(href='javascript:void(0)', onclick='onCreateVariable(' + i + ')') 创建变量
+                        table(id='varParamEdit' + tag, border='1', style='display:none')
+                            tr                       
+                                td(align='center') 
+                                    table(border='1' align='center')
+                                        tr
+                                            td(align='center') 变量名称
+                                            td 
+                                                input(id='varParamText' + tag, type='text' value='')
+                                            td(align='center') 变量描述
+                                            td
+                                                input(id='varParamTextDesc' + tag, type='text' value='')
+                                        tr
+                                            td
+                                            td(align='center')
+                                                a(href='javascript:void(0)', onclick='onSaveVariable(' + i + ')') 保存
+                                            td
+                                            td(align='center')
+                                                a(href='javascript:void(0)', onclick='onCancelCreateVariable(' + i + ')') 取消
+        - else
+            - var tag = i;
+            tr
+                    td(align='center')
+                        table(id='varParam' + tag, border='1')
+                            tr
+                                td(align='center') 
+                                    table(border='1' align='center')
+                                        tr
+                                            td(align='center') 变量名称
+                                            td(align='center') #{bindVariable.name}
+                                        tr
+                                            td(align='center') 变量描述
+                                            td(align='center') #{bindVariable.desc}
+                                        tr
+                                            td
+                                                a(href='javascript:void(0)', onclick='onModifyVariable(' + i + ')') 修改
+                                            td
+                                                a(href='javascript:void(0)', onclick='onDeleteVariable(' + i + ')') 删除
+                        table(id='varParamEdit2' + tag, border='1', style='display:none')
+                            tr                       
+                                td(align='center') 
+                                    table(id='varParamCreate' + tag, border='1')
+                                   
+                                        tr
+                                            td(align='center') 变量名称
+                                            td 
+                                                input(id='varParamText2' + tag, type='text' value=bindVariable.name)
+                                        
+                                            td(align='center') 变量描述
+                                            td
+                                                input(id='varParamTextDesc2' + tag, type='text' value=bindVariable.desc)
+                                    
+                                            tr
+                                                td
+                                                td 
+                                                    a(href='javascript:void(0)', onclick='onModifyVariableOk(' + i + ')') 修改
+                                                td
+                                                td
+                                                    a(href='javascript:void(0)', onclick='onCancelModifyVariable(' + i + ')') 取消
+                                                
 
 
 div
@@ -333,6 +468,13 @@ div
                                 td(align='center') 下行参数
                                 td(align='center')
                                     +s2cParamList(jobDetail.instruments[i].s2c)
+                            tr
+                            - if (jobDetail.instruments[i].type == 5) {
+                                td(align='center') 定义变量
+                                td(align='center')
+                                    +createVariable(jobDetail.instruments[i].bindVariable)
+                            - }
+                                    
 
                     td(align='center')
                         if jobDetail.instruments[i].hasScript
