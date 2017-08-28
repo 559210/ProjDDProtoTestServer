@@ -171,14 +171,6 @@ class protoInstrument {
         }
     }
 
-    setBindVariable(definedVar) {
-        this.bindVariable = definedVar;
-    }
-
-    getBindVariable() {
-        return this.bindVariable;
-    }
-
     // serialize() {
     //     let obj = {
     //         route: this.route,

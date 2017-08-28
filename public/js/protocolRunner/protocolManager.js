@@ -587,11 +587,6 @@ class ProtocolManager {
                     // TODO: 需要考虑此name的参数已经不存在的情况，另外要考虑新的协议参数未被设置的情况
                     instrument.setC2SParamValue(param.name, param.value, param.isVar);
                 }
-
-                if (instObj.bindVariable) {
-                    instrument.setBindVariable(instObj.bindVariable);
-                }
-
                 jobObj.addInstrument(instrument);
 
             }

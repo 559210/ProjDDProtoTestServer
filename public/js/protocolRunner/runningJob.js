@@ -160,8 +160,12 @@ class runningJob {
                 callback(null);
                 break;
             case PROTO_TYPE.VARIABLE:
-                if (ins.bindVariable && ins.bindVariable.name) {
-                    this.envirment.variableManager.createVariable(ins.bindVariable.name, null);
+                let c2sParams = ins.getParsedC2SParams();
+                if (c2sParams.name.value) {
+                    let value = null;
+                        value = c2sParams.value.value;
+                    }
+                    this.envirment.variableManager.createVariable(c2sParams.name.value, value);
                 }
                 callback(null);
                 break;
