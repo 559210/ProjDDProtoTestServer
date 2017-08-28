@@ -163,6 +163,7 @@ class runningJob {
                 let c2sParams = ins.getParsedC2SParams();
                 if (c2sParams.name.value) {
                     let value = null;
+                    if (c2sParams.value.value !== null && c2sParams.value.value !== undefined && c2sParams.value.value !== '') {
                         value = c2sParams.value.value;
                     }
                     this.envirment.variableManager.createVariable(c2sParams.name.value, value);
