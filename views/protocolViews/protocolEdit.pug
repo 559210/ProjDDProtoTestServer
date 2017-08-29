@@ -225,15 +225,25 @@ block content
                 $('input.tag').val(pugDataProto.tag);
                 $('input.protoId').val(pugDataProto.id);
 
-                if (pugDataProto.c2s && pugDataProto.s2c) {
+                if (pugDataProto.type == 0) {
                     $("select.type").get(0).options[0].selected = true;
-                }
-                else if (pugDataProto.c2s) {
+                } else if (pugDataProto.type == 1) {
                     $("select.type").get(0).options[1].selected = true;
-                }
-                else if (pugDataProto.s2c) {
+                } else if (pugDataProto.type == 2) {
                     $("select.type").get(0).options[2].selected = true;
+                } else if (pugDataProto.type == 4) {
+                    $("select.type").get(0).options[3].selected = true;
                 }
+
+                //if (pugDataProto.c2s && pugDataProto.s2c) {
+                //    $("select.type").get(0).options[0].selected = true;
+                //}
+                //else if (pugDataProto.c2s) {
+                //    $("select.type").get(0).options[1].selected = true;
+                //}
+                //else if (pugDataProto.s2c) {
+                //    $("select.type").get(0).options[2].selected = true;
+                //}
                 
                 if (pugDataProto.c2s) {
                     addParamData('c2s', pugDataProto.c2s);
@@ -535,6 +545,8 @@ block content
                 option push
                 option notify
                 option system
+
+
         p 分类：
             input.tag
 
