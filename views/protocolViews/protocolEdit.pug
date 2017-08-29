@@ -496,8 +496,9 @@ block content
             else if (type === 'notify') {
                 data.c2s = makeParam('c2s');
             }
-            else if (type === 'variable') {
+            else if (type === 'system') {
                 data.c2s = makeParam('c2s');
+                data.s2c = makeParam('s2c');
             }
             else {
                 alert("协议类型错误");
@@ -533,7 +534,7 @@ block content
                 option request
                 option push
                 option notify
-                option variable
+                option system
         p 分类：
             input.tag
 

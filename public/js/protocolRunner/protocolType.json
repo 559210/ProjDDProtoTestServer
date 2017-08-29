@@ -4,6 +4,5 @@
     "PUSH": 1,
     "NOTIFY": 2,
     "JOB": 3,
-    "CONNECT": 4,
-    "VARIABLE": 5
+    "SYSTEM": 4
 }

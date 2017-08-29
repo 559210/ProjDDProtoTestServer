@@ -2,9 +2,10 @@
 let commonJs = require('../../../CommonJS/common');
 
 class variable {
-    constructor(name, value) {
+    constructor(name, value, type) {
         this.name = name;
         this.value = value;
+        this.type = type;
     }
 }
 
@@ -21,12 +22,15 @@ class variableManager {
         return true;
     }
 
-    createVariable(varName, value) {
+    createVariable(varName, value, type) {
         if (this.isVariableExists(varName)) {
             return this.setVariableValue(varName, value);
         }
 
-        this.variables[varName] = new variable(varName, value);
+        if (type == null || type == undefined) {
+            type = 'string';
+        }
+        this.variables[varName] = new variable(varName, value, type);
 
         return true;
     }
@@ -35,7 +39,14 @@ class variableManager {
         if (!this.isVariableExists(varName)) {
             return false;
         }
-
+        switch(this.variables[varName].type) {
+            case 'int':
+            value = parseInt(value);
+            break;
+            case 'string':
+            value = value.toString();
+            break;
+        }
         this.variables[varName].value = value;
         return true;
     }

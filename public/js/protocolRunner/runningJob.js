@@ -76,39 +76,64 @@ class runningJob {
             });
     };
 
+    _connectServer(self, ins, callback) {
+        if (self.envirment.pomelo) {
+            self.envirment.pomelo.removeAllListeners('io-error');
+            self.envirment.pomelo.removeAllListeners('close');
+
+            self.envirment.pomelo.disconnect();
+            self.envirment.pomelo = null;
+        }
+
+        self.envirment.pomelo = new pomeloClass();
+
+        let params = ins.getC2SMsg();
+        self.envirment.pomelo.init({
+            host: params['host'],
+            port: params['port'],
+            log: true
+        }, (socketObj) => {
+            if (commonJs.isUndefinedOrNull(socketObj)) {
+                return callback(new Error('pomelo init failed!'));
+            }
+
+            self.envirment.pomelo.on('io-error', () => {
+                return callback(new Error('io-error'));
+            });
+            self.envirment.pomelo.on('close', () => {
+                return callback(new Error('network closed'));
+            });
+            return callback(null);
+        });
+    };
+
+    _createVariable(self, ins, callback) {
+        let c2sParams = ins.getParsedC2SParams();
+        if (c2sParams.name.value) {
+            let value = null;
+            if (c2sParams.value.value !== null && c2sParams.value.value !== undefined && c2sParams.value.value !== '') {
+                value = c2sParams.value.value;
+            }
+            self.envirment.variableManager.createVariable(c2sParams.name.value, value, c2sParams.value.type);
+        }
+        return callback(null);
+    };
+
     _runInstrument(ins, callback) {
         let self = this;
 
         switch (ins.type) {
-            case PROTO_TYPE.CONNECT:
-                if (this.envirment.pomelo) {
-                    this.envirment.pomelo.removeAllListeners('io-error');
-                    this.envirment.pomelo.removeAllListeners('close');
+            case PROTO_TYPE.SYSTEM:
 
-                    this.envirment.pomelo.disconnect();
-                    this.envirment.pomelo = null;
+                switch (ins.route) {
+                    case 'connect':
+                        this._connectServer(this, ins, callback);
+                    break;
+                    case 'createIntVariable':
+                    case 'createStringVariable':
+                        this._createVariable(this, ins, callback);
+                    break;
                 }
-
-                this.envirment.pomelo = new pomeloClass();
-
-                let params = ins.getC2SMsg();
-                this.envirment.pomelo.init({
-                    host: params['host'],
-                    port: params['port'],
-                    log: true
-                }, (socketObj) => {
-                    if (commonJs.isUndefinedOrNull(socketObj)) {
-                        return callback(new Error('pomelo init failed!'));
-                    }
-
-                    this.envirment.pomelo.on('io-error', () => {
-                        return callback(new Error('io-error'));
-                    });
-                    this.envirment.pomelo.on('close', () => {
-                        return callback(new Error('network closed'));
-                    });
-                    return callback(null);
-                });
                 break;
             case PROTO_TYPE.REQUEST:
 
@@ -157,17 +182,6 @@ class runningJob {
                 this.sendSessionLog("send notify: " + ins.route);
                 this.sendSessionLog("with params: " + JSON.stringify(ins.getC2SMsg()));
                 this.envirment.pomelo.notify(ins.route, ins.getC2SMsg());
-                callback(null);
-                break;
-            case PROTO_TYPE.VARIABLE:
-                let c2sParams = ins.getParsedC2SParams();
-                if (c2sParams.name.value) {
-                    let value = null;
-                    if (c2sParams.value.value !== null && c2sParams.value.value !== undefined && c2sParams.value.value !== '') {
-                        value = c2sParams.value.value;
-                    }
-                    this.envirment.variableManager.createVariable(c2sParams.name.value, value);
-                }
                 callback(null);
                 break;
         }

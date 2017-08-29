@@ -84,7 +84,7 @@ class ProtocolManager {
                 }
 
                 if (bp.route == 'connect') { // TODO: 暂时特殊处理,将来需要一个统一解决方案
-                    bp.type = PROTO_TYPE.CONNECT;
+                    bp.type = PROTO_TYPE.SYSTEM;
                 }
 
                 breifProto[key].push(bp);
