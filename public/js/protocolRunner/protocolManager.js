@@ -267,7 +267,7 @@ class ProtocolManager {
             case 'notify':
                 proto.type = PROTO_TYPE.NOTIFY;
                 break;
-            case 'variable':
+            case 'system':
                 proto.type = PROTO_TYPE.VARIABLE;
                 break;
         }
@@ -319,7 +319,7 @@ class ProtocolManager {
                     case 'notify':
                         targetProto.type = PROTO_TYPE.NOTIFY;
                         break;
-                    case 'variable':
+                    case 'system':
                         targetProto.type = PROTO_TYPE.VARIABLE;
                         break;
                 }
