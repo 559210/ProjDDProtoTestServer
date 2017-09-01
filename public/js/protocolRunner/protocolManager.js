@@ -267,8 +267,8 @@ class ProtocolManager {
             case 'notify':
                 proto.type = PROTO_TYPE.NOTIFY;
                 break;
-            case 'variable':
-                proto.type = PROTO_TYPE.VARIABLE;
+            case 'system':
+                proto.type = PROTO_TYPE.SYSTEM;
                 break;
         }
         console.log(2, proto.type);
@@ -319,8 +319,8 @@ class ProtocolManager {
                     case 'notify':
                         targetProto.type = PROTO_TYPE.NOTIFY;
                         break;
-                    case 'variable':
-                        targetProto.type = PROTO_TYPE.VARIABLE;
+                    case 'system':
+                        targetProto.type = PROTO_TYPE.SYSTEM;
                         break;
                 }
 
