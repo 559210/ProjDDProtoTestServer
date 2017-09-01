@@ -1,22 +1,101 @@
 script.
-
+    var g_consoleLogs = [];     // sorted content by timestamp
+    var g_consoleOrderByJob = {};       // jobId -> sorted console content
     socket.on('Console', function(data){
-        var ta = $('code1.console');
-        var text = ta.val() + '<br/><font color="green">' + data.text + '</font>';
-        text = text.replace(/\n/g, '<br/>')
-        for (var i = 0; i < 200; ++i) {
-            text += "<br/>aaaa";
+        console.log("\t" + data.text);
+        //- data.text = data.text.replace(/\t/g, "&nbsp;");
+        // data ->  {text: text, runningJobId: runningJobId, color: color, timestamp: timestamp}
+        if (g_consoleOrderByJob[data.runningJobId] === undefined) {
+            g_consoleOrderByJob[data.runningJobId] = [];
         }
+
+        var consoleOfJob = g_consoleOrderByJob[data.runningJobId];
+        insertIntoArrayByTimestamp(consoleOfJob, 0, consoleOfJob.length, data);
+        insertIntoArrayByTimestamp(g_consoleLogs, 0, g_consoleLogs.length, data);
+
+        //- console.log(g_consoleLogs);
+        outputAllLogs();
+
+        //- ta.scrollTop(ta[0].scrollHeight);
+
+    });
+
+    function insertToOrderListByTimestamp(arr, data) {
+        if (arr.length === 0 || data.timestamp > arr[arr.length - 1].timestamp) {
+            arr.push(data);
+            return;
+        }
+
+        insertIntoArrayByTimestamp(arr, 0, arr.length, data);
+    }
+
+    function insertIntoArrayByTimestamp(arr, start, end, data) {
+        if (start === end) {
+            arr.splice(start, 0, data);
+        }
+        else {
+            var half = start + ((end - start) >> 1);
+            if (arr[half].timestamp > data.timestamp) {
+                insertIntoArrayByTimestamp(arr, start, half, data);
+            }
+            else {
+                insertIntoArrayByTimestamp(arr, half + 1, end, data);
+            }
+        }
+    }
+
+    function rebuildConsoleLogLists() {
+        g_consoleLogs = [];
+        var helpMap = [];
+        for (var jobId in g_consoleOrderByJob) {
+            var jobLog = g_consoleOrderByJob[jobId];
+            helpMap.push({key: jobId, index: 0, len: jobLog.length});
+        }
+
+        for (;;) 
+        {
+            var min = null;
+            for (var i = 0; i < helpMap.length; ++i) {
+                var hm = helpMap[i];
+                if (hm.index < hm.len) {
+                    if (min === null) {
+                        min = hm;
+                    }
+                    else {
+                        if (g_consoleOrderByJob[min.jobId][min.index].timestamp > g_consoleOrderByJob[hm.jobId][hm.index].timestamp) {
+                            min = hm;
+                        }
+                    }
+                }
+            }
+            if (min === null) {
+                break;
+            }
+
+            g_consoleLogs.push(g_consoleOrderByJob[min.jobId][min.index]);
+            min.index++;
+        }
+
+        outputAllLogs();
+    }
+
+    function outputAllLogs() {
+        var ta = $('code1.console');
+        var text = '';
+        for (var i = 0; i < g_consoleLogs.length; ++i) {
+            var data = g_consoleLogs[i];
+            text += '<font color="' + data.color + '">' + data.text + '</font>';
+            //- text = text.replace(/\n/g, '<br/>');
+            text += "<br/>";
+        }
+
         text += "<div id='end'>^--------this is the end<div/>";
         ta.html(text);
 
         var end = $('div#end');
 
         end[0].scrollIntoView();
-
-        //- ta.scrollTop(ta[0].scrollHeight);
-
-    });
+    }
 
     $(function(){ 
         // do something 
@@ -25,6 +104,7 @@ script.
     });
 div
     //- button(onclick='onButton()') aaa
+    button(onclick="rebuildConsoleLogLists()") test
     div(style="background:#000; width:100%; height:80%; overflow: auto")
         code1.console(readonly="readonly" style="width:100%; height:100%")
 

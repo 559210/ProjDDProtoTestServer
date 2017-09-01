@@ -119,7 +119,11 @@ class runningJobManager{
                 return;
             }
 
-            sessionObj.Console(jobObj.getOutputs(), jobId, color);
+            let historyOutputs = jobObj.getOutputs();
+            for (let i in historyOutputs) {
+                console.log('bingo----------------->' + historyOutputs[i].text);
+                sessionObj.Console(historyOutputs[i].text, jobId, color, historyOutputs[i].timestamp);
+            }
         }
     }
 
@@ -139,7 +143,7 @@ class runningJobManager{
         this.runningJobSubscribeMap[jobId][uid].color = color;
     }
 
-    log(runningJobId, text) {
+    log(runningJobId, text, timestamp) {
         let jobSubscribeMap = this.runningJobSubscribeMap[runningJobId];
         if (commonJs.isUndefinedOrNull(jobSubscribeMap)) {
             return;
@@ -148,7 +152,7 @@ class runningJobManager{
         for (let uid in jobSubscribeMap) {
             let session = this.sessionMap[jobSubscribeMap[uid].uid];
             if (commonJs.isUndefinedOrNull(session) === false && session.isActive() === true) {
-                session.Console(text, runningJobId, jobSubscribeMap[uid].color);
+                session.Console(text, runningJobId, jobSubscribeMap[uid].color, timestamp);
             }
         }
     }

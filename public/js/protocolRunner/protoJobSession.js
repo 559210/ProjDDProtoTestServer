@@ -32,9 +32,9 @@ class protoJobSession {
         this.socket = skt;
     }
 
-    Console(text, runningJobId, color) {
-        if (commonJs.isUndefinedOrNull(this.socket) == false) {
-            this.socket.emit("Console", {text: text, runningJobId: runningJobId, color: color});
+    Console(text, runningJobId, color, timestamp) {
+        if (commonJs.isUndefinedOrNull(this.socket) === false) {
+            this.socket.emit("Console", {text: text, runningJobId: runningJobId, color: color, timestamp: timestamp});
         }
     }
 

@@ -22,7 +22,7 @@ class runningJob {
             pomelo: null,
             variableManager: new variableManagerClass()
         };
-        this.outputs = '';
+        this.outputs = [];
     };
 
     setRunningJobId(id) {
@@ -34,22 +34,30 @@ class runningJob {
     }
 
     sendSessionLog(text) {
-        for (let i = 0; i < this.sessionDepth; ++i) {
-            text = '\t' + text;
+        let t = text;
+        for (let i = 0; i < this.consoleLogDepth; ++i) {
+            t = '\t-' + t;
         }
-        this.outputs += text + '\n';
+        let timestamp = Date.parse(new Date());
+        // this.outputs += text + '\n';
+        console.log("2" + t);
+        this.outputs.push({text: t, timestamp: timestamp});
+        this.outputs.push({text: "--", timestamp: timestamp});
         
-        if (commonJs.isUndefinedOrNull(this.session) == false) {
-            this.runningJobManager.log(this.runningJobId, text); 
+        if (commonJs.isUndefinedOrNull(this.session) === false) {
+            this.runningJobManager.log(this.runningJobId, t, timestamp); 
         }
-        console.log(text);
+        console.log("1" + t);
+
+
     };
 
     clearOutputs() {
-        this.outputs = '';
+        this.outputs = [];
     }
 
     getOutputs() {
+        console.log("-->%j", this.outputs);
         return this.outputs;
     }
 
@@ -154,7 +162,7 @@ class runningJob {
                     if (err) {
                         return callback(err);
                     }
-                    let runningJobObj = new runningJob(job, this.session, this.sessionDepth + 1, this.envirment);
+                    let runningJobObj = new runningJob(job, this.session, this.consoleLogDepth + 1, this.envirment);
 
                     let firstIns = job.getInstrument(0);
                     let msg = ins.getC2SMsg();
