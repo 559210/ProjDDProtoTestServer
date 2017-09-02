@@ -98,10 +98,12 @@ class protoJobSession {
 
     runJob(callback) {
         console.log('protoJobSession runJob: curJob: %j', this.curJob);
-        let runningJobId = g_runningJobMgr.runJob(this.uid, this.curJob);
-        this.runningJobIDs.push(runningJobId);
-
-        callback(null);
+        g_runningJobMgr.runJob(this.uid, this.curJob, function(err, runningJobId) {
+            if (!err) {
+                this.runningJobIDs.push(runningJobId);
+            }
+            callback(err);
+        });
     }
 
     // close() {

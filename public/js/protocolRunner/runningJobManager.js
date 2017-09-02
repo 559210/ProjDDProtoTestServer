@@ -29,7 +29,7 @@ class runningJobManager{
     //     // }
     // }
 
-    runJob(uid, jobObj) {
+    runJob(uid, jobObj, cb) {
         let session = this.sessionMap[uid];
         if (commonJs.isUndefinedOrNull(session)) {
             return -1;
@@ -44,9 +44,9 @@ class runningJobManager{
 
         runningJobObj.setRunningJobId(runningJobId);
         this.runningJobMap[uid][runningJobId] = runningJobObj;
-        runningJobObj.runAll((err) => {});
-
-        return runningJobId;
+        runningJobObj.runAll(runningJobObj.jobObj.instruments, (err) => {
+            return cb(err, runningJobId);
+        });
     }
 
     stopJob(uid, runningJobId) {

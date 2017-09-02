@@ -12,8 +12,6 @@ class protoInstrument {
         this.pluginFunc = null;
         this.runner = null;
 
-        this.bindVariable = {}; // {name:, desc:}
-
         let proto = g_protoMgr.getBriefProtocolById(id);
         if (proto) {
             this.id = id;
@@ -57,7 +55,25 @@ class protoInstrument {
             if (commonJs.isUndefinedOrNull(this.c2sParsedParams[key])) {
                 return null;
             }
-            msg[key] = this.c2sParsedParams[key].isVar ? this.runner.envirment.variableManager.getVariableValue(this.c2sParsedParams[key].value) : this.c2sParsedParams[key].value;
+            let isVar = this.c2sParsedParams[key].isVar;
+            let type = this.c2sParsedParams[key].type;
+            if (isVar) {
+                if (key === 'tagName') {
+                    msg[key] = this.c2sParsedParams[key].value;
+                } else {
+                    msg[key] = this.runner.envirment.variableManager.getVariableValue(this.c2sParsedParams[key].value);
+                }
+            } else {
+                if (this.c2sParsedParams[key].value !== null && 
+                    this.c2sParsedParams[key].value !== undefined) {
+                    msg[key] = this.c2sParsedParams[key].value;
+                    if (type == 'int') {
+                        msg[key] = parseInt(msg[key]);
+                    } else if (type == 'string') {
+                        msg[key] = msg[key].toString();
+                    }
+                }
+            }
         }
 
         return msg;
@@ -147,6 +163,9 @@ class protoInstrument {
         // console.log('ack', data);
         let varPrefix = this.route + '#';
         for (let key in data) {
+			if (key == 'errorCode' && data[key] !== 0) {
+                return callback(new Error('protocal run error ! route = ' + this.route));
+            }
             if (!this.runner.envirment.variableManager.createVariable(varPrefix + key, data[key])) {
                 return callback(new Error('duplicated varialbe name: ' + varPrefix + key));
             }

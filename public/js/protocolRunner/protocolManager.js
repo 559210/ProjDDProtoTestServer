@@ -535,15 +535,18 @@ class ProtocolManager {
             pluginFunc: instrument.pluginFunc,
             params: []
         };
-        if (instrument.bindVariable.name) {
-            obj.bindVariable = instrument.bindVariable;
-        }
 
         for (let key in instrument.c2sParsedParams) {
             let param = instrument.c2sParsedParams[key];
+			let value = param.value;
+            if (param.type == 'int') {
+                value = parseInt(value);
+            } else if (param.type == 'string') {
+                value = value.toString();
+            }
             obj.params.push({
                 name: param.name,
-                value: param.value,
+                value: value,
                 isVar: param.isVar
             });
         }

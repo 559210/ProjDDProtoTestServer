@@ -70,17 +70,22 @@ class runningJob {
         }
     };
 
-    runAll(callback) {
+    runAll(instruments, callback) {
         this.clearOutputs();
         this.sendSessionLog('------------------------------->');
         this.sendSessionLog('start job' + this.jobObj.name);
-        async.eachSeries(this.jobObj.instruments, (item, cb) => {
+        async.eachSeries(instruments, (item, cb) => {
                 item.runner = this;
                 this._runInstrument(item, cb);
             },
             (err) => {
                 this.sendSessionLog('<-------------------------');
-                callback(err);
+                if (err == 'jump') {
+                    //return callback(null);
+                    this.runAll(this.newInsArray, callback);
+                } else {
+                    callback(err);
+                }
             });
     };
 
@@ -122,10 +127,91 @@ class runningJob {
             if (c2sParams.value.value !== null && c2sParams.value.value !== undefined && c2sParams.value.value !== '') {
                 value = c2sParams.value.value;
             }
-            self.envirment.variableManager.createVariable(c2sParams.name.value, value, c2sParams.value.type);
+            if (value !== null) {
+               self.envirment.variableManager.createVariable(c2sParams.name.value, value, c2sParams.value.type);
+            }
         }
         return callback(null);
     };
+	
+	// result: -1:error,0:false,1:true,2:ok
+    _compareValue(ins) {
+        let msg = ins.getC2SMsg();
+        let p1 = msg.param1;
+        let p2 = msg.param2;
+        let tagName = msg.tagName;
+
+        let result = -1;
+        switch (ins.route) {
+            case 'gg':
+                if (typeof p1 === 'number' && typeof p2 === 'number') {
+                    result = Number(p1 > p2);
+                }
+            break;
+            case 'ge':
+                if ((typeof p1 === 'number' && typeof p2 === 'number') ||
+                    (typeof p1 === 'string' && typeof p2 === 'string')) {
+                    result = Number(p1 === p2);
+                }
+                break;
+            case 'gl':
+                if (typeof p1 === 'number' && typeof p2 === 'number') {
+                    result = Number(p1 < p2);
+                }
+                break;
+            case 'gge':
+                if (typeof p1 === 'number' && typeof p2 === 'number') {
+                    result = Number(p1 >= p2);
+                }
+            break;
+            case 'gle':
+                if (typeof p1 === 'number' && typeof p2 === 'number') {
+                    result = Number(p1 <= p2);
+                }
+                break;
+            case 'gne':
+                if ((typeof p1 === 'number' && typeof p2 === 'number') ||
+                    (typeof p1 === 'string' && typeof p2 === 'string')) {
+                    result = Number(p1 !== p2);
+                }
+                break;
+            case 'gnull':
+                result = 2;
+                break;
+            default:
+                break;
+        }
+        return {
+            result:result,
+            tagName:tagName
+        };
+    };
+
+    _getInstrumentsByIndex(index) {
+        let newInsArray = [];
+        for (let i = 0; i < this.jobObj.instruments.length; i++) {
+            if (i >= index) {
+                newInsArray.push(this.jobObj.instruments[i]);
+            }
+        }
+        return newInsArray;
+    }
+
+    _executeCurrentTagContent(tagName, callback) {
+        // 从头搜索此标签的位置
+        let index = -1;
+        for (let i = 0; i < this.jobObj.instruments.length; i++) {
+            if (this.jobObj.instruments[i].type == 4 && this.jobObj.instruments[i].route == 'tagItem') {
+                let msg = this.jobObj.instruments[i].getC2SMsg();
+                if (msg.name == tagName) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+        this.newInsArray = this._getInstrumentsByIndex(index);
+        callback('jump');
+    }
 
     _runInstrument(ins, callback) {
         let self = this;
@@ -141,6 +227,32 @@ class runningJob {
                     case 'createStringVariable':
                         this._createVariable(this, ins, callback);
                     break;
+					case 'gg':
+                    case 'ge':
+                    case 'gl':
+                    case 'gge':
+                    case 'gle':
+                    case 'gne':
+                    case 'gnull':
+                        let compareResult = this._compareValue(ins);
+                        if (compareResult.result === 1) {
+                            // 条件判定成立，走标签流程
+                            this._executeCurrentTagContent(compareResult.tagName, callback);
+                        } else if (compareResult.result === 2) {
+                            // 无条件，继续执行
+                            if (compareResult.tagName === null || compareResult.tagName === undefined || compareResult.tagName === '') {
+                                callback(null);
+                            } else {
+                                this._executeCurrentTagContent(compareResult.tagName, callback);
+                            }
+                        } else {
+                            // 发生错误,终止执行JOB
+                            callback(new Error('发生错误, result = %j', compareResult.result));
+                        }
+                        break;
+                    case 'tagItem':
+                        callback(null);
+                        break;
                 }
                 break;
             case PROTO_TYPE.REQUEST:
@@ -173,7 +285,7 @@ class runningJob {
                     }
 
 
-                    runningJobObj.runAll(callback);
+                    runningJobObj.runAll(runningJobObj.jobObj.instruments, callback);
 
                 });
                 break;

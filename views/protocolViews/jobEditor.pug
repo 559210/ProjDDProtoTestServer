@@ -209,7 +209,7 @@ script.
         console.log(data.text);
     });
 
-mixin c2sParamList(c2sParam)
+mixin c2sParamList(c2sParam, type, route)
     table(border='1' align='left')
         - if (c2sParam.length == 0)
             tr
@@ -234,32 +234,39 @@ mixin c2sParamList(c2sParam)
                                 td
                                     a(href='javascript:void(0)', onclick='onSaveParam(' + i + ',' + j + ",'" + c2sParam[j].name + "')") 保存
                                 td
-                                    a(href='javascript:void(0)', onclick='onSwitchToVariant(' + i + ',' + j + ')') 变量
+                                    - if ( (c2sParam[j].name == 'tagName') && (route == 'ge' || route == 'gl' || route == 'gle' || route == 'gg' || route == 'gge' || route == 'gne' || route == 'gnull') ) {
+                                        a(href='javascript:void(0)', onclick='onSwitchToVariant(' + i + ',' + j + ')') 标签
+                                    - } else {
+                                        a(href='javascript:void(0)', onclick='onSwitchToVariant(' + i + ',' + j + ')') 变量
+                                    - }
                         table(id='paramVar' + tag, border='1', style='display:none')
                             tr
                                 td
-
                                     select(id='param' + tag)
-                                        - for (var k = 0; k < i; ++k) {
-                                            - if (jobDetail.instruments[k].type == 4) {
-                                                - if (jobDetail.instruments[k].c2s.length > 0) {
-                                                    - for (var v = 0; v < jobDetail.instruments[k].c2s.length; v++) {
-                                                        - if (jobDetail.instruments[k].c2s[v].name == 'name') {
-                                                            - if (jobDetail.instruments[k].c2s[v].value) {
-                                                                option= jobDetail.instruments[k].c2s[v].value
-                                                                break
-                                                            - }
+                                        - for (var k = 0; k < jobDetail.instruments.length; ++k) {
+                                            - if (jobDetail.instruments[k].type == 4 && jobDetail.instruments[k].c2s.length > 0) {
+                                                - if ( (c2sParam[j].name == 'tagName') && (route == 'ge' || route == 'gl' || route == 'gle' || route == 'gg' || route == 'gge' || route == 'gne' || route == 'gnull') ) {
+                                                    - if (jobDetail.instruments[k].route == 'tagItem') {
+                                                        - if (jobDetail.instruments[k].c2s[0].value) {
+                                                            option= jobDetail.instruments[k].c2s[0].value
                                                         - }
                                                     - }
-                                                -}
-                                            - }     
+                                                - } else {
+                                                    - if (jobDetail.instruments[k].route == 'createIntVariable' || jobDetail.instruments[k].route == 'createStringVariable') {
+                                                        - if (jobDetail.instruments[k].c2s[0].value) {
+                                                            option= jobDetail.instruments[k].c2s[0].value
+                                                        - }
+                                                    - }
+                                                - }
+                                            - } 
                                         - }
+                                        
                                 td
                                     a(href='javascript:void(0)', onclick='onSaveVarParam(' + i + ',' + j + ",'" + c2sParam[j].name + "')") 保存
-                                    
+
                     td(align='center') #{c2sParam[j].isVar}
 
-mixin s2cParamList(s2cParam)
+mixin s2cParamList(s2cParam, type, route)
     table(border='1' align='left')
         - if (s2cParam.length == 0)
             tr
@@ -345,11 +352,11 @@ div
                             tr
                                 td(align='center') 上行参数
                                 td(align='center')
-                                    +c2sParamList(jobDetail.instruments[i].c2s)
+                                    +c2sParamList(jobDetail.instruments[i].c2s, jobDetail.instruments[i].type, jobDetail.instruments[i].route)
                             tr
                                 td(align='center') 下行参数
                                 td(align='center')
-                                    +s2cParamList(jobDetail.instruments[i].s2c)
+                                    +s2cParamList(jobDetail.instruments[i].s2c, jobDetail.instruments[i].type, jobDetail.instruments[i].route)
                     td(align='center')
                         if jobDetail.instruments[i].hasScript
                             a(href='javascript:void(0)', onclick='onShowScript(' + i + ')') 编辑脚本
