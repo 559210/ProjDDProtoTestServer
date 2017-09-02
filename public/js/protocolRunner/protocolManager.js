@@ -538,14 +538,16 @@ class ProtocolManager {
 
         for (let key in instrument.c2sParsedParams) {
             let param = instrument.c2sParsedParams[key];
-			let value = param.value;
-            if (param.type == 'int') {
-                value = parseInt(value);
-            } else if (param.type == 'string') {
-                value = value.toString();
+            let value = param.value;
+            if ( (value !== null) && (value !== undefined) ) {
+                if (param.type == 'int') {
+                    value = parseInt(value);
+                } else if (param.type == 'string') {
+                    value = value.toString();
+                }
             }
             obj.params.push({
-                name: param.name,
+                name: param.name, 
                 value: value,
                 isVar: param.isVar
             });

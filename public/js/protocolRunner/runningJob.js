@@ -1,12 +1,12 @@
 'use strict'
 let async = require('async');
+let schedule = require('node-schedule');
 
 let commonJs = require('../../../CommonJS/common');
 let variableManagerClass = require('./variableManager');
 // let protoInstrumentClass = require('./protoInstrument');
 let g_protoMgr = require('./protocolManager');
 let pomeloClass = require('./pomeloClient');
-
 
 const PROTO_TYPE = require('./protocolType');
 
@@ -27,11 +27,11 @@ class runningJob {
 
     setRunningJobId(id) {
         this.runningJobId = id;
-    }
+    };
 
     getRunningJobId() {
         return this.runningJobId;
-    }
+    };
 
     sendSessionLog(text) {
         let t = text;
@@ -54,12 +54,12 @@ class runningJob {
 
     clearOutputs() {
         this.outputs = [];
-    }
+    };
 
     getOutputs() {
         console.log("-->%j", this.outputs);
         return this.outputs;
-    }
+    };
 
     runByStep(index, callback) {
         let ins = this.jobObj.getInstrument(index);
@@ -74,9 +74,10 @@ class runningJob {
         this.clearOutputs();
         this.sendSessionLog('------------------------------->');
         this.sendSessionLog('start job' + this.jobObj.name);
+        let index = 0;
         async.eachSeries(instruments, (item, cb) => {
                 item.runner = this;
-                this._runInstrument(item, cb);
+                this._runInstrument(item, index++, cb);
             },
             (err) => {
                 this.sendSessionLog('<-------------------------');
@@ -89,19 +90,19 @@ class runningJob {
             });
     };
 
-    _connectServer(self, ins, callback) {
-        if (self.envirment.pomelo) {
-            self.envirment.pomelo.removeAllListeners('io-error');
-            self.envirment.pomelo.removeAllListeners('close');
+    _connectServer(ins, callback) {
+        if (this.envirment.pomelo) {
+            this.envirment.pomelo.removeAllListeners('io-error');
+            this.envirment.pomelo.removeAllListeners('close');
 
-            self.envirment.pomelo.disconnect();
-            self.envirment.pomelo = null;
+            this.envirment.pomelo.disconnect();
+            this.envirment.pomelo = null;
         }
 
-        self.envirment.pomelo = new pomeloClass();
+        this.envirment.pomelo = new pomeloClass();
 
         let params = ins.getC2SMsg();
-        self.envirment.pomelo.init({
+        this.envirment.pomelo.init({
             host: params['host'],
             port: params['port'],
             log: true
@@ -110,17 +111,17 @@ class runningJob {
                 return callback(new Error('pomelo init failed!'));
             }
 
-            self.envirment.pomelo.on('io-error', () => {
+            this.envirment.pomelo.on('io-error', () => {
                 return callback(new Error('io-error'));
             });
-            self.envirment.pomelo.on('close', () => {
+            this.envirment.pomelo.on('close', () => {
                 return callback(new Error('network closed'));
             });
             return callback(null);
         });
     };
 
-    _createVariable(self, ins, callback) {
+    _createVariable(ins, callback) {
         let c2sParams = ins.getParsedC2SParams();
         if (c2sParams.name.value) {
             let value = null;
@@ -128,7 +129,7 @@ class runningJob {
                 value = c2sParams.value.value;
             }
             if (value !== null) {
-               self.envirment.variableManager.createVariable(c2sParams.name.value, value, c2sParams.value.type);
+               this.envirment.variableManager.createVariable(c2sParams.name.value, value, c2sParams.value.type);
             }
         }
         return callback(null);
@@ -195,7 +196,7 @@ class runningJob {
             }
         }
         return newInsArray;
-    }
+    };
 
     _executeCurrentTagContent(tagName, callback) {
         // 从头搜索此标签的位置
@@ -209,11 +210,48 @@ class runningJob {
                 }
             }
         }
+        // 罗列后面的指令集
         this.newInsArray = this._getInstrumentsByIndex(index);
         callback('jump');
-    }
+    };
 
-    _runInstrument(ins, callback) {
+    _runTimerInstrument(data) {
+        console.log('1>>>>>>>>> data.name = ' + data.name);
+        let name = data.name;
+        let self = data.self;
+        let instruments = data.instruments;
+
+        self.runAll(instruments, function(err) {
+            console.log('2>>>>>>>>> err = ' + err);
+            self.sendSessionLog("run timer protocol error: " + err);
+        });
+    };
+
+    _onTimer(ins, index, callback) {
+        let self = this;
+        let msg = ins.getC2SMsg();
+        let second = msg.second ? msg.second:'1-60';
+        let minute = msg.minute ? msg.minute:'*';
+        let hour = msg.hour ? msg.hour:'*';
+        let day = msg.day ? msg.day:'*';
+        let month = msg.month ? msg.month:'*';
+        let week = msg.week ? msg.week:'*';
+
+        // 定时格式
+        let cronTimer = second + ' ' + minute + ' ' + hour + ' ' + day + ' ' + month + ' ' + week;
+
+        // 罗列后面的指令集
+        let newInsArray = this._getInstrumentsByIndex(index + 1);
+        
+        schedule.scheduleJob(cronTimer, self._runTimerInstrument, {
+            name: 'timer',
+            self: self,
+            instruments: newInsArray
+        });
+        callback(null);
+    };
+
+    _runInstrument(ins, index, callback) {
         let self = this;
 
         switch (ins.type) {
@@ -221,11 +259,11 @@ class runningJob {
 
                 switch (ins.route) {
                     case 'connect':
-                        this._connectServer(this, ins, callback);
+                        this._connectServer(ins, callback);
                     break;
                     case 'createIntVariable':
                     case 'createStringVariable':
-                        this._createVariable(this, ins, callback);
+                        this._createVariable(ins, callback);
                     break;
 					case 'gg':
                     case 'ge':
@@ -241,8 +279,10 @@ class runningJob {
                         } else if (compareResult.result === 2) {
                             // 无条件，继续执行
                             if (compareResult.tagName === null || compareResult.tagName === undefined || compareResult.tagName === '') {
+                                // 没有定义标签，则继续走
                                 callback(null);
                             } else {
+                                // 有标签，走标签流程
                                 this._executeCurrentTagContent(compareResult.tagName, callback);
                             }
                         } else {
@@ -252,6 +292,9 @@ class runningJob {
                         break;
                     case 'tagItem':
                         callback(null);
+                        break;
+                    case 'timer':
+                        this._onTimer(ins, index, callback)
                         break;
                 }
                 break;

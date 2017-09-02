@@ -301,6 +301,7 @@ INSERT INTO `instrumentprototypes` VALUES ('259', 'gle', '{\"param1\":{\"type\":
 INSERT INTO `instrumentprototypes` VALUES ('260', 'ge', '{\"param1\":{\"type\":\"string\",\"desc\":\"第一个元素\"},\"param2\":{\"type\":\"string\",\"desc\":\"第二个元素\"},\"tagName\":{\"type\":\"int\",\"length\":4,\"desc\":\"标签名称\"}}', '{}', '4', 'goto的等于判定(整型，字符串类型)', '基础系统');
 INSERT INTO `instrumentprototypes` VALUES ('261', 'gne', '{\"param1\":{\"type\":\"string\",\"desc\":\"第一个元素\"},\"param2\":{\"type\":\"string\",\"desc\":\"第二个元素\"},\"tagName\":{\"type\":\"string\",\"desc\":\"标签名称\"}}', '{}', '4', 'goto的不等于判定(整型，字符串类型)', '基础系统');
 INSERT INTO `instrumentprototypes` VALUES ('262', 'gnull', '{\"tagName\":{\"type\":\"string\",\"desc\":\"标签名称\"}}', '{}', '4', 'goto的无条件判定', '基础系统');
+INSERT INTO `instrumentprototypes` VALUES ('263', 'timer', '{\"second\":{\"type\":\"string\",\"desc\":\"秒位设定\"},\"minute\":{\"type\":\"string\",\"desc\":\"分位设定\"},\"hour\":{\"type\":\"string\",\"desc\":\"时位设定\"},\"day\":{\"type\":\"string\",\"desc\":\"天位设定\"},\"month\":{\"type\":\"string\",\"desc\":\"月位设定\"},\"week\":{\"type\":\"string\",\"desc\":\"周位设定\"}}', '{}', '4', '定时指令', '基础系统');
 
 
 -- ----------------------------
