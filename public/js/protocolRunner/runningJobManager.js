@@ -38,7 +38,7 @@ class runningJobManager{
             this.runningJobMap[uid] = {};
         }
 
-        let runningJobObj = new runningJobClass(jobObj, session, 0, null);
+        let runningJobObj = new runningJobClass(jobObj, this, 0, null);
         let runningJobId = this.maxRunningJobId;
         this.maxRunningJobId++;
 
@@ -82,13 +82,13 @@ class runningJobManager{
             for (let runningJobId in runningJobsMap[key]) {
                 let runningJobObject = runningJobsMap[key][runningJobId];
                 
-                let obj = {name:runningJobObject.getName(), runningJobId: runningJobId, isSubscribed: false, subscribedColor: '000000'};
+                let obj = {name:runningJobObject.getName(), runningJobId: runningJobId, isSubscribed: false, color: '000000'};
                 
                 if (commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[runningJobId]) === false) {
                     let subscribedInfo = this.runningJobSubscribeMap[runningJobId][uid];
                     if (commonJs.isUndefinedOrNull(subscribedInfo) === false) {
                         obj.isSubscribed = true;
-                        obj.consoleColor = subscribedInfo.color;
+                        obj.color = subscribedInfo.color;
                     }
                 }
 
@@ -121,7 +121,6 @@ class runningJobManager{
 
             let historyOutputs = jobObj.getOutputs();
             for (let i in historyOutputs) {
-                console.log('bingo----------------->' + historyOutputs[i].text);
                 sessionObj.Console(historyOutputs[i].text, jobId, color, historyOutputs[i].timestamp);
             }
         }

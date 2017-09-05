@@ -49,9 +49,7 @@ script.
 
     /////////////////////////////////
     socket.on('onInnerRefresh', function(data) {
-        console.log(data);
         pugDataRunningJobs = data;
-        console.log(pugDataRunningJobs);
         createRunningJobList();
     });
 
@@ -68,7 +66,7 @@ script.
                     isParent: false, 
                     id: pugDataRunningJobs[key][i].runningJobId,
                     checked: pugDataRunningJobs[key][i].isSubscribed,
-                    consoleColor: pugDataRunningJobs[key][i].consoleColor
+                    consoleColor: pugDataRunningJobs[key][i].color
                 });
 
                 if (pugDataRunningJobs[key][i].isSubscribed) {
@@ -138,7 +136,7 @@ script.
         
 
         if (treeNode.checked) {
-            socket.emit('subscribeConsole', {runningJobId: treeNode.id});
+            socket.emit('subscribeConsole', {runningJobId: treeNode.id, color: 'ff0000'});
         }
         else {
             socket.emit('unSubscribeConsole', {runningJobId: treeNode.id});

@@ -98,7 +98,7 @@ class protoJobSession {
 
     runJob(callback) {
         console.log('protoJobSession runJob: curJob: %j', this.curJob);
-        g_runningJobMgr.runJob(this.uid, this.curJob, function(err, runningJobId) {
+        g_runningJobMgr.runJob(this.uid, this.curJob, (err, runningJobId) => {
             if (!err) {
                 this.runningJobIDs.push(runningJobId);
             }

@@ -2,8 +2,7 @@ script.
     var g_consoleLogs = [];     // sorted content by timestamp
     var g_consoleOrderByJob = {};       // jobId -> sorted console content
     socket.on('Console', function(data){
-        console.log("\t" + data.text);
-        //- data.text = data.text.replace(/\t/g, "&nbsp;");
+        data.text = data.text.replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
         // data ->  {text: text, runningJobId: runningJobId, color: color, timestamp: timestamp}
         if (g_consoleOrderByJob[data.runningJobId] === undefined) {
             g_consoleOrderByJob[data.runningJobId] = [];
@@ -18,6 +17,26 @@ script.
 
         //- ta.scrollTop(ta[0].scrollHeight);
 
+    });
+
+    socket.on('onInnerRefresh', function(data) {
+        console.log(data);
+        for (var uid in data) {
+            for (var i = 0; i < data[uid].length; ++i) {
+                console.log('len: ' + data[uid].length);
+                var jobId = data[uid][i].runningJobId;
+                var color = data[uid][i].color;
+                console.log("jobId: " + jobId);
+                var contents = g_consoleOrderByJob[jobId];
+                if (contents !== undefined) {
+                    for (var i = 0; i < contents.length; ++i) {
+                        contents[i].color = color;
+                    }
+                }
+            }
+        }
+
+        rebuildConsoleLogLists();
     });
 
     function insertToOrderListByTimestamp(arr, data) {
@@ -49,7 +68,7 @@ script.
         var helpMap = [];
         for (var jobId in g_consoleOrderByJob) {
             var jobLog = g_consoleOrderByJob[jobId];
-            helpMap.push({key: jobId, index: 0, len: jobLog.length});
+            helpMap.push({jobId: jobId, index: 0, len: jobLog.length});
         }
 
         for (;;) 
@@ -90,6 +109,7 @@ script.
         }
 
         text += "<div id='end'>^--------this is the end<div/>";
+        //- console.log(text);
         ta.html(text);
 
         var end = $('div#end');

@@ -339,7 +339,7 @@ class protoJobManager {
             });
 
             socket.on('subscribeConsole', (data) => {
-                g_runningJobMgr.subscribeToJobConsole(socket.request.session.passport.user, data.runningJobId);
+                g_runningJobMgr.subscribeToJobConsole(socket.request.session.passport.user, data.runningJobId, data.color);
             });
 
             socket.on('unSubscribeConsole', (data) => {

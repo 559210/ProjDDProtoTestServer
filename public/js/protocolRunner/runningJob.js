@@ -12,7 +12,7 @@ const PROTO_TYPE = require('./protocolType');
 
 class runningJob {
     constructor(jobObj, runningJobManager, consoleLogDepth, evn) {
-        console.log('runningJob constructor: jobObj: %j', jobObj);
+        // console.log('runningJob constructor: jobObj: %j', jobObj);
         this.jobObj = jobObj;
         this.runningJobId = -1;
         this.runningJobManager = runningJobManager;
@@ -20,7 +20,8 @@ class runningJob {
         this.runningJobId = null;
         this.envirment = evn ? evn : {
             pomelo: null,
-            variableManager: new variableManagerClass()
+            variableManager: new variableManagerClass(),
+            rootRunningJob: this 
         };
         this.outputs = [];
     };
@@ -34,30 +35,24 @@ class runningJob {
     };
 
     sendSessionLog(text) {
+        this.envirment.rootRunningJob._sendSessionLog(this.consoleLogDepth, text);
+    };
+
+    _sendSessionLog(depth, text) {
         let t = text;
-        for (let i = 0; i < this.consoleLogDepth; ++i) {
-            t = '\t-' + t;
+        for (let i = 0; i < depth; ++i) {
+            t = '\t' + t;
         }
         let timestamp = Date.parse(new Date());
-        // this.outputs += text + '\n';
-        console.log("2" + t);
         this.outputs.push({text: t, timestamp: timestamp});
-        this.outputs.push({text: "--", timestamp: timestamp});
-        
-        if (commonJs.isUndefinedOrNull(this.session) === false) {
-            this.runningJobManager.log(this.runningJobId, t, timestamp); 
-        }
-        console.log("1" + t);
-
-
-    };
+        this.runningJobManager.log(this.runningJobId, t, timestamp);         
+    }
 
     clearOutputs() {
         this.outputs = [];
     };
 
     getOutputs() {
-        console.log("-->%j", this.outputs);
         return this.outputs;
     };
 
@@ -317,7 +312,7 @@ class runningJob {
                     if (err) {
                         return callback(err);
                     }
-                    let runningJobObj = new runningJob(job, this.session, this.consoleLogDepth + 1, this.envirment);
+                    let runningJobObj = new runningJob(job, this.runningJobManager, this.consoleLogDepth + 1, this.envirment);
 
                     let firstIns = job.getInstrument(0);
                     let msg = ins.getC2SMsg();
