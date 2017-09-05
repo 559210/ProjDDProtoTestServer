@@ -17,6 +17,8 @@ class protoRunnerJob {
         this.name = jobName;
         this.id = -1;
 
+        this.tagList = {};
+
         // this.envirment = evn ? evn : {
         //     pomelo: null,
         //     variableManager: new variableManagerClass()

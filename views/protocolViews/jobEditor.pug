@@ -234,7 +234,7 @@ mixin c2sParamList(c2sParam, type, route)
                                 td
                                     a(href='javascript:void(0)', onclick='onSaveParam(' + i + ',' + j + ",'" + c2sParam[j].name + "')") 保存
                                 td
-                                    - if ( (c2sParam[j].name == 'tagName') && (route == 'ge' || route == 'gl' || route == 'gle' || route == 'gg' || route == 'gge' || route == 'gne' || route == 'gnull') ) {
+                                    - if ( (c2sParam[j].name == 'tagName') && (route == 'gotoEqual' || route == 'gotoLess' || route == 'gotoLessOrEqual' || route == 'gotoGreater' || route == 'gotoGreaterOrEqual' || route == 'gotoNotEqual' || route == 'gotoNull') ) {
                                         a(href='javascript:void(0)', onclick='onSwitchToVariant(' + i + ',' + j + ')') 标签
                                     - } else {
                                         a(href='javascript:void(0)', onclick='onSwitchToVariant(' + i + ',' + j + ')') 变量
@@ -245,7 +245,7 @@ mixin c2sParamList(c2sParam, type, route)
                                     select(id='param' + tag)
                                         - for (var k = 0; k < jobDetail.instruments.length; ++k) {
                                             - if (jobDetail.instruments[k].type == 4 && jobDetail.instruments[k].c2s.length > 0) {
-                                                - if ( (c2sParam[j].name == 'tagName') && (route == 'ge' || route == 'gl' || route == 'gle' || route == 'gg' || route == 'gge' || route == 'gne' || route == 'gnull') ) {
+                                                - if ( (c2sParam[j].name == 'tagName') && (route == 'gotoEqual' || route == 'gotoLess' || route == 'gotoLessOrEqual' || route == 'gotoGreater' || route == 'gotoGreaterOrEqual' || route == 'gotoNotEqual' || route == 'gotoNull') ) {
                                                     - if (jobDetail.instruments[k].route == 'tagItem') {
                                                         - if (jobDetail.instruments[k].c2s[0].value) {
                                                             option= jobDetail.instruments[k].c2s[0].value
