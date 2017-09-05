@@ -44,7 +44,7 @@ class runningJobManager{
 
         runningJobObj.setRunningJobId(runningJobId);
         this.runningJobMap[uid][runningJobId] = runningJobObj;
-        runningJobObj.runAll(runningJobObj.jobObj.instruments, (err) => {
+        runningJobObj.runAll(0, (err) => {
             return cb(err, runningJobId);
         });
     }

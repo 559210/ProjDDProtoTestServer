@@ -1,6 +1,5 @@
 'use strict'
 let async = require('async');
-let schedule = require('node-schedule');
 
 let commonJs = require('../../../CommonJS/common');
 let variableManagerClass = require('./variableManager');
@@ -65,24 +64,81 @@ class runningJob {
         }
     };
 
-    runAll(instruments, callback) {
+    runAll(index, callback) {
+        let self = this;
         this.clearOutputs();
         this.sendSessionLog('------------------------------->');
         this.sendSessionLog('start job' + this.jobObj.name);
-        let index = 0;
-        async.eachSeries(instruments, (item, cb) => {
-                item.runner = this;
-                this._runInstrument(item, index++, cb);
+
+        async.whilst(
+            function breaker () {
+                return index < self.jobObj.instruments.length;
             },
-            (err) => {
-                this.sendSessionLog('<-------------------------');
-                if (err == 'jump') {
-                    //return callback(null);
-                    this.runAll(this.newInsArray, callback);
-                } else {
-                    callback(err);
-                }
-            });
+            function iterator (cb) {
+                self.jobObj.instruments[index].runner = self;
+                self._runInstrument(self.jobObj.instruments[index], index, function(err, data) {
+                    if (err) {
+                        switch(err) {
+                            case 'jump':
+                                if (data) {
+                                    index = self.jobObj.tagList[data];
+                                } else {
+                                    index++;
+                                }
+                                return cb(null);
+                            break;
+                            case 'timer':
+                                index++;
+                                cb(null);
+                            break;
+                            default:
+                                return cb(err);
+                            break;
+                        }
+                    } else {
+                        // 一共要执行的次数
+                        let timer_count = self.envirment.variableManager.getVariableValue('timer_count');
+                        // 定时协议从第几条开始
+                        let timer_insIndex = self.envirment.variableManager.getVariableValue('timer_insIndex');
+                        // 当前执行的次数索引
+                        let countIndex = self.envirment.variableManager.getVariableValue('timer_countIndex');
+                        // 定时时间间隔毫秒数
+                        let milliSecond = self.envirment.variableManager.getVariableValue('timer_milliSecond');
+
+                        // 已经执行到最后一条指令了
+                        if (index >= self.jobObj.instruments.length-1 && countIndex && countIndex < timer_count) {
+                            index = timer_insIndex;
+                            setTimeout(function() {
+                                self.envirment.variableManager.setVariableValue('timer_countIndex', countIndex + 1, 'int');
+                                return cb(null);
+                            }, milliSecond);
+                        } else {
+                            index++;
+                            return cb(null);
+                        }
+                    }
+                }); 
+            },
+            function(err){
+                console.log(err);
+                callback(err);
+            }	
+        );
+    };
+
+    _setTimerVariable(ins, index) {
+        let msg = ins.getC2SMsg();
+        let milliSecond = msg.milliSecond;
+        let count = msg.count ? msg.count:99999;
+
+        // 一共要执行的次数
+        this.envirment.variableManager.createVariable('timer_count', count, 'int');
+        // 定时协议从第几条开始
+        this.envirment.variableManager.createVariable('timer_insIndex', index+1, 'int');
+        // 定时时间间隔毫秒数
+        this.envirment.variableManager.createVariable('timer_milliSecond', milliSecond, 'int');
+        // 当前执行的次数索引
+        this.envirment.variableManager.createVariable('timer_countIndex', 1, 'int');
     };
 
     _connectServer(ins, callback) {
@@ -123,9 +179,7 @@ class runningJob {
             if (c2sParams.value.value !== null && c2sParams.value.value !== undefined && c2sParams.value.value !== '') {
                 value = c2sParams.value.value;
             }
-            if (value !== null) {
-               this.envirment.variableManager.createVariable(c2sParams.name.value, value, c2sParams.value.type);
-            }
+            this.envirment.variableManager.createVariable(c2sParams.name.value, value, c2sParams.value.type);
         }
         return callback(null);
     };
@@ -139,39 +193,39 @@ class runningJob {
 
         let result = -1;
         switch (ins.route) {
-            case 'gg':
+            case 'gotoGreater':
                 if (typeof p1 === 'number' && typeof p2 === 'number') {
                     result = Number(p1 > p2);
                 }
             break;
-            case 'ge':
+            case 'gotoEqual':
                 if ((typeof p1 === 'number' && typeof p2 === 'number') ||
                     (typeof p1 === 'string' && typeof p2 === 'string')) {
                     result = Number(p1 === p2);
                 }
                 break;
-            case 'gl':
+            case 'gotoLess':
                 if (typeof p1 === 'number' && typeof p2 === 'number') {
                     result = Number(p1 < p2);
                 }
                 break;
-            case 'gge':
+            case 'gotoGreaterOrEqual':
                 if (typeof p1 === 'number' && typeof p2 === 'number') {
                     result = Number(p1 >= p2);
                 }
             break;
-            case 'gle':
+            case 'gotoLessOrEqual':
                 if (typeof p1 === 'number' && typeof p2 === 'number') {
                     result = Number(p1 <= p2);
                 }
                 break;
-            case 'gne':
+            case 'gotoNotEqual':
                 if ((typeof p1 === 'number' && typeof p2 === 'number') ||
                     (typeof p1 === 'string' && typeof p2 === 'string')) {
                     result = Number(p1 !== p2);
                 }
                 break;
-            case 'gnull':
+            case 'gotoNull':
                 result = 2;
                 break;
             default:
@@ -183,72 +237,7 @@ class runningJob {
         };
     };
 
-    _getInstrumentsByIndex(index) {
-        let newInsArray = [];
-        for (let i = 0; i < this.jobObj.instruments.length; i++) {
-            if (i >= index) {
-                newInsArray.push(this.jobObj.instruments[i]);
-            }
-        }
-        return newInsArray;
-    };
-
-    _executeCurrentTagContent(tagName, callback) {
-        // 从头搜索此标签的位置
-        let index = -1;
-        for (let i = 0; i < this.jobObj.instruments.length; i++) {
-            if (this.jobObj.instruments[i].type == 4 && this.jobObj.instruments[i].route == 'tagItem') {
-                let msg = this.jobObj.instruments[i].getC2SMsg();
-                if (msg.name == tagName) {
-                    index = i;
-                    break;
-                }
-            }
-        }
-        // 罗列后面的指令集
-        this.newInsArray = this._getInstrumentsByIndex(index);
-        callback('jump');
-    };
-
-    _runTimerInstrument(data) {
-        console.log('1>>>>>>>>> data.name = ' + data.name);
-        let name = data.name;
-        let self = data.self;
-        let instruments = data.instruments;
-
-        self.runAll(instruments, function(err) {
-            console.log('2>>>>>>>>> err = ' + err);
-            self.sendSessionLog("run timer protocol error: " + err);
-        });
-    };
-
-    _onTimer(ins, index, callback) {
-        let self = this;
-        let msg = ins.getC2SMsg();
-        let second = msg.second ? msg.second:'1-60';
-        let minute = msg.minute ? msg.minute:'*';
-        let hour = msg.hour ? msg.hour:'*';
-        let day = msg.day ? msg.day:'*';
-        let month = msg.month ? msg.month:'*';
-        let week = msg.week ? msg.week:'*';
-
-        // 定时格式
-        let cronTimer = second + ' ' + minute + ' ' + hour + ' ' + day + ' ' + month + ' ' + week;
-
-        // 罗列后面的指令集
-        let newInsArray = this._getInstrumentsByIndex(index + 1);
-        
-        schedule.scheduleJob(cronTimer, self._runTimerInstrument, {
-            name: 'timer',
-            self: self,
-            instruments: newInsArray
-        });
-        callback(null);
-    };
-
     _runInstrument(ins, index, callback) {
-        let self = this;
-
         switch (ins.type) {
             case PROTO_TYPE.SYSTEM:
 
@@ -260,42 +249,33 @@ class runningJob {
                     case 'createStringVariable':
                         this._createVariable(ins, callback);
                     break;
-					case 'gg':
-                    case 'ge':
-                    case 'gl':
-                    case 'gge':
-                    case 'gle':
-                    case 'gne':
-                    case 'gnull':
+					case 'gotoGreater':
+                    case 'gotoEqual':
+                    case 'gotoLess':
+                    case 'gotoGreaterOrEqual':
+                    case 'gotoLessOrEqual':
+                    case 'gotoNotEqual':
+                    case 'gotoNull':
                         let compareResult = this._compareValue(ins);
-                        if (compareResult.result === 1) {
-                            // 条件判定成立，走标签流程
-                            this._executeCurrentTagContent(compareResult.tagName, callback);
-                        } else if (compareResult.result === 2) {
-                            // 无条件，继续执行
-                            if (compareResult.tagName === null || compareResult.tagName === undefined || compareResult.tagName === '') {
-                                // 没有定义标签，则继续走
-                                callback(null);
-                            } else {
-                                // 有标签，走标签流程
-                                this._executeCurrentTagContent(compareResult.tagName, callback);
-                            }
+                        if (compareResult.result === 1 || compareResult.result === 2) {
+                            callback('jump', compareResult.tagName);
                         } else {
-                            // 发生错误,终止执行JOB
-                            callback(new Error('发生错误, result = %j', compareResult.result));
+                            callback(new Error('check goto cmd error !'));
                         }
                         break;
                     case 'tagItem':
                         callback(null);
                         break;
                     case 'timer':
-                        this._onTimer(ins, index, callback)
+                        this._setTimerVariable(ins, index);
+                        callback('timer');
                         break;
                 }
                 break;
             case PROTO_TYPE.REQUEST:
 
                 this.sendSessionLog("send: " + ins.route);
+                this.sendSessionLog("timestampe: " + new Date().getTime());
                 this.sendSessionLog("with params: " + JSON.stringify(ins.getC2SMsg()));
                 this.envirment.pomelo.request(ins.route, ins.getC2SMsg(), (data) => {
                     // TODO: 这里要移到真正整个任务做完的地方
@@ -323,7 +303,7 @@ class runningJob {
                     }
 
 
-                    runningJobObj.runAll(runningJobObj.jobObj.instruments, callback);
+                    runningJobObj.runAll(0, callback);
 
                 });
                 break;
@@ -352,15 +332,15 @@ class runningJob {
         this.envirment.pomelo.disconnect();
         this.envirment.pomelo = null;
         callback(null);
-    }
+    };
 
     getName() {
         return this.jobObj.name;
-    }
+    };
 
     getRunningJobId() {
         return this.runningJobId;
-    }
+    };
 };
 
 
