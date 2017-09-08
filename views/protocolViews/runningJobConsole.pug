@@ -1,4 +1,6 @@
 script.
+    var pugDataRunningJobs = !{JSON.stringify(runningJobs)};
+
     var g_consoleLogs = [];     // sorted content by timestamp
     var g_consoleOrderByJob = {};       // jobId -> sorted console content
     socket.on('Console', function(data){
@@ -20,17 +22,15 @@ script.
     });
 
     socket.on('onInnerRefresh', function(data) {
-        console.log(data);
+        console.log("onInnerRefresh");
         for (var uid in data) {
             for (var i = 0; i < data[uid].length; ++i) {
-                console.log('len: ' + data[uid].length);
                 var jobId = data[uid][i].runningJobId;
                 var color = data[uid][i].color;
-                console.log("jobId: " + jobId);
                 var contents = g_consoleOrderByJob[jobId];
                 if (contents !== undefined) {
-                    for (var i = 0; i < contents.length; ++i) {
-                        contents[i].color = color;
+                    for (var j = 0; j < contents.length; ++j) {
+                        contents[j].color = color;
                     }
                 }
             }
@@ -120,7 +120,15 @@ script.
     $(function(){ 
         // do something 
         //- console.log(pugDataRunningJobs);
-
+        for (var key in pugDataRunningJobs) {
+            let jobs = pugDataRunningJobs[key];
+            for (var i = 0; i < jobs.length; ++i) {
+                var job = jobs[i];
+                if (job.isSubscribed) {
+                    socket.emit('subscribeConsole', {runningJobId: job.runningJobId, color: job.color});
+                }
+            }
+        }
     });
 div
     //- button(onclick='onButton()') aaa

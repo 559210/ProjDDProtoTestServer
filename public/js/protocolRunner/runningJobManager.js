@@ -124,6 +124,15 @@ class runningJobManager{
                 sessionObj.Console(historyOutputs[i].text, jobId, color, historyOutputs[i].timestamp);
             }
         }
+        else {
+            let jobObj = this.runningJobMap[uid][jobId];
+            let sessionObj = this.sessionMap[uid];
+            let historyOutputs = jobObj.getOutputs();
+
+            for (let i in historyOutputs) {
+                sessionObj.Console(historyOutputs[i].text, jobId, jobSubscribeMap[uid].color, historyOutputs[i].timestamp);
+            }
+        }
     }
 
     unSubscribeToJobConsole(uid, jobId) {
