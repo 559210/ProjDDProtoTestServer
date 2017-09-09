@@ -301,7 +301,7 @@ INSERT INTO `instrumentprototypes` VALUES ('259', 'gotoLessOrEqual', '{\"param1\
 INSERT INTO `instrumentprototypes` VALUES ('260', 'gotoEqual', '{\"param1\":{\"type\":\"string\",\"desc\":\"第一个元素\"},\"param2\":{\"type\":\"string\",\"desc\":\"第二个元素\"},\"tagName\":{\"type\":\"int\",\"length\":4,\"desc\":\"标签名称\"}}', '{}', '4', 'goto的等于判定(整型，字符串类型)', '基础系统');
 INSERT INTO `instrumentprototypes` VALUES ('261', 'gotoNotEqual', '{\"param1\":{\"type\":\"string\",\"desc\":\"第一个元素\"},\"param2\":{\"type\":\"string\",\"desc\":\"第二个元素\"},\"tagName\":{\"type\":\"string\",\"desc\":\"标签名称\"}}', '{}', '4', 'goto的不等于判定(整型，字符串类型)', '基础系统');
 INSERT INTO `instrumentprototypes` VALUES ('262', 'gotoNull', '{\"tagName\":{\"type\":\"string\",\"desc\":\"标签名称\"}}', '{}', '4', 'goto的无条件判定', '基础系统');
-INSERT INTO `instrumentprototypes` VALUES ('263', 'timer', '{\"milliSecond\":{\"type\":\"int\",\"length\":4,\"desc\":\"间隔的毫秒数\"},\"count\":{\"type\":\"int\",\"length\":4,\"desc\":\"累计执行次数(默认无限)\"}}', '{}', '4', '定时指令', '基础系统');
+INSERT INTO `instrumentprototypes` VALUES ('263', 'timer', '{\"milliSecond\":{\"type\":\"int\",\"length\":4,\"desc\":\"间隔的毫秒数\"},\"count\":{\"type\":\"int\",\"length\":4,\"desc\":\"累计执行次数(默认无限)\"},\"jobId\":{\"type\":\"int\",\"length\":4,\"desc\":\"运行的JOB编号\"}}', '{}', '4', '定时指令', '基础系统');
 
 
 -- ----------------------------

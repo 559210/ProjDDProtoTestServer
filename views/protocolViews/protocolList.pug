@@ -20,9 +20,10 @@ script.
         }
     }
 
-    function onRouteClicked(protoId) {
-        g_event.trigger('protoList_routeclicked', {protoId: protoId});
+    function onRouteClicked(id, protoId) {
+        g_event.trigger('protoList_routeclicked', {id:id, protoId: protoId});
     }
+
 div
     table(border = '1')
         tr
@@ -47,8 +48,8 @@ div
                     td 操作
                 - for (var i = 0; i < item.length; ++i)
                     tr
-                        td
-                            a.route(href='javascript:void(0)', onclick='onRouteClicked(' + item[i].id + ')') #{item[i].route}
+                        td                           
+                            a.route(href='javascript:void(0)', onclick='onRouteClicked('+item[i].route+',' + item[i].id + ')') #{item[i].route}
                         td= item[i].type
                         td= item[i].note
                         td

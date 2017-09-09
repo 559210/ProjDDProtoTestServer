@@ -1,5 +1,8 @@
 script.
     var g_curEditScriptRouteIndex = -1;
+    var temp;
+    var temp2;
+    var selectJobId = 0;
 
     $(document).ready(function() 
     { 
@@ -43,8 +46,10 @@ script.
     }
     // 关闭事件
     function closeDivFun(){
+        //- document.getElementById(temp).innerHTML=data.id;        
         $('div#proto').hide();
-    }
+        selectJobId = 0;
+    } 
 
     // 弹出调用的方法
     function showScriptWindow(){
@@ -63,7 +68,6 @@ script.
         $('div#console').hide();
     }
 
-
     function onAddProto() {
         showDivFun();
     }
@@ -71,6 +75,13 @@ script.
     function onAddTemplate() {
         var selectedText = $('select.template').find("option:selected").text();
         socket.emit('AddTemplate', {jobName: selectedText});
+    }
+
+    function selectTimerJobId(i, j) {
+        $('div#proto').show();
+        temp = 'value'+getTag(i, j);
+        temp2 = i;
+        selectJobId = 1;
     }
 
     function onModify(i, j) {
@@ -226,7 +237,13 @@ mixin c2sParamList(c2sParam, type, route)
                             tr
                                 td(id='value' + tag) #{c2sParam[j].value}
                                 td
-                                    a(href='javascript:void(0)', onclick='onModify(' + i + ',' + j + ')') 修改
+                                    - if(c2sParam[j].name == 'jobId'){
+                                        a(href='javascript:void(0)', onclick='selectTimerJobId('+i+','+j+')') 修改JOBID                                      
+                                    - }
+                                    - else{
+                                        a(href='javascript:void(0)', onclick='onModify(' + i + ',' + j + ')') 修改
+                                    - }                                                                
+
                         table(id='paramEdit' + tag, border='1', style='display:none')
                             tr
                                 td
@@ -291,10 +308,13 @@ div
             script.
                 // g_event is defined in protocolList
                 g_event.bind('protoList_routeclicked', function(data) {
-                    socket.emit('AddProto', data);
+                    if(selectJobId == 1) {
+                        socket.emit('SetC2SParamValue', {routeIndex: temp2, paramName: 'jobId', value:data.id, isVar: false});   
+                    } else {
+                        socket.emit('AddProto', data);
+                    }
                     closeDivFun();
                 });
-
 
     div.protocolPopupWindowDiv#script(style="display : none")
         a.scriptEdit(href="javascript:void(0)", style='float:left', onclick='onEditScriptClicked()') 编辑

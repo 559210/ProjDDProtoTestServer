@@ -76,69 +76,57 @@ class runningJob {
             },
             function iterator (cb) {
                 self.jobObj.instruments[index].runner = self;
-                self._runInstrument(self.jobObj.instruments[index], index, function(err, data) {
+                self._runInstrument(self.jobObj.instruments[index], (err, data) => {
+                    index++;
                     if (err) {
                         switch(err) {
                             case 'jump':
                                 if (data) {
                                     index = self.jobObj.tagList[data];
-                                } else {
-                                    index++;
                                 }
-                                return cb(null);
-                            break;
-                            case 'timer':
-                                index++;
                                 cb(null);
                             break;
+                            case 'timer':
+                                let milliSecond = data.milliSecond;
+                                let count = data.count;
+                                let jobId = data.jobId;
+
+                                let recorder = 0;
+                                let timerId = setInterval((err) => {
+                                    if (recorder++ >= count) {
+                                        clearInterval(timerId);
+                                        cb(null);
+                                    } else {
+                                        // 执行定时job
+                                        g_protoMgr.loadJobById(jobId, (err, job) => {
+                                            if (err) {
+                                                return cb(err);
+                                            }
+                                            let runningJobObj = new runningJob(job, self.runningJobManager, self.consoleLogDepth + 1, self.envirment);
+                                            runningJobObj.runAll(0, (err) => {
+                                                if (err) {
+                                                    clearInterval(timerId);
+                                                    cb(err);
+                                                }
+                                            });
+                                        });
+                                    }
+                                }, milliSecond);
+                            break;
                             default:
-                                return cb(err);
+                                cb(err);
                             break;
                         }
                     } else {
-                        // 一共要执行的次数
-                        let timer_count = self.envirment.variableManager.getVariableValue('timer_count');
-                        // 定时协议从第几条开始
-                        let timer_insIndex = self.envirment.variableManager.getVariableValue('timer_insIndex');
-                        // 当前执行的次数索引
-                        let countIndex = self.envirment.variableManager.getVariableValue('timer_countIndex');
-                        // 定时时间间隔毫秒数
-                        let milliSecond = self.envirment.variableManager.getVariableValue('timer_milliSecond');
-
-                        // 已经执行到最后一条指令了
-                        if (index >= self.jobObj.instruments.length-1 && countIndex && countIndex < timer_count) {
-                            index = timer_insIndex;
-                            setTimeout(function() {
-                                self.envirment.variableManager.setVariableValue('timer_countIndex', countIndex + 1, 'int');
-                                return cb(null);
-                            }, milliSecond);
-                        } else {
-                            index++;
-                            return cb(null);
-                        }
+                        cb(null);
                     }
                 }); 
             },
             function(err){
                 console.log(err);
                 callback(err);
-            }	
+            }
         );
-    };
-
-    _setTimerVariable(ins, index) {
-        let msg = ins.getC2SMsg();
-        let milliSecond = msg.milliSecond;
-        let count = msg.count ? msg.count:99999;
-
-        // 一共要执行的次数
-        this.envirment.variableManager.createVariable('timer_count', count, 'int');
-        // 定时协议从第几条开始
-        this.envirment.variableManager.createVariable('timer_insIndex', index+1, 'int');
-        // 定时时间间隔毫秒数
-        this.envirment.variableManager.createVariable('timer_milliSecond', milliSecond, 'int');
-        // 当前执行的次数索引
-        this.envirment.variableManager.createVariable('timer_countIndex', 1, 'int');
     };
 
     _connectServer(ins, callback) {
@@ -237,7 +225,7 @@ class runningJob {
         };
     };
 
-    _runInstrument(ins, index, callback) {
+    _runInstrument(ins, callback) {
         switch (ins.type) {
             case PROTO_TYPE.SYSTEM:
 
@@ -267,8 +255,12 @@ class runningJob {
                         callback(null);
                         break;
                     case 'timer':
-                        this._setTimerVariable(ins, index);
-                        callback('timer');
+                        let msg = ins.getC2SMsg();
+                        callback('timer', {
+                            milliSecond:msg.milliSecond,
+                            count:msg.count ? msg.count:99999,
+                            jobId:msg.jobId
+                        });
                         break;
                 }
                 break;
