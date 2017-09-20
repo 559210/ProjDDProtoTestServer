@@ -195,6 +195,7 @@ script.
     function onRunClicked() {
         socket.emit('Run');
         showConsoleWindow();
+       
     }
 
     function onUpClicked(index) {
@@ -260,7 +261,10 @@ mixin c2sParamList(c2sParam, type, route)
                             tr
                                 td
                                     select(id='param' + tag)
-                                        - for (var k = 0; k < jobDetail.instruments.length; ++k) {
+                                        - for (var k = 0; k < i; ++k) {
+                                            each val in jobDetail.instruments[k].s2c
+                                                option= jobDetail.instruments[k].route + '#' + val.name
+
                                             - if (jobDetail.instruments[k].type == 4 && jobDetail.instruments[k].c2s.length > 0) {
                                                 - if ( (c2sParam[j].name == 'tagName') && (route == 'gotoEqual' || route == 'gotoLess' || route == 'gotoLessOrEqual' || route == 'gotoGreater' || route == 'gotoGreaterOrEqual' || route == 'gotoNotEqual' || route == 'gotoNull') ) {
                                                     - if (jobDetail.instruments[k].route == 'tagItem') {
