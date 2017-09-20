@@ -539,7 +539,9 @@ class ProtocolManager {
         for (let key in instrument.c2sParsedParams) {
             let param = instrument.c2sParsedParams[key];
             let value = param.value;
-            if ( (value !== null) && (value !== undefined) ) {
+            if (param.isVar === true) {
+                // 是变量 忽略类型
+            } else if ( (value !== null) && (value !== undefined) ) {
                 if (param.type == 'int') {
                     value = parseInt(value);
                 } else if (param.type == 'string') {
