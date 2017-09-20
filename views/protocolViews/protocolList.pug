@@ -49,7 +49,7 @@ div
                 - for (var i = 0; i < item.length; ++i)
                     tr
                         td                           
-                            a.route(href='javascript:void(0)', onclick='onRouteClicked('+item[i].route+',' + item[i].id + ')') #{item[i].route}
+                            a.route(href='javascript:void(0)', onclick='onRouteClicked(\''+item[i].route+'\',' + item[i].id + ')') #{item[i].route}
                         td= item[i].type
                         td= item[i].note
                         td
