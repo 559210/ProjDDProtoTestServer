@@ -124,10 +124,11 @@ script.
         var select = 'select#param' + getTag(i, j);
 
         var selectedText = $(select).find("option:selected").text();
-        var idx = selectedText.indexOf('#');
-        if (idx > -1) {
-            selectedText = selectedText.slice(0, idx);
-        }
+        //var idx = selectedText.indexOf('#');
+        //if (idx > -1) {
+        //    selectedText = selectedText.slice(0, idx);
+        //}
+        
         socket.emit('SetC2SParamValue', {routeIndex: i, paramName: paramName, value:selectedText, isVar: true});
 
         //- $(paramEdit).hide();
