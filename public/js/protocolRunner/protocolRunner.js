@@ -73,7 +73,9 @@ class protoJobManager {
             socket.on('OpenJob', (data) => {
                 console.log(data);
                 session.loadJobById(data.jobId, (err) => {
-                    console.log(err);
+                    if (err) {
+                        console.log(err);
+                    }
                     checkMsgResult(err, 'OpenJob failed: ' + data.jobName);
                 });
             });

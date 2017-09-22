@@ -6,7 +6,7 @@ let g_runningJobMgr = require('./runningJobManager');
 
 class protoJobSession {
     constructor(userObj) {
-        this.isActive = true;
+        this.active = true;
         this.userObj = userObj;
         this.uid = userObj.uid;
         this.curJob = null;
@@ -17,11 +17,11 @@ class protoJobSession {
     }
 
     setActive(active) {
-        this.isActive = active === false ? false : true;
+        this.active = active === false ? false : true;
     }
 
     isActive() {
-        return this.isActive;
+        return this.active;
     }
 
     getSessionIdInRunningJobMgr() {
@@ -99,7 +99,6 @@ class protoJobSession {
     runJob(callback) {
         console.log('protoJobSession runJob: curJob: %j', this.curJob);
         g_runningJobMgr.runJob(this.uid, this.curJob, (err, runningJobId) => {
-            console.log(this);
             if (!err) {
                 this.runningJobIDs.push(runningJobId);
             }

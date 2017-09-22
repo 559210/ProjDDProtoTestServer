@@ -159,6 +159,7 @@ class runningJobManager{
 
         for (let uid in jobSubscribeMap) {
             let session = this.sessionMap[jobSubscribeMap[uid].uid];
+            
             if (commonJs.isUndefinedOrNull(session) === false && session.isActive() === true) {
                 session.Console(text, runningJobId, jobSubscribeMap[uid].color, timestamp);
             }
