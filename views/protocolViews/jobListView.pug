@@ -416,6 +416,11 @@ script(type="text/javascript").
         return false;
     }
 
+    //- function onRunJobIdClicked() {
+    //-     socket.emit('Run', {jobId:document.getElementById('runIdParam').value});
+    //-     showConsoleWindow();
+    //- }
+
 div
     div.ztree#jobList
     br
@@ -435,3 +440,12 @@ div#rMenu
 div
     a.cancelEdit(href='javascript:void(0)', onclick='onCancelEditTree()', style="display : none") 取消编辑 
     a.toggleEdit(href='javascript:void(0)', onclick='onEditTree()') 编辑目录结构
+div
+
+    //- p --------------
+    //- table
+    //-     tr
+    //-         td 
+    //-             input(id='runIdParam', type='text')
+    //-         td
+    //-             a(href='javascript:void(0)', onclick='onRunJobIdClicked()') 运行JOB

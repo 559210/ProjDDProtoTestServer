@@ -8,19 +8,21 @@ let g_protoMgr = require('./protocolManager');
 let pomeloClass = require('./pomeloClient');
 
 const PROTO_TYPE = require('./protocolType');
+let protoRunnerJobClass = require('./protoRunnerJob');
 
 class runningJob {
-    constructor(jobObj, runningJobManager, consoleLogDepth, evn) {
+    constructor(job, jobList, runningJobManager, consoleLogDepth, evn, socket) {
         // console.log('runningJob constructor: jobObj: %j', jobObj);
-        this.jobObj = jobObj;
-
+        this.jobObj = g_protoMgr._deserializeJob(job.jobJson);
+        this.jobList = jobList;
         this.runningJobManager = runningJobManager;
         this.consoleLogDepth = consoleLogDepth;
         this.runningJobId = null;
+        this.socket = socket;
         this.envirment = evn ? evn : {
             pomelo: null,
             variableManager: new variableManagerClass(),
-            rootRunningJob: this 
+            rootRunningJob: this
         };
         this.outputs = [];
     };
@@ -44,7 +46,10 @@ class runningJob {
         }
         let timestamp = Date.parse(new Date());
         this.outputs.push({text: t, timestamp: timestamp});
-        this.runningJobManager.log(this.runningJobId, t, timestamp);         
+        //this.runningJobManager.log(this.runningJobId, t, timestamp);  
+        
+        let g_runningJobMgr = require('./runningJobManager');
+        g_runningJobMgr.log(this.socket, this.runningJobId, t, timestamp);
     }
 
     clearOutputs() {
@@ -98,17 +103,13 @@ class runningJob {
                                         cb(null);
                                     } else {
                                         // 执行定时job
-                                        g_protoMgr.loadJobById(jobId, (err, job) => {
+                                        let subJobObject = self._getJobStrFromJobList(jobId);
+                                        let runningJobObj = new runningJob(subJobObject, self.jobList, self.runningJobManager, self.consoleLogDepth + 1, self.envirment, self.socket);
+                                        runningJobObj.runAll(0, (err) => {
                                             if (err) {
-                                                return cb(err);
+                                                clearInterval(timerId);
+                                                cb(err);
                                             }
-                                            let runningJobObj = new runningJob(job, self.runningJobManager, self.consoleLogDepth + 1, self.envirment);
-                                            runningJobObj.runAll(0, (err) => {
-                                                if (err) {
-                                                    clearInterval(timerId);
-                                                    cb(err);
-                                                }
-                                            });
                                         });
                                     }
                                 }, milliSecond);
@@ -123,9 +124,7 @@ class runningJob {
                 }); 
             },
             function(err){
-                if (err) {
-                    console.log(err);
-                }
+                console.log(err);
                 callback(err);
             }
         );
@@ -227,6 +226,17 @@ class runningJob {
         };
     };
 
+    _getJobStrFromJobList(jobId) {
+        let subJobObject = {};
+        for (let j = 1; j < this.jobList.length; j++) {
+            if (JSON.parse(this.jobList[j].jobJson).id == jobId) {
+                subJobObject = this.jobList[j];
+                break;
+            }
+        }
+        return subJobObject;
+    };
+
     _runInstrument(ins, callback) {
         switch (ins.type) {
             case PROTO_TYPE.SYSTEM:
@@ -282,24 +292,19 @@ class runningJob {
                 break;
             case PROTO_TYPE.JOB:
                 let jobId = ins.route;
-                g_protoMgr.loadJobById(jobId, (err, job) => {
-                    if (err) {
-                        return callback(err);
+                let subJobObject = this._getJobStrFromJobList(jobId);
+                let runningJobObj = new runningJob(subJobObject, this.jobList, this.runningJobManager, this.consoleLogDepth + 1, this.envirment, this.socket);
+
+                let subJobJson = g_protoMgr._deserializeJob(subJobObject.jobJson);
+                let firstIns = subJobJson.getInstrument(0);
+
+                let msg = ins.getC2SMsg();
+                for (let key in msg) {
+                    if (msg[key]) {
+                        firstIns.setC2SParamValue(key, msg[key]);
                     }
-                    let runningJobObj = new runningJob(job, this.runningJobManager, this.consoleLogDepth + 1, this.envirment);
-
-                    let firstIns = job.getInstrument(0);
-                    let msg = ins.getC2SMsg();
-                    for (let key in msg) {
-                        if (msg[key]) {
-                            firstIns.setC2SParamValue(key, msg[key]);
-                        }
-                    }
-
-
-                    runningJobObj.runAll(0, callback);
-
-                });
+                }
+                runningJobObj.runAll(0, callback);
                 break;
             case PROTO_TYPE.PUSH:
                 this.sendSessionLog("listening to onPush message: " + ins.route);
@@ -330,10 +335,6 @@ class runningJob {
 
     getName() {
         return this.jobObj.name;
-    };
-
-    getRunningJobId() {
-        return this.runningJobId;
     };
 };
 

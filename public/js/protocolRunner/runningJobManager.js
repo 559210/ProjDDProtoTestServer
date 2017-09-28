@@ -3,6 +3,7 @@ let async = require('async');
 
 let commonJs = require('../../../CommonJS/common');
 let runningJobClass = require('./runningJob');
+let g_jobServerMgr = require('./jobServerManager');
 
 
 class runningJobManager{
@@ -44,7 +45,14 @@ class runningJobManager{
 
         runningJobObj.setRunningJobId(runningJobId);
         this.runningJobMap[uid][runningJobId] = runningJobObj;
-        runningJobObj.runAll(0, (err) => {
+        
+        // 老方法（单服处理）
+        // runningJobObj.runAll(0, (err) => {
+        //     return cb(err, runningJobId);
+        // });
+
+        // 新方法（交给job子服处理）
+        g_jobServerMgr.runJob(uid, jobObj, runningJobId, (err) => {
             return cb(err, runningJobId);
         });
     }
@@ -133,22 +141,29 @@ class runningJobManager{
                 sessionObj.Console(historyOutputs[i].text, jobId, jobSubscribeMap[uid].color, historyOutputs[i].timestamp);
             }
         }
+
+        // 通知给job服
+        g_jobServerMgr.subscribeToJobConsole(uid, jobId, color);
     }
 
     unSubscribeToJobConsole(uid, jobId) {
         if (commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[jobId]) || commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[jobId][uid])) {
             return;
         }
-
         delete this.runningJobSubscribeMap[jobId][uid];
+
+        // 通知给job服
+        g_jobServerMgr.unSubscribeToJobConsole(uid, jobId);
     }
 
     setSubscribedConsoleColor(uid, jobId, color) {
         if (commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[jobId]) || commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[jobId][uid])) {
             return;
         }
-
         this.runningJobSubscribeMap[jobId][uid].color = color;
+
+        // 通知给job服
+        g_jobServerMgr.setSubscribedConsoleColor(uid, jobId, color);
     }
 
     log(runningJobId, text, timestamp) {
@@ -159,7 +174,6 @@ class runningJobManager{
 
         for (let uid in jobSubscribeMap) {
             let session = this.sessionMap[jobSubscribeMap[uid].uid];
-            
             if (commonJs.isUndefinedOrNull(session) === false && session.isActive() === true) {
                 session.Console(text, runningJobId, jobSubscribeMap[uid].color, timestamp);
             }
