@@ -238,6 +238,11 @@ class runningJob {
     };
 
     _runInstrument(ins, callback) {
+        // 处理socket已断开的情况
+        if (this.envirment.pomelo && this.envirment.pomelo.socket.readyState == 3) {
+            return callback('pomelo socket is closed!');
+        }
+        
         switch (ins.type) {
             case PROTO_TYPE.SYSTEM:
 

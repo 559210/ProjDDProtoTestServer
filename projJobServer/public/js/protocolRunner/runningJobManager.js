@@ -71,7 +71,7 @@ class runningJobManager{
             }
 
             let historyOutputs = jobObj.getOutputs();
-            console.log('1发送历史日志 条数：%j', historyOutputs.length);
+            //console.log('1发送历史日志 条数：%j', historyOutputs.length);
             for (let i in historyOutputs) {
                 socket.emit('jobLog', {runningJobId:jobId, text:historyOutputs[i].text, timestamp:historyOutputs[i].timestamp});
             }
@@ -79,7 +79,7 @@ class runningJobManager{
         else {
             let jobObj = this.runningJobMap[uid][jobId];
             let historyOutputs = jobObj.getOutputs();
-            console.log('2发送历史日志 条数：%j', historyOutputs.length);
+            //console.log('2发送历史日志 条数：%j', historyOutputs.length);
             for (let i in historyOutputs) {
                 socket.emit('jobLog', {runningJobId:jobId, text:historyOutputs[i].text, timestamp:historyOutputs[i].timestamp});
             }
@@ -90,32 +90,32 @@ class runningJobManager{
         let uid = data.uid;
         let jobId = data.runningJobId;
         if (commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[jobId]) || commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[jobId][uid])) {
-            console.log('不用 取消订阅');
+            //console.log('不用 取消订阅');
             return;
         }
         console.log('取消订阅 成功');
         delete this.runningJobSubscribeMap[jobId][uid];
     }
 
-    setSubscribedConsoleColor(socket, data) {
-        let uid = data.uid;
-        let jobId = data.runningJobId;
-        let color = data.color;
-        if (commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[jobId]) || commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[jobId][uid])) {
-            console.log('不用 设置颜色');
-            return;
-        }
-        console.log('设置颜色 成功');
-        this.runningJobSubscribeMap[jobId][uid].color = color;
-    }
+    // setSubscribedConsoleColor(socket, data) {
+    //     let uid = data.uid;
+    //     let jobId = data.runningJobId;
+    //     let color = data.color;
+    //     if (commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[jobId]) || commonJs.isUndefinedOrNull(this.runningJobSubscribeMap[jobId][uid])) {
+    //         //console.log('不用 设置颜色');
+    //         return;
+    //     }
+    //     console.log('设置颜色 成功');
+    //     this.runningJobSubscribeMap[jobId][uid].color = color;
+    // }
 
     log(socket, runningJobId, text, timestamp) {
         let jobSubscribeMap = this.runningJobSubscribeMap[runningJobId];
         if (commonJs.isUndefinedOrNull(jobSubscribeMap)) {
-            console.log('不用 emit log到主服');
+            //console.log('不用 emit log到主服');
             return;
         }
-        console.log('emit log 成功');
+        //console.log('emit log 成功');
         socket.emit('jobLog', {runningJobId:runningJobId, text:text, timestamp:timestamp});
     }
 };

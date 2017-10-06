@@ -163,7 +163,7 @@ class runningJobManager{
         this.runningJobSubscribeMap[jobId][uid].color = color;
 
         // 通知给job服
-        g_jobServerMgr.setSubscribedConsoleColor(uid, jobId, color);
+        //g_jobServerMgr.setSubscribedConsoleColor(uid, jobId, color);
     }
 
     log(runningJobId, text, timestamp) {

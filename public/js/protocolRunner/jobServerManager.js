@@ -129,9 +129,9 @@ class JobServerManager {
             }
         }
 
-        if (tarSocket) {
-            tarSocket.emit('setSubscribedConsoleColor', {uid:uid, runningJobId:runningJobId, color:color});
-        }
+        // if (tarSocket) {
+        //     tarSocket.emit('setSubscribedConsoleColor', {uid:uid, runningJobId:runningJobId, color:color});
+        // }
     }
 
     unSubscribeToJobConsole(uid, runningJobId) {
