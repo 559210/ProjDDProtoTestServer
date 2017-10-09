@@ -2,6 +2,7 @@ script.
     var g_curEditScriptRouteIndex = -1;
     var temp;
     var temp2;
+    var temp3;
     var selectJobId = 0;
 
     $(document).ready(function() 
@@ -77,9 +78,14 @@ script.
         socket.emit('AddTemplate', {jobName: selectedText});
     }
 
-    function selectTimerJobId(i, j) {
+    function selectTimerJobId(i, j, route) {
         $('div#proto').show();
         temp = 'value'+getTag(i, j);
+        if(route == 'switch')
+            temp3 = j;
+        else if(route == 'timer')
+            temp3 = '';
+
         temp2 = i;
         selectJobId = 1;
     }
@@ -118,6 +124,7 @@ script.
     }
 
     function onSaveVarParam(i, j, paramName) {
+        alert(i, j, paramName);
         var param = 'table#param' + getTag(i, j);
         var paramEdit = 'table#paramEdit' + getTag(i, j);
         var paramVar = 'table#paramVar' + getTag(i, j);
@@ -239,8 +246,8 @@ mixin c2sParamList(c2sParam, type, route)
                             tr
                                 td(id='value' + tag) #{c2sParam[j].value}
                                 td
-                                    - if(c2sParam[j].name == 'jobId'){
-                                        a(href='javascript:void(0)', onclick='selectTimerJobId('+i+','+j+')') 修改JOBID                                      
+                                    - if(c2sParam[j].name.includes('jobId')){
+                                        a(href='javascript:void(0)', onclick='selectTimerJobId('+i+','+j+',\''+route+'\')') 设置JOB                                    
                                     - }
                                     - else{
                                         a(href='javascript:void(0)', onclick='onModify(' + i + ',' + j + ')') 修改
@@ -314,7 +321,7 @@ div
                 // g_event is defined in protocolList
                 g_event.bind('protoList_routeclicked', function(data) {
                     if(selectJobId == 1) {
-                        socket.emit('SetC2SParamValue', {routeIndex: temp2, paramName: 'jobId', value:data.id, isVar: false});   
+                        socket.emit('SetC2SParamValue', {routeIndex: temp2, paramName: 'jobId'+temp3, value:data.id, isVar: false});   
                     } else {
                         socket.emit('AddProto', data);
                     }

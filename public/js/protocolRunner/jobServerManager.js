@@ -62,6 +62,19 @@ class JobServerManager {
                             idList[timerJob.id] = g_protoMgr.getBriefProtocolById(timerJob.id);
                             self._getInsList(timerJob, jobList, idList, callback);
                         });
+                    } else if (ins.type == PROTO_TYPE.SYSTEM && ins.route == 'switch') {
+                        let c2sMsg = ins.getC2SMsg();
+                        let switchJobId = c2sMsg['jobId' + c2sMsg.runIndex];
+                        g_protoMgr.getCacheJobById(switchJobId, (err, cacheJob) => {
+                            if (err) {
+                                return callback(err);
+                            }
+                            let switchJobStr = cacheJob.jobJson;
+                            let switchJob = JSON.parse(switchJobStr);
+                            idList[switchJob.id] = g_protoMgr.getBriefProtocolById(switchJob.id);
+                            self._getInsList(switchJob, jobList, idList, callback);
+                        });
+                        
                     } else {
                         callback(null);
                     }

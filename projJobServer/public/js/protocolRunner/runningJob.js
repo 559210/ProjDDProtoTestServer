@@ -152,9 +152,11 @@ class runningJob {
             }
 
             this.envirment.pomelo.on('io-error', () => {
+                this.envirment.pomelo.disconnect();
                 return callback(new Error('io-error'));
             });
             this.envirment.pomelo.on('close', () => {
+                this.envirment.pomelo.disconnect();
                 return callback(new Error('network closed'));
             });
             return callback(null);
@@ -279,6 +281,23 @@ class runningJob {
                             jobId:msg.jobId
                         });
                         break;
+                    case 'switch':
+                        let msg1 = ins.getC2SMsg();
+                        let switchJobId = msg1['jobId' + msg1.runIndex];
+
+                        let subJobObject = this._getJobStrFromJobList(switchJobId);
+                        let runningJobObj = new runningJob(subJobObject, this.jobList, this.runningJobManager, this.consoleLogDepth + 1, this.envirment, this.socket);
+        
+                        let subJobJson = g_protoMgr._deserializeJob(subJobObject.jobJson);
+                        //let firstIns = subJobJson.getInstrument(0);
+        
+                        // for (let key in msg) {
+                        //     if (msg[key]) {
+                        //         firstIns.setC2SParamValue(key, msg[key]);
+                        //     }
+                        // }
+                        runningJobObj.runAll(0, callback);
+                        break;  
                 }
                 break;
             case PROTO_TYPE.REQUEST:

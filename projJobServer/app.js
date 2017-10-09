@@ -39,14 +39,6 @@ socket.on('connect', () => {
         });
     });
 
-    // 设置颜色
-    socket.on('setSubscribedConsoleColor', function(data) {
-        console.log('setSubscribedConsoleColor ----- data = %j', data);
-        g_runningJobMgr.setSubscribedConsoleColor(socket, data, function(err) {
-            console.log('setSubscribedConsoleColor result = %j', err);
-        });
-    });
-
     // 取消订阅
     socket.on('unSubscribeToJobConsole', function(data) {
         console.log('unSubscribeToJobConsole ----- data = %j', data);
@@ -54,6 +46,14 @@ socket.on('connect', () => {
             console.log('unSubscribeToJobConsole result = %j', err);
         });
     });
+
+    // 设置颜色
+    // socket.on('setSubscribedConsoleColor', function(data) {
+    //     console.log('setSubscribedConsoleColor ----- data = %j', data);
+    //     g_runningJobMgr.setSubscribedConsoleColor(socket, data, function(err) {
+    //         console.log('setSubscribedConsoleColor result = %j', err);
+    //     });
+    // });
 
     // 断开连接
     socket.on('disconnect', function(data) {

@@ -36,3 +36,7 @@ UPDATE `ddprojservtest`.`instrumentprototypes` SET `c2s`='{\"milliSecond\":{\"ty
 /* modify 2017-09-08  16:00:00*/
 UPDATE `ddprojservtest`.`instrumentprototypes` SET `c2s`='{\"milliSecond\":{\"type\":\"int\",\"length\":4,\"desc\":\"间隔的毫秒数\"},\"count\":{\"type\":\"int\",\"length\":4,\"desc\":\"累计执行次数(默认无限)\"},\"jobId\":{\"type\":\"int\",\"length\":4,\"desc\":\"运行的JOB编号\"}}' WHERE (`name`='timer');
 
+/* modify 2017-10-09  16:00:00*/
+INSERT INTO `ddprojservtest`.`instrumentprototypes` (`name`, `c2s`, `s2c`, `type`, `note`, `tag`) VALUES ('switch', '{\"runIndex\":{\"type\":\"int\",\"length\":4,\"desc\":\"执行指定序数的JOB\"},\"jobId1\":{\"type\":\"int\",\"length\":4,\"desc\":\"第1个序数的JOB\"},\"jobId2\":{\"type\":\"int\",\"length\":4,\"desc\":\"第2个序数的JOB\"},\"jobId3\":{\"type\":\"int\",\"length\":4,\"desc\":\"第3个序数的JOB\"},\"jobId4\":{\"type\":\"int\",\"length\":4,\"desc\":\"第4个序数的JOB\"},\"jobId5\":{\"type\":\"int\",\"length\":4,\"desc\":\"第5个序数的JOB\"},\"jobId6\":{\"type\":\"int\",\"length\":4,\"desc\":\"第6个序数的JOB\"},\"jobId7\":{\"type\":\"int\",\"length\":4,\"desc\":\"第7个序数的JOB\"},\"jobId8\":{\"type\":\"int\",\"length\":4,\"desc\":\"第8个序数的JOB\"},\"jobId9\":{\"type\":\"int\",\"length\":4,\"desc\":\"第9个序数的JOB\"},\"jobId10\":{\"type\":\"int\",\"length\":4,\"desc\":\"第10个序数的JOB\"}}', '{}', '4', '执行某个序数的JOB', '基础系统');
+
+
