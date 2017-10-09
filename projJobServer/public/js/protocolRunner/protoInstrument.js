@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 let vm = require('vm');
 
 let commonJs = require('../../../CommonJS/common');
@@ -121,7 +121,7 @@ class protoInstrument {
                 name: key,
                 type: param.type,
                 desc: param.desc,
-            }
+            };
         }
 
         return params;
@@ -164,7 +164,8 @@ class protoInstrument {
         let varPrefix = this.route + '#';
         for (let key in data) {
 			if (key == 'errorCode' && data[key] !== 0) {
-                return callback(new Error('protocal run error ! route = ' + this.route));
+                let errorMsg = 'protocal run error ! route = ' + this.route + ', error = ' + data[key];
+                    return callback(new Error('protocal run error ! errorMsg = ' +  errorMsg));
             }
             if (!this.runner.envirment.variableManager.createVariable(varPrefix + key, data[key])) {
                 return callback(new Error('duplicated varialbe name: ' + varPrefix + key));

@@ -35,6 +35,8 @@ var parseCookie = express.cookieParser("keyboard cat")
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+let g_jobServerMgr = require('./public/js/protocolRunner/jobServerManager');
+
 io.use(function(socket, next) {
     //parseCookie会解析socket.request.headers.cookie并赋值给执行socket.request.cookies
     parseCookie(socket.request, null, function(err) {
@@ -109,6 +111,13 @@ g_protoRunner.start(io);
 // SS.Start(io);
 // SGM.Start(io);
 // Loading.Start(io);
+
+/**
+ * 针对服务器的socket.io
+ */
+
+let jobServerIo = require('socket.io')(2777);
+g_jobServerMgr.start(jobServerIo);
 
 // routes
 routes(app, io);
