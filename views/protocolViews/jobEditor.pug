@@ -201,7 +201,7 @@ script.
     }
 
     function onRunClicked() {
-        socket.emit('Run');
+        socket.emit('Run', {userId:document.getElementById('userIdParam').value});
         showConsoleWindow();
        
     }
@@ -247,7 +247,7 @@ mixin c2sParamList(c2sParam, type, route)
                                 td(id='value' + tag) #{c2sParam[j].value}
                                 td
                                     - if(c2sParam[j].name.includes('jobId')){
-                                        a(href='javascript:void(0)', onclick='selectTimerJobId('+i+','+j+',\''+route+'\')') 设置JOB                                    
+                                        a(href='javascript:void(0)', onclick='selectTimerJobId('+i+','+j+',\''+route+'\')') 设置任务                                    
                                     - }
                                     - else{
                                         a(href='javascript:void(0)', onclick='onModify(' + i + ',' + j + ')') 修改
@@ -405,6 +405,19 @@ div
 
     br
     br
-    a(href='javascript:void(0)', onclick='onRunClicked()') 运行
-    br
-    a(href='javascript:void(0)', onclick='showConsoleWindow()') 控制台
+    //- a(href='javascript:void(0)', onclick='onRunClicked()') 运行
+
+    table
+    tr
+        td
+            a(href='javascript:void(0)', onclick='onRunClicked()') 运行
+        td  
+            a(href='javascript:void(0)', onclick='showConsoleWindow()') 控制台
+        td  --------------------登录userId
+        td  
+            input(id='userIdParam', type='text')
+        td  (不填的话 则是随意一个已知有角色的账号登录)
+
+
+    //- br
+    //- a(href='javascript:void(0)', onclick='showConsoleWindow()') 控制台
