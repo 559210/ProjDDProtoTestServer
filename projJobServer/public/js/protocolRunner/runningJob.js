@@ -11,7 +11,7 @@ const PROTO_TYPE = require('./protocolType');
 let protoRunnerJobClass = require('./protoRunnerJob');
 
 class runningJob {
-    constructor(job, jobList, runningJobManager, consoleLogDepth, evn, socket) {
+    constructor(job, jobList, runningJobManager, consoleLogDepth, evn, socket, gameUserId) {
         // console.log('runningJob constructor: jobObj: %j', jobObj);
         this.jobObj = g_protoMgr._deserializeJob(job.jobJson);
         this.jobList = jobList;
@@ -19,6 +19,7 @@ class runningJob {
         this.consoleLogDepth = consoleLogDepth;
         this.runningJobId = null;
         this.socket = socket;
+        this.gameUserId = gameUserId;
         this.envirment = evn ? evn : {
             pomelo: null,
             variableManager: new variableManagerClass(),
@@ -104,7 +105,7 @@ class runningJob {
                                     } else {
                                         // 执行定时job
                                         let subJobObject = self._getJobStrFromJobList(jobId);
-                                        let runningJobObj = new runningJob(subJobObject, self.jobList, self.runningJobManager, self.consoleLogDepth + 1, self.envirment, self.socket);
+                                        let runningJobObj = new runningJob(subJobObject, self.jobList, self.runningJobManager, self.consoleLogDepth + 1, self.envirment, self.socket, self.gameUserId);
                                         runningJobObj.runAll(0, (err) => {
                                             if (err) {
                                                 clearInterval(timerId);
@@ -305,7 +306,11 @@ class runningJob {
                 this.sendSessionLog("send: " + ins.route);
                 this.sendSessionLog("timestampe: " + new Date().getTime());
                 this.sendSessionLog("with params: " + JSON.stringify(ins.getC2SMsg()));
-                this.envirment.pomelo.request(ins.route, ins.getC2SMsg(), (data) => {
+                let msgParam = ins.getC2SMsg();
+                if (ins.route == 'connector.connectorHandler.loginRequest') {
+                    msgParam.userId = this.gameUserId;
+                }
+                this.envirment.pomelo.request(ins.route, msgParam, (data) => {
                     // TODO: 这里要移到真正整个任务做完的地方
                     // this.envirment.pomelo.removeAllListeners('io-error');
                     // this.envirment.pomelo.removeAllListeners('close');

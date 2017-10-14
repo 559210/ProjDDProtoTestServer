@@ -37,6 +37,16 @@ var io = require('socket.io')(http);
 
 let g_jobServerMgr = require('./public/js/protocolRunner/jobServerManager');
 
+let g_userMgr = require('./public/js/protocolRunner/userManager');
+g_userMgr.loadUserIdList(function(err) {
+    if (err) {
+        console.log('载入玩家userId信息失败 err = %j', err);
+        return;
+    } else {
+        console.log('载入玩家userId信息成功');
+    }
+});
+
 io.use(function(socket, next) {
     //parseCookie会解析socket.request.headers.cookie并赋值给执行socket.request.cookies
     parseCookie(socket.request, null, function(err) {

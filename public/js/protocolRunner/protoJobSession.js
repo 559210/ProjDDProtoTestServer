@@ -3,6 +3,7 @@
 let g_protoMgr = require('./protocolManager');
 let commonJs = require('../../../CommonJS/common');
 let g_runningJobMgr = require('./runningJobManager');
+let g_userMgr = require('./userManager');
 
 class protoJobSession {
     constructor(userObj) {
@@ -96,9 +97,14 @@ class protoJobSession {
         callback(null);
     }
 
-    runJob(callback) {
+    runJob(gameUserId, callback) {
         console.log('protoJobSession runJob: curJob: %j', this.curJob);
-        g_runningJobMgr.runJob(this.uid, this.curJob, (err, runningJobId) => {
+
+        if (gameUserId === null || gameUserId === undefined || gameUserId === '') {
+            // 随机一个已知角色的账号
+            gameUserId = g_userMgr.getRandomUserId();
+        }
+        g_runningJobMgr.runJob(this.uid, this.curJob, gameUserId, (err, runningJobId) => {
             if (!err) {
                 this.runningJobIDs.push(runningJobId);
             }

@@ -30,7 +30,7 @@ class runningJobManager{
     //     // }
     // }
 
-    runJob(uid, jobObj, cb) {
+    runJob(uid, jobObj, gameUserId, cb) {
         let session = this.sessionMap[uid];
         if (commonJs.isUndefinedOrNull(session)) {
             return -1;
@@ -52,7 +52,7 @@ class runningJobManager{
         // });
 
         // 新方法（交给job子服处理）
-        g_jobServerMgr.runJob(uid, jobObj, runningJobId, (err) => {
+        g_jobServerMgr.runJob(uid, jobObj, runningJobId, gameUserId, (err) => {
             return cb(err, runningJobId);
         });
     }

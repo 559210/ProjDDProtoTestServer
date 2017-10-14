@@ -86,7 +86,7 @@ class JobServerManager {
     };
 
     // 运行job
-    runJob(uid, jobObject, runningJobId, cb) {
+    runJob(uid, jobObject, runningJobId, gameUserId, cb) {
         let self = this;
         if (this.socketList.length === 0) {
             return cb(new Error('没有可用的job服!'));
@@ -102,7 +102,7 @@ class JobServerManager {
             self.runIndex = ++self.runIndex % self.socketList.length;
             let runSocket = self.socketList[self.runIndex].socket;
             this.socketList[self.runIndex].runningJobIdList.push(runningJobId);
-            runSocket.emit('runJob', {uid:uid, jobList:jobList, idList:idList, runningJobId:runningJobId});
+            runSocket.emit('runJob', {uid:uid, jobList:jobList, idList:idList, runningJobId:runningJobId, gameUserId:gameUserId});
             return cb(null);
         });
     }

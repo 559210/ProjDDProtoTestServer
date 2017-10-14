@@ -1,6 +1,7 @@
 'use restrict';
 
 var pool = require('./mySQLPool');
+var userPool = require('./mySQLUserPool');
 var async = require('async');
 
 var exp = module.exports;
@@ -111,6 +112,14 @@ exp.loadAllInstrumentsPrototype = function(callback) {
 
 exp.updateInstumentPrototype = function(id, name, c2s, s2c, note, tag, callback) {
     pool.query("update `InstrumentPrototypes` set `name` = ?, `c2s` = ?, `s2c` = ?, `note` = ?, `tag` = ? where instId = ?", [name, c2s, s2c, note, tag ? tag : null, id], callback);
+}
+
+///////////////////////////// get userId list
+exp.loadUserIdList = function(callback) {
+    userPool.query("SELECT `userId`, `nickname` FROM `t_roleInfo`", (err, results, fields) => {
+        //console.log('----------- results = %j', results);
+        callback(err, results);
+    });
 }
 
 

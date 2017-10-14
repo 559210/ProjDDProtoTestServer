@@ -35,6 +35,7 @@ class runningJobManager{
         let jobList = data.jobList;
         let idList = data.idList;
         let runningJobId = data.runningJobId;
+        let gameUserId = data.gameUserId;
 
         g_protoMgr.setBriefListObject(idList);
 
@@ -42,7 +43,7 @@ class runningJobManager{
             this.runningJobMap[uid] = {};
         }
 
-        let runningJobObj = new runningJobClass(jobList[0], jobList, this, 0, null, socket);
+        let runningJobObj = new runningJobClass(jobList[0], jobList, this, 0, null, socket, gameUserId);
         runningJobObj.setRunningJobId(runningJobId);
         this.runningJobMap[uid][runningJobId] = runningJobObj;
         runningJobObj.runAll(0, (err) => {

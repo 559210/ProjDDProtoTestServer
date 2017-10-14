@@ -269,8 +269,8 @@ class protoJobManager {
                 });
             });
 
-            socket.on('Run', () => {
-                session.runJob((err) => {
+            socket.on('Run', (data) => {
+                session.runJob(data.userId, (err) => {
                     socket.emit('ErrorMsg', {
                         msg: err ? err.toString() : "成功"
                     });
