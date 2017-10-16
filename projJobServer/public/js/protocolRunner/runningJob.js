@@ -287,7 +287,7 @@ class runningJob {
                         let switchJobId = msg1['jobId' + msg1.runIndex];
 
                         let subJobObject = this._getJobStrFromJobList(switchJobId);
-                        let runningJobObj = new runningJob(subJobObject, this.jobList, this.runningJobManager, this.consoleLogDepth + 1, this.envirment, this.socket);
+                        let runningJobObj = new runningJob(subJobObject, this.jobList, this.runningJobManager, this.consoleLogDepth + 1, this.envirment, this.socket, this.gameUserId);
         
                         let subJobJson = g_protoMgr._deserializeJob(subJobObject.jobJson);
                         //let firstIns = subJobJson.getInstrument(0);
@@ -322,7 +322,7 @@ class runningJob {
             case PROTO_TYPE.JOB:
                 let jobId = ins.route;
                 let subJobObject = this._getJobStrFromJobList(jobId);
-                let runningJobObj = new runningJob(subJobObject, this.jobList, this.runningJobManager, this.consoleLogDepth + 1, this.envirment, this.socket);
+                let runningJobObj = new runningJob(subJobObject, this.jobList, this.runningJobManager, this.consoleLogDepth + 1, this.envirment, this.socket, this.gameUserId);
 
                 let subJobJson = g_protoMgr._deserializeJob(subJobObject.jobJson);
                 let firstIns = subJobJson.getInstrument(0);
