@@ -23,11 +23,22 @@ class UserManager {
         });
     }
 
-    getRandomUserId() {
+    getRandomUserId(count) {
         let listLength = this.userIdList.length;
-        let randomCode = Math.floor(Math.random() * listLength);
-        let userId = this.userIdList[randomCode].userId;
-        return userId;
+        let userIdObj = {};
+        while(Object.keys(userIdObj).length < count) {
+            let randomCode = Math.floor(Math.random() * listLength);
+            let userId = this.userIdList[randomCode].userId;
+            if (!userIdObj[userId]) {
+                userIdObj[userId] = 1;
+            }
+        }
+
+        let userIdList = [];
+        for (let id in userIdObj) {
+            userIdList.push(id);
+        }
+        return userIdList;
     }
 }
 

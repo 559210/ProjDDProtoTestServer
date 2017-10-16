@@ -201,7 +201,10 @@ script.
     }
 
     function onRunClicked() {
-        socket.emit('Run', {userId:document.getElementById('userIdParam').value});
+        socket.emit('Run', {
+            userId:document.getElementById('userIdParam').value, 
+            userIdCount:document.getElementById('userIdCount').value, 
+        });
         showConsoleWindow();
        
     }
@@ -416,7 +419,11 @@ div
         td  --------------------登录userId
         td  
             input(id='userIdParam', type='text')
-        td  (不填的话 则是随意一个已知有角色的账号登录)
+        td  (不填的话 则是随意一个已有角色的账号)
+        td
+        td 
+            input(id='userIdCount', type='text')
+        td  (随机N个数量的已有角色的账号)
 
 
     //- br

@@ -30,7 +30,18 @@ class runningJobManager{
     //     // }
     // }
 
-    runJob(uid, jobObj, gameUserId, cb) {
+    createRunningJob(jobObj, uid) {
+        let runningJobObj = new runningJobClass(jobObj, this, 0, null);
+        let runningJobId = this.maxRunningJobId;
+        this.maxRunningJobId++;
+
+        runningJobObj.setRunningJobId(runningJobId);
+        this.runningJobMap[uid][runningJobId] = runningJobObj;
+
+        return runningJobId;
+    }
+
+    runJob(uid, jobObj, gameUserIdList, cb) {
         let session = this.sessionMap[uid];
         if (commonJs.isUndefinedOrNull(session)) {
             return -1;
@@ -39,12 +50,12 @@ class runningJobManager{
             this.runningJobMap[uid] = {};
         }
 
-        let runningJobObj = new runningJobClass(jobObj, this, 0, null);
-        let runningJobId = this.maxRunningJobId;
-        this.maxRunningJobId++;
+        // let runningJobObj = new runningJobClass(jobObj, this, 0, null);
+        // let runningJobId = this.maxRunningJobId;
+        // this.maxRunningJobId++;
 
-        runningJobObj.setRunningJobId(runningJobId);
-        this.runningJobMap[uid][runningJobId] = runningJobObj;
+        // runningJobObj.setRunningJobId(runningJobId);
+        // this.runningJobMap[uid][runningJobId] = runningJobObj;
         
         // 老方法（单服处理）
         // runningJobObj.runAll(0, (err) => {
@@ -52,8 +63,12 @@ class runningJobManager{
         // });
 
         // 新方法（交给job子服处理）
-        g_jobServerMgr.runJob(uid, jobObj, runningJobId, gameUserId, (err) => {
-            return cb(err, runningJobId);
+        // g_jobServerMgr.runJob(uid, jobObj, runningJobId, gameUserId, (err) => {
+        //     return cb(err, runningJobId);
+        // });
+
+        g_jobServerMgr.runJob(uid, jobObj, gameUserIdList, (err, curRunningJobIdList) => {
+            return cb(err, curRunningJobIdList);
         });
     }
 

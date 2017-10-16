@@ -270,7 +270,7 @@ class protoJobManager {
             });
 
             socket.on('Run', (data) => {
-                session.runJob(data.userId, (err) => {
+                session.runJob(data, (err) => {
                     socket.emit('ErrorMsg', {
                         msg: err ? err.toString() : "成功"
                     });

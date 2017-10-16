@@ -46,9 +46,12 @@ class runningJobManager{
         let runningJobObj = new runningJobClass(jobList[0], jobList, this, 0, null, socket, gameUserId);
         runningJobObj.setRunningJobId(runningJobId);
         this.runningJobMap[uid][runningJobId] = runningJobObj;
-        runningJobObj.runAll(0, (err) => {
-            return cb(err);
-        });
+
+        setTimeout(function(){
+            runningJobObj.runAll(0, (err) => {
+                return cb(err);
+            });
+        }, 200);
     }
 
     // 参数color可以省略，用于控制前端显示的颜色用的，省略的话用默认颜色

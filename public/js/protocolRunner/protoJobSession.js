@@ -97,16 +97,35 @@ class protoJobSession {
         callback(null);
     }
 
-    runJob(gameUserId, callback) {
-        console.log('protoJobSession runJob: curJob: %j', this.curJob);
+    _getGameUserIdList(data) {
+        let gameUserId = data.gameUserId;
+        let userIdCount= data.userIdCount;
 
+        let gameUserIdList = [];
+        let newUserId = [];
         if (gameUserId === null || gameUserId === undefined || gameUserId === '') {
-            // 随机一个已知角色的账号
-            gameUserId = g_userMgr.getRandomUserId();
+            if (userIdCount === null || userIdCount === undefined || userIdCount === '') {
+                // 随机一个已知角色的账号
+                newUserId = g_userMgr.getRandomUserId(1);
+            } else {
+                newUserId = g_userMgr.getRandomUserId(userIdCount);
+            }
+        } else {
+            newUserId.push(gameUserId);
         }
-        g_runningJobMgr.runJob(this.uid, this.curJob, gameUserId, (err, runningJobId) => {
+        gameUserIdList.push.apply(gameUserIdList, newUserId);
+        return gameUserIdList;
+        
+
+        //return ['z123', 'ccss005'];
+    }
+
+    runJob(data, callback) {
+        console.log('protoJobSession runJob: curJob: %j', this.curJob);
+        let gameUserIdList = this._getGameUserIdList(data);
+        g_runningJobMgr.runJob(this.uid, this.curJob, gameUserIdList, (err, curRunningJobIdList) => {
             if (!err) {
-                this.runningJobIDs.push(runningJobId);
+                this.runningJobIDs.push.apply(this.runningJobIDs, curRunningJobIdList);
             }
             callback(err);
         });

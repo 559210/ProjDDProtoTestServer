@@ -3,6 +3,7 @@ let g_protoMgr = require('./protocolManager');
 const PROTO_TYPE = require('./protocolType');
 let async = require('async');
 
+
 // TODO: 此类应该定位应该是协议和Job等所有数据的统一出入口
 class JobServerManager {
     constructor() {
@@ -83,10 +84,10 @@ class JobServerManager {
                 });
             }
         });
-    };
+    }
 
     // 运行job
-    runJob(uid, jobObject, runningJobId, gameUserId, cb) {
+    runJob(uid, jobObj, gameUserIdList, cb) {
         let self = this;
         if (this.socketList.length === 0) {
             return cb(new Error('没有可用的job服!'));
@@ -94,16 +95,22 @@ class JobServerManager {
 
         let jobList = [];
         let idList = {};
-        self._getInsList(jobObject, jobList, idList, (err) => {
+        self._getInsList(jobObj, jobList, idList, (err) => {
             if (err) {
                 return cb(new Error('error happend , err = ' + err));
             }
 
-            self.runIndex = ++self.runIndex % self.socketList.length;
-            let runSocket = self.socketList[self.runIndex].socket;
-            this.socketList[self.runIndex].runningJobIdList.push(runningJobId);
-            runSocket.emit('runJob', {uid:uid, jobList:jobList, idList:idList, runningJobId:runningJobId, gameUserId:gameUserId});
-            return cb(null);
+            let curRunningJobIdList = [];
+            for (let i = 0; i < gameUserIdList.length; i++) {
+                let g_runningJobMgr = require('./runningJobManager');
+                let runningJobId = g_runningJobMgr.createRunningJob(jobObj, uid);
+                self.runIndex = ++self.runIndex % self.socketList.length;
+                let runSocket = self.socketList[self.runIndex].socket;
+                curRunningJobIdList.push(runningJobId);
+                runSocket.emit('runJob', {uid:uid, jobList:jobList, idList:idList, runningJobId:runningJobId, gameUserId:gameUserIdList[i]});
+            }
+            this.socketList[self.runIndex].runningJobIdList.push.apply(this.socketList[self.runIndex].runningJobIdList, curRunningJobIdList);
+            return cb(null, curRunningJobIdList);
         });
     }
 
@@ -185,6 +192,6 @@ class JobServerManager {
             });
         });
     }
-};
+}
 
 module.exports = new JobServerManager();

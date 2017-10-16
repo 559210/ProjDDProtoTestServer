@@ -78,10 +78,12 @@ class runningJob {
 
         async.whilst(
             function breaker () {
+                console.log('判断 index = %j, self.jobObj.instruments.length = %j', index, self.jobObj.instruments.length);
                 return index < self.jobObj.instruments.length;
             },
             function iterator (cb) {
                 self.jobObj.instruments[index].runner = self;
+                console.log('执行 index = %j', index);
                 self._runInstrument(self.jobObj.instruments[index], (err, data) => {
                     index++;
                     if (err) {
