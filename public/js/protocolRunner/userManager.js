@@ -40,6 +40,27 @@ class UserManager {
         }
         return userIdList;
     }
+
+    checkUserId(userId) {
+        let find = false;
+        for (let i = 0; i < this.userIdList.length; i++) {
+            if (this.userIdList[i].userId == userId) {
+                find = true;
+                break;
+            }
+        }
+        return find;
+    }
+
+    getUserIndexScope(from, to) {
+        let userIdList = [];
+        for (let i = 0; i < this.userIdList.length; i++) {
+            if (this.userIdList[i].userIndex >= from && this.userIdList[i].userIndex <= to) {
+                userIdList.push(this.userIdList[i].userId);
+            }
+        }
+        return userIdList;
+    }
 }
 
 

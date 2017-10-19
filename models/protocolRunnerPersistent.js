@@ -116,7 +116,7 @@ exp.updateInstumentPrototype = function(id, name, c2s, s2c, note, tag, callback)
 
 ///////////////////////////// get userId list
 exp.loadUserIdList = function(callback) {
-    userPool.query("SELECT `userId`, `nickname` FROM `t_roleInfo`", (err, results, fields) => {
+    userPool.query("SELECT `userIndex`, `userId`, `nickname` FROM `t_roleInfo`", (err, results, fields) => {
         //console.log('----------- results = %j', results);
         callback(err, results);
     });

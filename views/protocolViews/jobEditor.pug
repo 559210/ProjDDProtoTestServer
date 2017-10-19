@@ -90,6 +90,14 @@ script.
         selectJobId = 1;
     }
 
+    function showRunnerWindow() {
+        $('div#runner').show();
+    }
+
+    function closeRunnerWindow() {
+        $('div#runner').hide();
+    }
+
     function onModify(i, j) {
         var param = 'table#param' + getTag(i, j);
         var paramEdit = 'table#paramEdit' + getTag(i, j);
@@ -201,12 +209,7 @@ script.
     }
 
     function onRunClicked() {
-        socket.emit('Run', {
-            userId:document.getElementById('userIdParam').value, 
-            userIdCount:document.getElementById('userIdCount').value, 
-        });
-        showConsoleWindow();
-       
+       showRunnerWindow();
     }
 
     function onUpClicked(index) {
@@ -220,6 +223,68 @@ script.
         if (confirm("调整协议顺序会导致被调整的协议参数丢失，确定吗？"))
         {
             socket.emit('MoveProtoDown', {routeIndex: index});
+        }
+    }
+
+    function start() {
+        var r1_1=document.getElementById("r1_1");
+        var r1_2=document.getElementById("r1_2");
+        var r1_3=document.getElementById("r1_3");
+        var r1_4=document.getElementById("r1_4");
+        var r1_5=document.getElementById("r1_5");
+        var fixedValue=$('#fixed').val();//指定值
+        var randomValue=$('#random').val();//随即值 
+        var userindex1=$('#userindex1').val();//userindex第一个范围值
+        var userindex2=$('#userindex2').val();//userindex第二个范围值
+        var randomCount=$('#randomCount').val();// 随机userId数量
+        var noContinue=$('#noContinue').val();//非连续值
+        var selectType = 0;
+        var selectValue = null;
+        if(r1_1.checked) {
+            selectType = 1;
+            if (!fixedValue || fixedValue === '') {
+            } else {
+                selectValue = {value1:fixedValue};
+            }
+            //alert(fixedValue);
+        }
+        if(r1_2.checked){
+            selectType = 2;
+            selectValue = {value1:-1};
+            //alert(-1);//选择随机就返回0
+        }
+        if(r1_3.checked){
+            selectType = 3;
+            if (!userindex1 || userindex1 === '' || userindex1 <= 0 || !userindex2 || userindex2 === '' || userindex2 <= 0) {
+            } else {
+                selectValue = {value1:userindex1, value2:userindex2};
+            }
+            //alert(userindex1);
+            //alert(userindex2);
+        }
+        if(r1_4.checked){
+            selectType = 4;
+            if (!randomCount || randomCount === '' || randomCount <= 0) {
+            } else {
+                selectValue = {value1:randomCount};
+            }
+            //alert(randomCount);
+        }
+        if(r1_5.checked){
+            selectType = 5;
+            if (!noContinue || noContinue === '') {
+            } else {
+                selectValue = {value1:noContinue};
+            }
+            //alert(noContinue);
+        }
+
+        if (selectType === 0 || selectValue === null) {
+            alert('参数填写错误，请检查！');
+        } else {
+            closeRunnerWindow();
+            socket.emit('Run', {selectType:selectType, selectValue:selectValue});
+            showConsoleWindow();
         }
     }
 
@@ -250,7 +315,7 @@ mixin c2sParamList(c2sParam, type, route)
                                 td(id='value' + tag) #{c2sParam[j].value}
                                 td
                                     - if(c2sParam[j].name.includes('jobId')){
-                                        a(href='javascript:void(0)', onclick='selectTimerJobId('+i+','+j+',\''+route+'\')') 设置任务                                    
+                                        a(href='javascript:void(0)', onclick='selectTimerJobId('+i+','+j+',\''+route+'\')') 设置JOB                                    
                                     - }
                                     - else{
                                         a(href='javascript:void(0)', onclick='onModify(' + i + ',' + j + ')') 修改
@@ -330,6 +395,66 @@ div
                     }
                     closeDivFun();
                 });
+    div.protocolPopupWindowDiv#runner(style="display : none")
+        a(href="javascript:closeRunnerWindow()" style="right : 14; position : absolute;") 关闭窗口
+        div.protocolPopupDiv(onclick="closeRunnerWindow()")
+            span.protocolSpan x
+        div(height=auto,width=auto)    
+            ul
+            div
+                label 单个
+                div
+                label
+                input#r1_1(name='radio', type='radio', value='r1_1' , checked="checked")
+                | &nbsp&nbsp
+                label 指定一个userId:
+                | &nbsp&nbsp&nbsp&nbsp
+                input#fixed(type='text', value='ccss005')
+                br
+                label
+                input#r1_2(name='radio', type='radio', value='r1_2')
+                | &nbsp&nbsp
+                label 随机一个userId:
+                | &nbsp&nbsp&nbsp&nbsp
+                br
+                br
+                br
+                label 多个
+                div
+                label
+                input#r1_3(type='radio', name='radio', value='r1_3')
+                | &nbsp&nbsp
+                label USERINDEX:
+                | &nbsp&nbsp&nbsp&nbsp
+                label 范围
+                | &nbsp&nbsp&nbsp&nbsp                    
+                input#userindex1.fanwei1(type='text')
+                | &nbsp&nbsp&nbsp&nbsp
+                label to
+                | &nbsp&nbsp&nbsp&nbsp
+                input#userindex2.fanwei1(type='text')
+                | &nbsp&nbsp&nbsp&nbsp
+                label (例如:1-100)
+                br
+                input#r1_4(type='radio', name='radio', value='r1_4')
+                | &nbsp&nbsp
+                label 随机userId:
+                | &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                label 数量
+                | &nbsp&nbsp&nbsp&nbsp                    
+                input#randomCount(type='text')
+                | &nbsp&nbsp&nbsp&nbsp
+                label (例如:100)
+                br
+                input#r1_5(type='radio', name='radio', value='r1_5')
+                | &nbsp&nbsp
+                label 多个userID:
+                | &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                input#noContinue(type='text' ,style="width: 500px")
+                | &nbsp&nbsp&nbsp&nbsp
+                label (例如:ccss005;ccss006;mumu)           
+                br
+                input(type='button', onclick='start()', value='运行' ,style="margin-top: 15px;")
 
     div.protocolPopupWindowDiv#script(style="display : none")
         a.scriptEdit(href="javascript:void(0)", style='float:left', onclick='onEditScriptClicked()') 编辑
@@ -408,23 +533,6 @@ div
 
     br
     br
-    //- a(href='javascript:void(0)', onclick='onRunClicked()') 运行
-
-    table
-    tr
-        td
-            a(href='javascript:void(0)', onclick='onRunClicked()') 运行
-        td  
-            a(href='javascript:void(0)', onclick='showConsoleWindow()') 控制台
-        td  --------------------登录userId
-        td  
-            input(id='userIdParam', type='text')
-        td  (不填的话 则是随意一个已有角色的账号)
-        td
-        td 
-            input(id='userIdCount', type='text')
-        td  (随机N个数量的已有角色的账号)
-
-
-    //- br
-    //- a(href='javascript:void(0)', onclick='showConsoleWindow()') 控制台
+    a(href='javascript:void(0)', onclick='onRunClicked()') 启动
+    br
+    a(href='javascript:void(0)', onclick='showConsoleWindow()') 控制台

@@ -27,9 +27,9 @@ class variableManager {
             return this.setVariableValue(varName, value);
         }
 
-        if (type == null || type == undefined) {
-            type = 'string';
-        }
+        // if (type == null || type == undefined) {
+        //     type = 'string';
+        // }
         this.variables[varName] = new variable(varName, value, type);
 
         return true;
@@ -55,7 +55,6 @@ class variableManager {
         if (!this.isVariableExists(varName)) {
             return null;
         }
-
         return this.variables[varName].value;
     }
 
