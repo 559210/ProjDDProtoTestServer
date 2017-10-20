@@ -142,7 +142,7 @@ class protoJobSession {
         console.log('protoJobSession runJob: curJob: %j', this.curJob);
         let gameUserIdList = this._getGameUserIdList(data);
         if (gameUserIdList.length === 0) {
-            return callback('没有可用的userId~');
+            return callback('没有可用的userId');
         }
         g_runningJobMgr.runJob(this.uid, this.curJob, gameUserIdList, (err, curRunningJobIdList) => {
             if (!err) {

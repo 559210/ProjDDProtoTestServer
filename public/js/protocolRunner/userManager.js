@@ -18,7 +18,10 @@ class UserManager {
 
     loadUserIdList(cb) {
         g_protocolRunnerPersistent.loadUserIdList((err, datas) => {
-            this.userIdList = datas;
+            for (let i = 0; i < datas.length; i++) {
+                datas[i].isUsed = false;
+                this.userIdList.push(datas[i]);
+            }
             return cb(err);
         });
     }
@@ -29,7 +32,8 @@ class UserManager {
         while(Object.keys(userIdObj).length < count) {
             let randomCode = Math.floor(Math.random() * listLength);
             let userId = this.userIdList[randomCode].userId;
-            if (!userIdObj[userId]) {
+            if (!userIdObj[userId] && !this.userIdList[randomCode].isUsed) {
+                this.userIdList[randomCode].isUsed = true;
                 userIdObj[userId] = 1;
             }
         }
@@ -45,6 +49,7 @@ class UserManager {
         let find = false;
         for (let i = 0; i < this.userIdList.length; i++) {
             if (this.userIdList[i].userId == userId) {
+                this.userIdList[i].isUsed = true;
                 find = true;
                 break;
             }
@@ -56,6 +61,7 @@ class UserManager {
         let userIdList = [];
         for (let i = 0; i < this.userIdList.length; i++) {
             if (this.userIdList[i].userIndex >= from && this.userIdList[i].userIndex <= to) {
+                this.userIdList[i].isUsed = true;
                 userIdList.push(this.userIdList[i].userId);
             }
         }
