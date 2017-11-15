@@ -32,58 +32,71 @@ class JobServerManager {
     }
 
     // 遍历所有涉及的job和ins
-    _getInsList(jobObject, jobList, idList, cb) {
+    _getInsList(jobObject, jobList, idList) {
         let self = this;
         
         let jobId = jobObject.route;
         if (jobObject.route === null || jobObject.route === undefined) {
             jobId = jobObject.id;
         }
+        let resultData = g_protoMgr.getCacheJobById(jobId);
+        if (resultData.err) {
+            return resultData.err;
+        }
+        let jobStr = resultData.data;
+        jobList.push(jobStr);
+        let jobJson = jobStr.jobJson;
+        let jobObj = g_protoMgr._deserializeJob(jobJson);
+        for (let m = 0; m < jobObj.instruments.length; m++) {
+            let ins = jobObj.instruments[m];
 
-        g_protoMgr.getCacheJobById(jobId, function(err, jobStr) {
-            if (err) {
-                cb(new Error(err));
-            } else {
-                jobList.push(jobStr);
-                let jobJson = jobStr.jobJson;
-                let jobObj = g_protoMgr._deserializeJob(jobJson);
-
-                async.eachSeries(jobObj.instruments, function (ins, callback) {
-                    idList[ins.id] = g_protoMgr.getBriefProtocolById(ins.id);
-                    if (ins.type == PROTO_TYPE.JOB) {
-                        self._getInsList(ins, jobList, idList, callback);
-                    } else if (ins.type == PROTO_TYPE.SYSTEM && ins.route == 'timer') {
-                        let timerJobId = ins.getC2SMsg().jobId;
-                        g_protoMgr.getCacheJobById(timerJobId, (err, cacheJob) => {
-                            if (err) {
-                                return callback(err);
-                            }
-                            let timerJobStr = cacheJob.jobJson;
-                            let timerJob = JSON.parse(timerJobStr);
-                            idList[timerJob.id] = g_protoMgr.getBriefProtocolById(timerJob.id);
-                            self._getInsList(timerJob, jobList, idList, callback);
-                        });
-                    } else if (ins.type == PROTO_TYPE.SYSTEM && ins.route == 'switch') {
-                        let c2sMsg = ins.getC2SMsg();
-                        let switchJobId = c2sMsg['jobId' + c2sMsg.runIndex];
-                        g_protoMgr.getCacheJobById(switchJobId, (err, cacheJob) => {
-                            if (err) {
-                                return callback(err);
-                            }
-                            let switchJobStr = cacheJob.jobJson;
-                            let switchJob = JSON.parse(switchJobStr);
-                            idList[switchJob.id] = g_protoMgr.getBriefProtocolById(switchJob.id);
-                            self._getInsList(switchJob, jobList, idList, callback);
-                        });
-                        
-                    } else {
-                        callback(null);
+            idList[ins.id] = g_protoMgr.getBriefProtocolById(ins.id);
+            if (ins.type == PROTO_TYPE.JOB) {
+                let err = self._getInsList(ins, jobList, idList);
+                if (err) {
+                    return err;
+                }
+            } else if (ins.type == PROTO_TYPE.SYSTEM && ins.route == 'timer') {
+                let timerJobId = ins.getC2SMsg().jobId;
+                let resultData = g_protoMgr.getCacheJobById(timerJobId);
+                if (resultData.err) {
+                    return resultData.err;
+                }
+                let cacheJob = resultData.data;
+                let timerJobStr = cacheJob.jobJson;
+                let timerJob = JSON.parse(timerJobStr);
+                idList[timerJob.id] = g_protoMgr.getBriefProtocolById(timerJob.id);
+                let err = self._getInsList(timerJob, jobList, idList);
+                if (err) {
+                    return err;
+                }
+            } else if (ins.type == PROTO_TYPE.SYSTEM && ins.route == 'switch') {
+                let c2sMsg = ins.getC2SMsg();
+                for (let s = 1; s <= 20; s++) {
+                    let switchJobId = c2sMsg['jobId' + s];
+                    if (switchJobId > 0) {
+                        let resultData = g_protoMgr.getCacheJobById(switchJobId);
+                        if (resultData.err) {
+                            return resultData.err;
+                        }
+                        let cacheJob = resultData.data;
+                        let switchJobStr = cacheJob.jobJson;
+                        let switchJob = JSON.parse(switchJobStr);
+                        idList[switchJob.id] = g_protoMgr.getBriefProtocolById(switchJob.id);
+                        let err = self._getInsList(switchJob, jobList, idList);
+                        if (err) {
+                            return err;
+                        }
                     }
-                }, function (err) {
-                    return cb(err, jobList, idList);
-                });
+                } 
+            } else if (ins.type == PROTO_TYPE.SYSTEM && (ins.route == 'createIntVariable' || ins.route == 'createStringVariable')) {
+                let c2sMsg = ins.getC2SMsg();
+                if (c2sMsg.name === undefined || c2sMsg.name === null || c2sMsg.name === '') {
+                    return new Error('变量指令中的变量名不能为空。');
+                }
             }
-        });
+        }
+        return null;
     }
 
     // 运行job
@@ -95,23 +108,31 @@ class JobServerManager {
 
         let jobList = [];
         let idList = {};
-        self._getInsList(jobObj, jobList, idList, (err) => {
-            if (err) {
-                return cb(new Error('error happend , err = ' + err));
+        let err = self._getInsList(jobObj, jobList, idList);
+        if (err) {
+            return cb(err);
+        }
+        let curRunningJobIdList = [];
+        let result = {};
+        for (let i = 0; i < gameUserIdList.length; i++) {
+            let g_runningJobMgr = require('./runningJobManager');
+            let runningJobId = g_runningJobMgr.createRunningJob(jobObj, uid);
+            self.runIndex = ++self.runIndex % self.socketList.length;
+            if (!result[self.runIndex]) {
+                result[self.runIndex] = {userList:[], runningJobId:0};
             }
+            result[self.runIndex].userList.push(gameUserIdList[i]);
+            result[self.runIndex].runningJobId = runningJobId;
+            curRunningJobIdList.push(runningJobId);
+        }
 
-            let curRunningJobIdList = [];
-            for (let i = 0; i < gameUserIdList.length; i++) {
-                let g_runningJobMgr = require('./runningJobManager');
-                let runningJobId = g_runningJobMgr.createRunningJob(jobObj, uid);
-                self.runIndex = ++self.runIndex % self.socketList.length;
-                let runSocket = self.socketList[self.runIndex].socket;
-                curRunningJobIdList.push(runningJobId);
-                runSocket.emit('runJob', {uid:uid, jobList:jobList, idList:idList, runningJobId:runningJobId, gameUserId:gameUserIdList[i]});
-            }
-            this.socketList[self.runIndex].runningJobIdList.push.apply(this.socketList[self.runIndex].runningJobIdList, curRunningJobIdList);
-            return cb(null, curRunningJobIdList);
-        });
+        for (let idx in result) {
+            let runSocket = self.socketList[idx].socket;
+            runSocket.emit('runJob', {uid:uid, jobList:jobList, idList:idList, runningJobId:result[idx].runningJobId, userList:result[idx].userList});
+        }
+
+        this.socketList[self.runIndex].runningJobIdList.push.apply(this.socketList[self.runIndex].runningJobIdList, curRunningJobIdList);
+        return cb(null, curRunningJobIdList);
     }
 
     // job运行日志

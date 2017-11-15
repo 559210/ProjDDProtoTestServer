@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 let async = require('async');
 
 let commonJs = require('../../../CommonJS/common');
@@ -13,7 +13,7 @@ class runningJobManager{
         this.runningJobSubscribeMap = {};  // runningJobId --> uid map(uid -> color)
 
         this.maxRunningJobId = 0;
-    };
+    }
 
     registerSession(uid, sessionObj) {
         this.sessionMap[uid] = sessionObj;
@@ -31,27 +31,29 @@ class runningJobManager{
     // }
 
     runJob(socket, data, cb) {
+        let self = this;
         let uid = data.uid;
         let jobList = data.jobList;
         let idList = data.idList;
         let runningJobId = data.runningJobId;
-        let gameUserId = data.gameUserId;
+        let userList = data.userList;
 
         g_protoMgr.setBriefListObject(idList);
-
         if (commonJs.isUndefinedOrNull(this.runningJobMap[uid])) {
             this.runningJobMap[uid] = {};
         }
 
-        let runningJobObj = new runningJobClass(jobList[0], jobList, this, 0, null, socket, gameUserId);
-        runningJobObj.setRunningJobId(runningJobId);
-        this.runningJobMap[uid][runningJobId] = runningJobObj;
-
-        setTimeout(function(){
-            runningJobObj.runAll(0, (err) => {
-                return cb(err);
-            });
-        }, 200);
+        async.eachSeries(userList, function(gameUserId, callback) {
+            setTimeout(function() {
+                let runningJobObj = new runningJobClass(jobList[0], jobList, self, 0, null, socket, gameUserId);
+                runningJobObj.setRunningJobId(runningJobId);
+                self.runningJobMap[uid][runningJobId] = runningJobObj;
+                runningJobObj.runAll(0, function(err) {});
+                callback(null);
+            }, 500);   // 每个测试账号每隔500毫秒跑一个job
+        }, function(err) {
+            return cb(err);
+        });
     }
 
     // 参数color可以省略，用于控制前端显示的颜色用的，省略的话用默认颜色
@@ -122,7 +124,7 @@ class runningJobManager{
         //console.log('emit log 成功');
         socket.emit('jobLog', {runningJobId:runningJobId, text:text, timestamp:timestamp});
     }
-};
+}
 
 module.exports = new runningJobManager();
 

@@ -78,12 +78,12 @@ class runningJob {
 
         async.whilst(
             function breaker () {
-                console.log('判断 index = %j, self.jobObj.instruments.length = %j', index, self.jobObj.instruments.length);
+                //console.log('判断 index = %j, self.jobObj.instruments.length = %j', index, self.jobObj.instruments.length);
                 return index < self.jobObj.instruments.length;
             },
             function iterator (cb) {
                 self.jobObj.instruments[index].runner = self;
-                console.log('执行 index = %j', index);
+                //console.log('执行 index = %j', index);
                 self._runInstrument(self.jobObj.instruments[index], (err, data) => {
                     index++;
                     if (err) {
@@ -127,7 +127,9 @@ class runningJob {
                 }); 
             },
             function(err){
-                console.log(err);
+                if (err) {
+                    console.log('error happened! err = ' + err);
+                }
                 callback(err);
             }
         );
@@ -175,7 +177,9 @@ class runningJob {
             }
             this.envirment.variableManager.createVariable(c2sParams.name.value, value, c2sParams.value.type);
         }
-        return callback(null);
+        ins.runVariablepluginFunc(function(err) {
+            return callback(err);
+        });
     };
 	
 	// result: -1:error,0:false,1:true,2:ok
@@ -244,14 +248,16 @@ class runningJob {
 
     _runInstrument(ins, callback) {
         // 处理socket已断开的情况
-        if (this.envirment.pomelo && this.envirment.pomelo.socket.readyState == 3) {
+        if (this.envirment.pomelo && this.envirment.pomelo.socket && this.envirment.pomelo.socket.readyState == 3) {
             return callback('pomelo socket is closed!');
         }
+        console.log('--> ins.route = %j', ins.route);
         
         switch (ins.type) {
             case PROTO_TYPE.SYSTEM:
 
                 switch (ins.route) {
+                    
                     case 'connect':
                         this._connectServer(ins, callback);
                     break;
@@ -286,6 +292,9 @@ class runningJob {
                         break;
                     case 'switch':
                         let msg1 = ins.getC2SMsg();
+                        if (msg1.runIndex === undefined || msg1.runIndex === null) {
+                            msg1.runIndex = 1;
+                        }
                         let switchJobId = msg1['jobId' + msg1.runIndex];
 
                         let subJobObject = this._getJobStrFromJobList(switchJobId);
@@ -304,7 +313,6 @@ class runningJob {
                 }
                 break;
             case PROTO_TYPE.REQUEST:
-
                 this.sendSessionLog("send: " + ins.route);
                 this.sendSessionLog("timestampe: " + new Date().getTime());
                 this.sendSessionLog("with params: " + JSON.stringify(ins.getC2SMsg()));

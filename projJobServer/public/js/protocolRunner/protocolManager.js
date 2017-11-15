@@ -141,8 +141,7 @@ class ProtocolManager {
         if (g_common.isUndefinedOrNull(this.jobCache[jobId]) == false) {
             return callback(null, this.jobCache[jobId]);
         }
-
-        return callback(new Error('job not found'));
+        return callback(new Error('job-getCacheJobById --- job not found, jobId = ' + jobId));
     }
 
     loadJobById(jobId, callback) {

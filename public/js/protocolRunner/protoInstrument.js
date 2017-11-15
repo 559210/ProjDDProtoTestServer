@@ -58,11 +58,12 @@ class protoInstrument {
             let isVar = this.c2sParsedParams[key].isVar;
             let type = this.c2sParsedParams[key].type;
             if (isVar) {
-                if (key === 'tagName') {
-                    msg[key] = this.c2sParsedParams[key].value;
-                } else {
-                    msg[key] = this.runner.envirment.variableManager.getVariableValue(this.c2sParsedParams[key].value);
-                }
+                // if (key === 'tagName') {
+                //     msg[key] = this.c2sParsedParams[key].value;
+                // } else {
+                //     msg[key] = this.runner.envirment.variableManager.getVariableValue(this.c2sParsedParams[key].value);
+                // }
+                msg[key] = this.c2sParsedParams[key].value;
             } else {
                 if (this.c2sParsedParams[key].value !== null && 
                     this.c2sParsedParams[key].value !== undefined) {

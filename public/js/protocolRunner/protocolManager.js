@@ -493,38 +493,34 @@ class ProtocolManager {
 
     _updateJobInCache(jobObj, callback) {
         let self = this;
-        this.getCacheJobById(jobObj.id, (err, cachedJob) => {
+        let resultData = this.getCacheJobById(jobObj.id);
+        if (resultData.err) {
+            return callback(err);
+        }
+        let cachedJob = resultData.data;
+        let jobJson = self._serializeJob(jobObj);
+        g_protocolRunnerPersistent.updateJob(jobObj.id, jobJson, (err) => {
             if (err) {
                 return callback(err);
             }
-            let jobJson = self._serializeJob(jobObj);
-
-            g_protocolRunnerPersistent.updateJob(jobObj.id, jobJson, (err) => {
-                if (err) {
-                    return callback(err);
-                }
-
-                cachedJob.jobJson = jobJson;
-                callback(null);
-            });
+            cachedJob.jobJson = jobJson;
+            callback(null);
         });
     }
 
     _removeJobFromCache(jobId, callback) {
         let self = this;
-        this.getCacheJobById(jobId, (err, cachedJob) => {
+        let resultData = this.getCacheJobById(jobId);
+        if (resultData.err) {
+            return callback(err);
+        }
+        let cachedJob = resultData.data;
+        g_protocolRunnerPersistent.removeJob(jobId, (err) => {
             if (err) {
                 return callback(err);
             }
-
-            g_protocolRunnerPersistent.removeJob(jobId, (err) => {
-                if (err) {
-                    return callback(err);
-                }
-
-                delete self.jobCache[jobId];
-                callback(null);
-            });
+            delete self.jobCache[jobId];
+            callback(null);
         });
     }
 
@@ -679,12 +675,16 @@ class ProtocolManager {
         return callback(new Error('jobId not found'));
     }
 
-    getCacheJobById(jobId, callback) {
+    getCacheJobById(jobId) {
         if (g_common.isUndefinedOrNull(this.jobCache[jobId]) == false) {
-            return callback(null, this.jobCache[jobId]);
+            return {
+                err:null,
+                data:this.jobCache[jobId]
+            };
         }
-
-        return callback(new Error('job not found'));
+        return {
+            err:new Error('getCacheJobById --- job not found, jobId = ' + jobId),
+        };
     }
 
     // job的增删改
@@ -740,19 +740,17 @@ class ProtocolManager {
 
     loadJobById(jobId, callback) {
         let self = this;
-        this.getCacheJobById(jobId, (err, cacheJob) => {
-            if (err) {
-                return callback(err);
-            }
-
-            let jobJson = cacheJob.jobJson;
-            let jobObj = self._deserializeJob(jobJson);
-            if (g_common.isUndefinedOrNull(jobObj)) {
-                return callback(new Error('Cannot deserializeJob'));
-            }
-
-            callback(null, jobObj);
-        });
+        let resultData = this.getCacheJobById(jobId);
+        if (resultData.err) {
+            return callback(err);
+        }
+        let cacheJob = resultData.data;
+        let jobJson = cacheJob.jobJson;
+        let jobObj = self._deserializeJob(jobJson);
+        if (g_common.isUndefinedOrNull(jobObj)) {
+            return callback(new Error('Cannot deserializeJob'));
+        }
+        callback(null, jobObj);
     }
 
     saveJob(jobObj, callback) {

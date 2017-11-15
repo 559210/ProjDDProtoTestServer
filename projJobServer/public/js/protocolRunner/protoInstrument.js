@@ -191,6 +191,25 @@ class protoInstrument {
         }
     }
 
+    runVariablepluginFunc(callback) {
+        if (this.pluginFunc) {
+            global.variableManager = this.runner.envirment.variableManager;
+            global.require = require;
+
+            try {
+                const script = new vm.Script(this.pluginFunc, {}, "plugin", 5000);
+                script.runInThisContext();
+            } catch (e) {
+                return callback(new Error(e.toString()));
+            }
+
+            // eval(funcObj.funcScriptString);
+            callback(null);
+        } else {
+            callback(null);
+        }
+    }
+
     // serialize() {
     //     let obj = {
     //         route: this.route,
