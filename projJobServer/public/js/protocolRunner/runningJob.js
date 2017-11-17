@@ -247,6 +247,7 @@ class runningJob {
     };
 
     _runInstrument(ins, callback) {
+        let self = this;
         // 处理socket已断开的情况
         if (this.envirment.pomelo && this.envirment.pomelo.socket && this.envirment.pomelo.socket.readyState == 3) {
             return callback('pomelo socket is closed!');
@@ -325,7 +326,7 @@ class runningJob {
                     // this.envirment.pomelo.removeAllListeners('io-error');
                     // this.envirment.pomelo.removeAllListeners('close');
 
-                    ins.onS2CMsg(data, callback);
+                    ins.onS2CMsg(self.gameUserId, ins.route, msgParam, data, callback);
                     // return callback(null);
                 });
                 break;
@@ -350,7 +351,7 @@ class runningJob {
                 this.envirment.pomelo.removeAllListeners(ins.route);
                 this.envirment.pomelo.on(ins.route, (data) => {
                     this.sendSessionLog("onPush: " + ins.route);
-                    ins.onS2CMsg(data, (err)=>{});
+                    ins.onS2CMsg(self.gameUserId, ins.route, {}, data, (err)=>{});
                 });
                 callback(null);
                 break;

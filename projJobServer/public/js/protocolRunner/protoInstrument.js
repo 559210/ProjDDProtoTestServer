@@ -3,6 +3,7 @@ let vm = require('vm');
 
 let commonJs = require('../../../CommonJS/common');
 let g_protoMgr = require('./protocolManager');
+let log4js = require('../../../mylog4js');
 
 class protoInstrument {
     // proto: {route: xxx, type: <request|push|notify>, request/ack OR push OR notify }
@@ -158,14 +159,25 @@ class protoInstrument {
         this.pluginFunc = null;
     }
 
-    onS2CMsg(data, callback) {
+    onS2CMsg(gameUserId, routeName, msgParam, data, callback) {
         this.runner.sendSessionLog('ack' + JSON.stringify(data));
         // console.log('ack', data);
         let varPrefix = this.route + '#';
         for (let key in data) {
-			if (key == 'errorCode' && data[key] !== 0) {
-                let errorMsg = 'protocal run error ! route = ' + this.route + ', error = ' + data[key];
-                    return callback(new Error('protocal run error ! errorMsg = ' +  errorMsg));
+            if (key == 'errorCode') {
+                if (data[key] !== 0) {
+                    //  屏蔽掉:列表为空 等这类的非异常的错误码
+                    if (data[key] != 38 && data[key] != 85 && data[key] != 39 && data[key] != 114 && data[key] != 115 && data[key] != 110 && data[key] != 62 && data[key] != 102) {
+                            let errorMsg = 'protocal run error ! route = ' + this.route + ', error = ' + data[key];
+                            return callback(new Error('protocal run error ! errorMsg = ' +  errorMsg));
+                    } else {
+                        let logText = gameUserId + ' - ' + routeName + ' - ' + msgParam + ' > ' + data;
+                        log4js.errorLog(logText);
+                    }
+                } else {
+                    let logText = gameUserId + ' - ' + routeName;
+                    log4js.sucessLog(logText);
+                }
             }
             if (!this.runner.envirment.variableManager.createVariable(varPrefix + key, data[key])) {
                 return callback(new Error('duplicated varialbe name: ' + varPrefix + key));
