@@ -3,10 +3,10 @@
 var mysql = require('mysql');
 
 var pool = mysql.createPool({
-    connectionLimit: 10,
+    connectionLimit: 100,
     host: 'localhost',
-    user: 'feathers',
-    password: '1qazxsw2',
+    user: 'root',
+    password: 'abcd1234',
     database: 'DDProjServTest'
 });
 

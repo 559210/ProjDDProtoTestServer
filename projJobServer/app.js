@@ -15,8 +15,9 @@ let io = require('socket.io-client');
 let g_runningJobMgr = require('./public/js/protocolRunner/runningJobManager');
 
 // 主服ip，测试时请用实际主服的ip
-//var socket = io.connect("http://192.168.60.89:2777");
-var socket = io.connect("http://123.59.150.142:2777");
+//var socket = io.connect("http://106.75.21.175:2777");
+//var socket = io.connect("http://123.59.150.142:2777");
+var socket = io.connect("http://127.0.0.1:2777");
 socket.on('connect', () => { 
     console.log('connect main server ok.');
 
@@ -25,7 +26,8 @@ socket.on('connect', () => {
 
     // 运行job
     socket.on('runJob', function(data) {
-        console.log('runJob ----- data = %j', data);
+        console.log('-----> gameUserId = %j, runningJobId = %j', data.gameUserId, data.runningJobId);
+        //console.log('runJob ----- data = %j', data);
         g_runningJobMgr.runJob(socket, data, function(err) {
             console.log('runJob result = %j', err);
         });
@@ -54,6 +56,11 @@ socket.on('connect', () => {
     //         console.log('setSubscribedConsoleColor result = %j', err);
     //     });
     // });
+
+    socket.on('runProtocol', function(data) {
+        g_runningJobMgr.runProtocol(data);
+    });
+    
 
     // 断开连接
     socket.on('disconnect', function(data) {

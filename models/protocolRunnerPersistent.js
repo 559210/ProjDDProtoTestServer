@@ -4,6 +4,8 @@ var pool = require('./mySQLPool');
 var userPool = require('./mySQLUserPool');
 var async = require('async');
 
+var protocolPool = require('./mySQLProtocolPool');
+
 var exp = module.exports;
 
 
@@ -121,6 +123,26 @@ exp.loadUserIdList = function(callback) {
         callback(err, results);
     });
 }
+
+
+///////////////////////////// 取协议流程
+exp.loadUserSessionList = function(callback) {
+    protocolPool.query("select `sessionId`, `userId` FROM `t_recordProtocol_tools` where length(`userId`)> 0 group by `sessionId`, `userId` ORDER BY `beforTime`", (err, results, fields) => {
+        console.log('loadUserSessionList ----------- results = %j', results);
+        callback(err, results);
+    });
+}
+
+exp.loadUserSessionProtocolList = function(sid, uid, callback) {
+    protocolPool.query("select `messageId`, `beforeData` from `t_recordProtocol_tools` where `sessionId` = ? and `userId` = ?", [sid, uid], (err, results, fields) => {
+        console.log('err = %j, results = %j, fields = %j', err, results, fields);
+        if (err) {
+            return callback(err);
+        }
+        callback(null, results);
+    });
+}
+
 
 
 

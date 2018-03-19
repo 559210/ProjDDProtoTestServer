@@ -1,0 +1,29 @@
+{
+  "142":[
+        {
+            "serverId":"connector-server-1",
+            "host":"123.59.150.142", 
+            "port": 3101
+        },
+        {
+            "serverId":"connector-server-2",
+            "host":"123.59.150.142", 
+            "port": 3103
+        },
+        {
+            "serverId":"connector-server-3",
+            "host":"123.59.150.142", 
+            "port": 3105
+        },
+        {
+            "serverId":"connector-server-4",
+            "host":"123.59.150.142", 
+            "port": 3107
+        },
+        {
+            "serverId":"connector-server-5",
+            "host":"123.59.150.142", 
+            "port": 3109
+        }
+    ]
+}

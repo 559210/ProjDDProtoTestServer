@@ -10,8 +10,9 @@ let g_protoMgr = require('./public/js/protocolRunner/protocolManager');
 let g_protoJobManager = require('./public/js/protocolRunner/protocolRunner');
 let commonJs = require('./CommonJS/common');
 let g_runningJobMgr = require('./public/js/protocolRunner/runningJobManager');
+let g_protocolRunnerPersistent = require('./models/protocolRunnerPersistent');
 
-
+let connectorServerList = require('./models/connectorServerList');
 
 var checkLogin = function(req, res, next) {
     console.log(req.session);
@@ -20,7 +21,17 @@ var checkLogin = function(req, res, next) {
     }
 
     res.redirect('/Login');
-}
+};
+
+var _getConnectorInfo = function() {
+    let sid = '142';
+    var stamp = new Date().getTime();
+    var idx = stamp % connectorServerList[sid].length;
+    return {
+        host:connectorServerList[sid][idx].host,
+        port:connectorServerList[sid][idx].port
+    };
+};
 
 module.exports = function(app, io) {
 
@@ -159,6 +170,26 @@ module.exports = function(app, io) {
         // console.log('--------------------===============')
         // console.log(resJson);
         res.render('protocolViews/runningJobView', resJson);
+    });
+
+    app.get('/runProtocol', checkLogin, (req, res) => {
+        g_protocolRunnerPersistent.loadUserSessionList((err, datas) => {
+            async.eachSeries(datas, (sessionData, _cb) => {
+                var connectorInfo = _getConnectorInfo();
+                g_protocolRunnerPersistent.loadUserSessionProtocolList(sessionData.sessionId, sessionData.userId, (err, datas) => {
+                    console.log('err = %j, datas = %j', err, datas);
+                    if (err) {
+                        return _cb(err);
+                    }
+                    g_runningJobMgr.runProtocol(connectorInfo, datas, function(err) {
+                        _cb(null);
+                    });
+                });
+            }, (err) => {
+                console.log('loadUserSessionProtocolList ---> err = %j', err);
+                console.log(err);
+            });
+        });
     });
 
     // app.get('/CodeTest', checkLogin, (req, res) => {

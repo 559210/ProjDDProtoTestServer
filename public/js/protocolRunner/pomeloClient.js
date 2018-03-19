@@ -164,6 +164,7 @@ var sendMessage = function(client, reqId, route, msg) {
 };
 
 var send = function(client, packet) {
+    //console.log('----' + client.socket);
     if (!!client.socket) {
         client.socket.send( /*packet.buffer || */ packet, {
             binary: true,

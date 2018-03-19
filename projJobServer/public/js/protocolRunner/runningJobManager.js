@@ -4,6 +4,7 @@ let async = require('async');
 let commonJs = require('../../../CommonJS/common');
 let runningJobClass = require('./runningJob');
 let g_protoMgr = require('./protocolManager');
+let runProtoClass = require('./runProtocol');
 
 
 class runningJobManager{
@@ -123,6 +124,13 @@ class runningJobManager{
         }
         //console.log('emit log 成功');
         socket.emit('jobLog', {runningJobId:runningJobId, text:text, timestamp:timestamp});
+    }
+
+    runProtocol(data) {
+        setTimeout(function() {
+            let runProto = new runProtoClass();
+            runProto.run(data);
+        }, 1000);
     }
 }
 

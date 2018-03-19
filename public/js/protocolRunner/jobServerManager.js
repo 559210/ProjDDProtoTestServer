@@ -213,6 +213,19 @@ class JobServerManager {
             });
         });
     }
+
+    runProtocol(connInfo, protocolList, cb) {
+        var stamp = new Date().getTime();
+        var idx = stamp % this.socketList.length;
+        if (this.socketList[idx].socket) {
+            this.socketList[idx].socket.emit('runProtocol', {connInfo:connInfo, protocolList:protocolList});
+            cb(null);
+        } else {
+            cb(new Error('no valid job socket'));
+        }
+    }
+
+
 }
 
 module.exports = new JobServerManager();

@@ -194,6 +194,10 @@ class runningJobManager{
             }
         }
     }
+
+    runProtocol(connInfo, protocolList, cb) {
+        g_jobServerMgr.runProtocol(connInfo, protocolList, cb);
+    }
 };
 
 
