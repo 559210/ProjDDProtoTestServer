@@ -16,7 +16,7 @@ var makePaasword = function(password) {
     var cipher = crypto.createCipher('aes192', secret);
     var enc = cipher.update(password, 'utf8', 'hex');
     enc += cipher.final('hex');
-    console.log('make password: ' + enc);
+    // console.log('make password: ' + enc);
     return enc;
 }
 
@@ -62,13 +62,13 @@ exp.getSessionStore = () => {
 
 
 exp.authenticate = (userName, password, callback) => {
-    console.log('authenticate =================', userName);
+    // console.log('authenticate =================', userName);
     pool.query("select * from `Account` where `userName` = ? ", [userName], (err, results, fields) => {
         if (err) {
             return callback(err);
         }
 
-        console.log(results);
+        // console.log(results);
         // console.log(fields);
 
         if (results && results.length == 1) {
@@ -109,7 +109,7 @@ exp.deserializeUser = (uid, callback) => {
 // }
 
 exp.createUser = (info, callback) => {
-    console.log(info);
+    // console.log(info);
     if (info.password !== info.confirm) {
         return callback(new Error('两次输入密码不一致'));
     }

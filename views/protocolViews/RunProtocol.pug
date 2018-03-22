@@ -1,0 +1,50 @@
+extends ../layout
+
+block content  
+
+  body
+    table#jqGrid(style='z-index:-999')
+      #jqGridPager
+    button.btn.btn-batch(type='button') 提交
+    script(type='text/javascript').
+      $(document).ready(function () {      
+        $("#jqGrid").jqGrid({
+            url: '/RunProtocol',
+            mtype: "post",
+            height: 'auto',
+            width:'auto',
+            datatype: "json",
+            colModel: [   
+            { label: 'sessionId', name: 'sessionId', align:'center',width: 150 },
+            { label: 'userId', name: 'userId', align:'center',width: 200 },
+            { label: 'length', name: 'length', align:'center',width: 200 }
+            ],
+            rownumbers: true,
+            sortorder: 'desc',
+            viewrecords: true,//是否在浏览导航栏显示记录总数
+            rowNum: 35,//每页显示记录数
+            caption: "查询信息",
+            // multiselect: true,//多选框加入
+            // onSelectRow: function (rowId, status, e) {
+            //     var rowIds = jQuery("#jqGrid").jqGrid('getGridParam', 'selarrrow');
+            // },
+            pager: "#jqGridPager"
+          });
+      });
+      $('.btn-batch').click(function() {
+          $.ajax({
+            url:'/RunProtocolButton',
+            type:'post',
+            data:{},
+            success:function (data) {
+                alert(JSON.stringify(data));            
+            },
+            error:function (res, textStatus) {
+                alert(res.status);
+                alert(textStatus);
+            }
+        });
+      });
+
+    
+       

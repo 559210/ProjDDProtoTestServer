@@ -15,7 +15,7 @@ let g_protocolRunnerPersistent = require('./models/protocolRunnerPersistent');
 let connectorServerList = require('./models/connectorServerList');
 
 var checkLogin = function(req, res, next) {
-    console.log(req.session);
+    // console.log(req.session);
     if (req.isAuthenticated()) {
         return next(null);
     }
@@ -172,25 +172,65 @@ module.exports = function(app, io) {
         res.render('protocolViews/runningJobView', resJson);
     });
 
-    app.get('/runProtocol', checkLogin, (req, res) => {
-        g_protocolRunnerPersistent.loadUserSessionList((err, datas) => {
+    app.get('/RunProtocol', checkLogin, (req, res) => {      
+        res.render('protocolViews/RunProtocol');
+    });
+
+    app.post('/RunProtocolButton', checkLogin, (req, res) => {
+        g_protocolRunnerPersistent.loadUserSessionList(-1, -1, (err, datas, dataCount, pageCount) => {
             async.eachSeries(datas, (sessionData, _cb) => {
-                var connectorInfo = _getConnectorInfo();
                 g_protocolRunnerPersistent.loadUserSessionProtocolList(sessionData.sessionId, sessionData.userId, (err, datas) => {
-                    console.log('err = %j, datas = %j', err, datas);
-                    if (err) {
-                        return _cb(err);
-                    }
-                    g_runningJobMgr.runProtocol(connectorInfo, datas, function(err) {
-                        _cb(null);
-                    });
+                    var connectorInfo = _getConnectorInfo();
+                    g_runningJobMgr.runProtocol(connectorInfo, datas, _cb);
                 });
             }, (err) => {
-                console.log('loadUserSessionProtocolList ---> err = %j', err);
-                console.log(err);
+                if(err){
+                    res.send({result:1,message:err});
+                } else {
+                    res.send({result:0,message:"全部执行完毕"});
+                }
             });
         });
     });
+
+    app.post('/RunProtocol', checkLogin, (req, res) => {  
+        var page = req.body.page || 1; 
+        var pageSize = req.body.rows || 40;
+        var mRows = [];//行记录集合
+        g_protocolRunnerPersistent.loadUserSessionList(page,pageSize,(err, datas,dataCount,pageCount) => {
+            async.eachSeries(datas, (sessionData, _cb) => {
+                var i = 0;
+                var row = {};
+                row.id = i++;//行id
+                row.cell = [];//单元格集合
+                row.cell.push(sessionData.sessionId);
+                row.cell.push(sessionData.userId);  
+                // console.log('sessionId:',sessionData.sessionId,'userId:',sessionData.userId);
+                g_protocolRunnerPersistent.loadUserSessionProtocolList(sessionData.sessionId, sessionData.userId, (err, datas) => {
+                    // console.log('err = %j, length = %j', err, datas);
+                    row.cell.push(datas);
+                    if (err) {
+                        return _cb(err);
+                    }
+                    mRows.push(row);
+                    _cb(null);
+                });
+            }, (err) => {
+                if(err){
+                    console.log('loadUserSessionProtocolList ---> err = %j', err);
+                    res.send({error:err});
+                } else{
+                    var data = {
+                        page:page,
+                        total:pageCount,
+                        records:dataCount,
+                        rows:mRows
+                    };
+                    res.send(data);
+                }
+            });
+        });
+    });    
 
     // app.get('/CodeTest', checkLogin, (req, res) => {
     //     res.render('codeTest');
