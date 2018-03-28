@@ -321,14 +321,22 @@ class runningJob {
                 if (ins.route == 'connector.connectorHandler.loginRequest') {
                     msgParam.userId = this.gameUserId;
                 }
-                this.envirment.pomelo.request(ins.route, msgParam, (data) => {
-                    // TODO: 这里要移到真正整个任务做完的地方
-                    // this.envirment.pomelo.removeAllListeners('io-error');
-                    // this.envirment.pomelo.removeAllListeners('close');
+                console.log('ins = %j, msgParam = %j', ins, msgParam);
 
-                    ins.onS2CMsg(self.gameUserId, ins.route, msgParam, data, callback);
-                    // return callback(null);
-                });
+                if (ins.route.includes('selectRole') && (!msgParam || !msgParam.userIndex)) {
+                    return callback(new Error('selectRole --- userIndex = null'));
+                } else {
+                    this.envirment.pomelo.request(ins.route, msgParam, (data) => {
+                        //console.log('ACK-data ---- %j', data);
+
+                        // TODO: 这里要移到真正整个任务做完的地方
+                        // this.envirment.pomelo.removeAllListeners('io-error');
+                        // this.envirment.pomelo.removeAllListeners('close');
+
+                        ins.onS2CMsg(self.gameUserId, ins.route, msgParam, data, callback);
+                        // return callback(null);
+                    });
+                }
                 break;
             case PROTO_TYPE.JOB:
                 let jobId = ins.route;
